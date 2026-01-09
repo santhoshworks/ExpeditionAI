@@ -1,0 +1,203 @@
+// This file is auto-generated. Run: npx supabase gen types typescript --project-id YOUR_PROJECT_ID > types/supabase.ts
+// For now, we'll use a basic structure that matches our schema
+
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
+
+export interface Database {
+  public: {
+    Tables: {
+      profiles: {
+        Row: {
+          id: string
+          email: string | null
+          full_name: string | null
+          avatar_url: string | null
+          default_model: string
+          openrouter_api_key: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          email?: string | null
+          full_name?: string | null
+          avatar_url?: string | null
+          default_model?: string
+          openrouter_api_key?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          email?: string | null
+          full_name?: string | null
+          avatar_url?: string | null
+          default_model?: string
+          openrouter_api_key?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      expeditions: {
+        Row: {
+          id: string
+          user_id: string
+          title: string
+          description: string | null
+          is_archived: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          title: string
+          description?: string | null
+          is_archived?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          title?: string
+          description?: string | null
+          is_archived?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      trails: {
+        Row: {
+          id: string
+          expedition_id: string
+          parent_trail_id: string | null
+          title: string
+          source_text: string | null
+          is_flagged: boolean
+          is_base_camp: boolean
+          position: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          expedition_id: string
+          parent_trail_id?: string | null
+          title: string
+          source_text?: string | null
+          is_flagged?: boolean
+          is_base_camp?: boolean
+          position?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          expedition_id?: string
+          parent_trail_id?: string | null
+          title?: string
+          source_text?: string | null
+          is_flagged?: boolean
+          is_base_camp?: boolean
+          position?: number
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      messages: {
+        Row: {
+          id: string
+          trail_id: string
+          role: "user" | "assistant" | "system"
+          content: string
+          model: string | null
+          tokens_used: number | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          trail_id: string
+          role: "user" | "assistant" | "system"
+          content: string
+          model?: string | null
+          tokens_used?: number | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          trail_id?: string
+          role?: "user" | "assistant" | "system"
+          content?: string
+          model?: string | null
+          tokens_used?: number | null
+          created_at?: string
+        }
+      }
+      journals: {
+        Row: {
+          id: string
+          expedition_id: string
+          content: string
+          trail_ids: string[]
+          model: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          expedition_id: string
+          content: string
+          trail_ids?: string[]
+          model?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          expedition_id?: string
+          content?: string
+          trail_ids?: string[]
+          model?: string | null
+          created_at?: string
+        }
+      }
+    }
+    Views: {
+      trails_with_counts: {
+        Row: {
+          id: string
+          expedition_id: string
+          parent_trail_id: string | null
+          title: string
+          source_text: string | null
+          is_flagged: boolean
+          is_base_camp: boolean
+          position: number
+          created_at: string
+          updated_at: string
+          message_count: number
+          last_message_at: string | null
+        }
+      }
+      expeditions_with_stats: {
+        Row: {
+          id: string
+          user_id: string
+          title: string
+          description: string | null
+          is_archived: boolean
+          created_at: string
+          updated_at: string
+          trail_count: number
+          message_count: number
+          flagged_count: number
+        }
+      }
+    }
+  }
+}
