@@ -7,9 +7,28 @@ export function useTextSelection() {
   const { setSelectedText, showExploreButton } = useExploreStore()
 
   useEffect(() => {
+    let isMouseDown = false
+    let selectionTimeout: NodeJS.Timeout | null = null
+
+    const handleMouseDown = () => {
+      isMouseDown = true
+      // Clear any pending tooltip
+      if (selectionTimeout) {
+        clearTimeout(selectionTimeout)
+        selectionTimeout = null
+      }
+    }
+
     const handleSelectionEnd = (e: MouseEvent | TouchEvent) => {
-      // Small delay to ensure selection is complete
-      setTimeout(() => {
+      isMouseDown = false
+
+      // Clear any existing timeout
+      if (selectionTimeout) {
+        clearTimeout(selectionTimeout)
+      }
+
+      // Wait longer to ensure user is done with selection (including potential drag extension)
+      selectionTimeout = setTimeout(() => {
         // Ignore if clicking on interactive elements that shouldn't trigger selection
         const target = e.target as HTMLElement
         if (target.closest('[data-ignore-selection]')) {
@@ -55,53 +74,25 @@ export function useTextSelection() {
             setSelectedText(null)
           }
         }
-      }, 100) // Small delay for mobile selection to complete
+      }, 300) // Longer delay to allow for selection extension after double-click
     }
 
     // Handle both mouse and touch events
     const handleMouseUp = (e: MouseEvent) => handleSelectionEnd(e)
     const handleTouchEnd = (e: TouchEvent) => handleSelectionEnd(e)
 
-    // Also handle selection change directly (better for mobile)
-    const handleSelectionChange = () => {
-      setTimeout(() => {
-        const selection = window.getSelection()
-        const selectedText = selection?.toString().trim()
-
-        if (selectedText && selectedText.length > 2) {
-          const range = selection?.getRangeAt(0)
-          if (range) {
-            const commonAncestor = range.commonAncestorContainer as HTMLElement
-            const ancestorElement = commonAncestor.nodeType === 1 ? commonAncestor : commonAncestor.parentElement
-
-            // Only show tooltip if selection is within an AI response
-            if (ancestorElement?.closest('[data-ai-response]')) {
-              const rect = range.getBoundingClientRect()
-
-              // For mobile, adjust position to be more touch-friendly
-              const isMobile = window.innerWidth <= 768
-              const xOffset = isMobile ? 0 : rect.width / 2
-              const yOffset = isMobile ? -60 : -10
-
-              setSelectedText(selectedText, {
-                x: rect.left + xOffset,
-                y: rect.top + yOffset,
-              })
-            }
-          }
-        }
-      }, 150) // Longer delay for selectionchange event
-    }
-
     // Add event listeners
+    document.addEventListener("mousedown", handleMouseDown)
     document.addEventListener("mouseup", handleMouseUp)
     document.addEventListener("touchend", handleTouchEnd, { passive: true })
-    document.addEventListener("selectionchange", handleSelectionChange)
 
     return () => {
+      if (selectionTimeout) {
+        clearTimeout(selectionTimeout)
+      }
+      document.removeEventListener("mousedown", handleMouseDown)
       document.removeEventListener("mouseup", handleMouseUp)
       document.removeEventListener("touchend", handleTouchEnd)
-      document.removeEventListener("selectionchange", handleSelectionChange)
     }
   }, [setSelectedText])
 
