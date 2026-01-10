@@ -30,6 +30,17 @@ export default function DashboardPage() {
   const createExpedition = useCreateExpedition()
   const deleteExpedition = useDeleteExpedition()
 
+  // Debug logging
+  console.log("Dashboard state:", { expeditions, isLoading, isError })
+
+  // Add debug info in development
+  if (process.env.NODE_ENV === 'development') {
+    console.log("Expeditions count:", expeditions?.length || 0)
+    if (expeditions?.length > 0) {
+      console.log("First expedition:", expeditions[0])
+    }
+  }
+
   const [showNewDialog, setShowNewDialog] = useState(false)
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
@@ -184,7 +195,11 @@ export default function DashboardPage() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={(e) => handleDelete(expedition.id, e)}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        handleDelete(expedition.id, e)
+                      }}
                       className="opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:text-destructive h-8 w-8 rounded-full flex-shrink-0"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -217,6 +232,10 @@ export default function DashboardPage() {
                       variant="default"
                       size="sm"
                       className="flex-1 rounded-full text-xs h-8 md:h-9 bg-primary/90 hover:bg-primary shadow-sm hover:translate-x-1 transition-all group/btn"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        router.push(`/expedition/${expedition.id}`)
+                      }}
                     >
                       <span className="hidden sm:inline">Continue</span>
                       <span className="sm:hidden">Open</span>

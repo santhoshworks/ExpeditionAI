@@ -171,7 +171,7 @@ export async function hasEnoughCredits(
 }
 
 /**
- * Deduct credits after a chat completion
+ * Deduct credits after a chat completion or other service usage
  */
 export async function deductCredits(
   userId: string,
@@ -179,6 +179,46 @@ export async function deductCredits(
   inputTokens: number,
   outputTokens: number
 ): Promise<CreditDeductionResult> {
+  // Handle illustration generation
+  if (modelId === 'illustration') {
+    const creditsToDeduct = 2 // Fixed cost for illustrations
+
+    const supabase = await createClient()
+
+    const result = await (supabase as any).rpc('deduct_credits', {
+      p_user_id: userId,
+      p_amount: creditsToDeduct,
+    })
+
+    const { data, error } = result as {
+      data: { success: boolean; remaining_credits: number; error?: string } | null;
+      error: any
+    }
+
+    if (error) {
+      console.error('Credit deduction error:', error)
+      return {
+        success: false,
+        creditsUsed: 0,
+        error: 'Failed to deduct credits'
+      }
+    }
+
+    if (!data?.success) {
+      return {
+        success: false,
+        creditsUsed: 0,
+        error: data?.error || 'Insufficient credits'
+      }
+    }
+
+    return {
+      success: true,
+      creditsUsed: creditsToDeduct,
+      remainingCredits: data.remaining_credits,
+    }
+  }
+
   const model = getModelById(modelId)
 
   // Free models don't cost credits

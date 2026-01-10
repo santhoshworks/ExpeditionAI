@@ -80,11 +80,12 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl)
   }
 
-  // Redirect logged-in users from auth pages
+  // Redirect logged-in users from auth pages and root page
   const authPaths = ["/login", "/signup"]
   const isAuthPage = authPaths.includes(request.nextUrl.pathname)
+  const isRootPage = request.nextUrl.pathname === "/"
 
-  if (isAuthPage && session) {
+  if ((isAuthPage || isRootPage) && session) {
     const redirectUrl = request.nextUrl.clone()
     redirectUrl.pathname = "/dashboard"
     return NextResponse.redirect(redirectUrl)

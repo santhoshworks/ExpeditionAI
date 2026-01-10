@@ -1,6 +1,7 @@
 "use client"
 
 import { usePathname, useRouter } from "next/navigation"
+import Link from "next/link"
 import { useExpeditions } from "@/lib/queries"
 import { Skeleton } from "@/components/ui/skeleton"
 import { User, Bell, Search, Menu, LayoutDashboard, Settings, LogOut, Compass } from "lucide-react"
@@ -14,7 +15,6 @@ import {
 import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/client"
 import { useState } from "react"
-import Link from "next/link"
 import { cn } from "@/lib/utils"
 
 const navigationItems = [
@@ -64,14 +64,14 @@ export function Topbar() {
                     </Button>
 
                     {/* Logo */}
-                    <div className="flex items-center gap-3">
+                    <Link href="/dashboard" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                         <div className="bg-primary p-2 rounded-xl text-primary-foreground shadow-lg shadow-primary/30">
                             <Compass className="w-5 h-5 animate-pulse-slow" />
                         </div>
                         <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/60 hidden sm:block">
                             ExplorerAI
                         </span>
-                    </div>
+                    </Link>
 
                     {/* Desktop Navigation */}
                     <nav className="hidden md:flex items-center gap-1">
@@ -178,12 +178,12 @@ function MobileSidebar({ onClose }: { onClose: () => void }) {
 
     return (
         <div className="flex flex-col h-full p-4">
-            <div className="flex items-center gap-3 mb-6">
+            <Link href="/dashboard" className="flex items-center gap-3 mb-6 hover:opacity-80 transition-opacity" onClick={onClose}>
                 <div className="bg-primary p-2 rounded-xl text-primary-foreground shadow-lg shadow-primary/30">
                     <Compass className="w-5 h-5 animate-pulse-slow" />
                 </div>
                 <span className="text-xl font-bold">ExplorerAI</span>
-            </div>
+            </Link>
 
             <nav className="flex-1 space-y-2">
                 {navigationItems.map((item) => (

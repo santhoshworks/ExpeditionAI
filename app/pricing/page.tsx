@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Check, Zap, Star, Sparkles } from "lucide-react"
 import { TIER_CONFIGS, MODELS } from "@/lib/constants"
+import { CheckoutButton } from "@/components/payment/checkout-button"
 
 export default function PricingPage() {
   // Group models by tier for display
@@ -122,9 +123,9 @@ export default function PricingPage() {
                 <p className="text-xs text-muted-foreground mt-2">+ all free models</p>
               </div>
 
-              <Link href="/signup" className="block">
-                <Button className="w-full">Get Basic - $5</Button>
-              </Link>
+              <CheckoutButton tier="basic" price={TIER_CONFIGS.basic.price} className="w-full">
+                Get Basic - $5
+              </CheckoutButton>
             </CardContent>
           </Card>
 
@@ -165,9 +166,9 @@ export default function PricingPage() {
                 <p className="text-xs text-muted-foreground mt-2">+ all Basic & Free models</p>
               </div>
 
-              <Link href="/signup" className="block">
-                <Button className="w-full" variant="secondary">Get Pro - $15</Button>
-              </Link>
+              <CheckoutButton tier="pro" price={TIER_CONFIGS.pro.price} variant="secondary" className="w-full">
+                Get Pro - $15
+              </CheckoutButton>
             </CardContent>
           </Card>
         </div>

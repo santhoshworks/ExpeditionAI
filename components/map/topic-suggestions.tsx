@@ -56,79 +56,82 @@ export function TopicSuggestions({
     const generateSuggestions = useCallback(() => {
         setIsGenerating(true)
 
-        // Extract topics from trails
-        const topics = trails.map(t => t.title)
-        const newSuggestions: Suggestion[] = []
+        // Use setTimeout to prevent blocking the UI
+        setTimeout(() => {
+            // Extract topics from trails
+            const topics = trails.map(t => t.title)
+            const newSuggestions: Suggestion[] = []
 
-        if (trails.length === 0) {
-            // Default suggestions if no trails exist
-            newSuggestions.push(
-                {
-                    topic: "Getting Started",
-                    description: "Begin your exploration journey",
-                    category: "practical",
-                },
-                {
-                    topic: "Core Concepts",
-                    description: "Understand the fundamentals",
+            if (trails.length === 0) {
+                // Default suggestions if no trails exist
+                newSuggestions.push(
+                    {
+                        topic: "Getting Started",
+                        description: "Begin your exploration journey",
+                        category: "practical",
+                    },
+                    {
+                        topic: "Core Concepts",
+                        description: "Understand the fundamentals",
+                        category: "deep-dive",
+                    },
+                    {
+                        topic: "Related Ideas",
+                        description: "Explore connected topics",
+                        category: "related",
+                    }
+                )
+            } else {
+                // Generate contextual suggestions based on existing trails
+                const lastTrail = trails[trails.length - 1]
+
+                // Deep dive suggestions
+                newSuggestions.push({
+                    topic: `${lastTrail.title} - Advanced Concepts`,
+                    description: "Explore deeper aspects and nuances",
                     category: "deep-dive",
-                },
-                {
-                    topic: "Related Ideas",
-                    description: "Explore connected topics",
+                })
+
+                // Related topic suggestions
+                newSuggestions.push({
+                    topic: `How ${lastTrail.title} relates to other fields`,
+                    description: "Cross-disciplinary connections",
                     category: "related",
-                }
-            )
-        } else {
-            // Generate contextual suggestions based on existing trails
-            const lastTrail = trails[trails.length - 1]
+                })
 
-            // Deep dive suggestions
-            newSuggestions.push({
-                topic: `${lastTrail.title} - Advanced Concepts`,
-                description: "Explore deeper aspects and nuances",
-                category: "deep-dive",
-            })
+                // Contrasting perspective
+                newSuggestions.push({
+                    topic: `Challenges and limitations of ${lastTrail.title}`,
+                    description: "Critical analysis and counterpoints",
+                    category: "contrasting",
+                })
 
-            // Related topic suggestions
-            newSuggestions.push({
-                topic: `How ${lastTrail.title} relates to other fields`,
-                description: "Cross-disciplinary connections",
-                category: "related",
-            })
+                // Practical application
+                newSuggestions.push({
+                    topic: `Real-world applications of ${lastTrail.title}`,
+                    description: "Apply concepts to practical scenarios",
+                    category: "practical",
+                })
 
-            // Contrasting perspective
-            newSuggestions.push({
-                topic: `Challenges and limitations of ${lastTrail.title}`,
-                description: "Critical analysis and counterpoints",
-                category: "contrasting",
-            })
+                // Add suggestions for other prominent trails (limit to prevent performance issues)
+                const sortedTrails = [...trails]
+                    .sort((a, b) => (b.message_count || 0) - (a.message_count || 0))
+                    .slice(0, 2) // Reduced from 3 to 2 for better performance
 
-            // Practical application
-            newSuggestions.push({
-                topic: `Real-world applications of ${lastTrail.title}`,
-                description: "Apply concepts to practical scenarios",
-                category: "practical",
-            })
+                sortedTrails.forEach((trail) => {
+                    if (trail.id !== lastTrail.id && trail.message_count && trail.message_count > 2) {
+                        newSuggestions.push({
+                            topic: `Comparing ${lastTrail.title} with ${trail.title}`,
+                            description: "Understand similarities and differences",
+                            category: "contrasting",
+                        })
+                    }
+                })
+            }
 
-            // Add suggestions for other prominent trails
-            const sortedTrails = [...trails].sort((a, b) =>
-                (b.message_count || 0) - (a.message_count || 0)
-            ).slice(0, 3)
-
-            sortedTrails.forEach((trail) => {
-                if (trail.id !== lastTrail.id && trail.message_count && trail.message_count > 2) {
-                    newSuggestions.push({
-                        topic: `Comparing ${lastTrail.title} with ${trail.title}`,
-                        description: "Understand similarities and differences",
-                        category: "contrasting",
-                    })
-                }
-            })
-        }
-
-        setSuggestions(newSuggestions)
-        setIsGenerating(false)
+            setSuggestions(newSuggestions.slice(0, 8)) // Limit suggestions to prevent UI overload
+            setIsGenerating(false)
+        }, 100) // Small delay to prevent blocking
     }, [trails])
 
     // Generate suggestions based on existing trails

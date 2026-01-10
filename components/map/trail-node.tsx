@@ -13,6 +13,7 @@ interface TrailNodeData {
   isFlagged: boolean
   messageCount: number
   onClick?: () => void
+  isMobile?: boolean
 }
 
 interface TrailNodeProps {
@@ -20,7 +21,7 @@ interface TrailNodeProps {
 }
 
 export const TrailNode = memo(({ data }: TrailNodeProps) => {
-  const { trail, isActive, isFlagged, messageCount, onClick } = data
+  const { trail, isActive, isFlagged, messageCount, onClick, isMobile = false } = data
 
   // Format last activity time
   const formatLastActivity = (timestamp: string | null) => {
@@ -42,20 +43,32 @@ export const TrailNode = memo(({ data }: TrailNodeProps) => {
   return (
     <div
       className={cn(
-        "px-4 py-3 rounded-lg border-2 shadow-lg cursor-pointer transition-all min-w-[220px] max-w-[280px]",
-        "hover:shadow-xl hover:scale-105",
+        "px-3 md:px-4 py-2 md:py-3 rounded-lg border-2 shadow-lg cursor-pointer transition-all",
+        "hover:shadow-xl hover:scale-105 active:scale-95",
+        // Mobile-optimized sizing
+        isMobile ? "min-w-[180px] max-w-[240px]" : "min-w-[220px] max-w-[280px]",
+        // Touch-friendly minimum height
+        isMobile && "min-h-[60px]",
         isActive
           ? "bg-primary text-primary-foreground border-primary shadow-primary/20"
           : "bg-card text-card-foreground border-border hover:border-primary/50"
       )}
       onClick={onClick}
+      // Better touch interaction
+      style={{
+        touchAction: 'manipulation',
+        WebkitTapHighlightColor: 'transparent'
+      }}
     >
       <Handle type="target" position={Position.Top} />
 
-      <div className="space-y-2">
+      <div className="space-y-1.5 md:space-y-2">
         {/* Title and Flag */}
-        <div className="flex items-start justify-between gap-1 -mr-2 -mt-1">
-          <h3 className="font-semibold text-sm leading-tight flex-1 line-clamp-2 mt-1 px-0.5">
+        <div className="flex items-start justify-between gap-1 -mr-1 md:-mr-2 -mt-0.5 md:-mt-1">
+          <h3 className={cn(
+            "font-semibold leading-tight flex-1 line-clamp-2 mt-0.5 md:mt-1 px-0.5",
+            isMobile ? "text-xs" : "text-sm"
+          )}>
             {trail.title}
           </h3>
           <FlagButton
@@ -63,6 +76,8 @@ export const TrailNode = memo(({ data }: TrailNodeProps) => {
             isFlagged={trail.is_flagged}
             size="sm"
             className={cn(
+              "flex-shrink-0",
+              isMobile && "scale-110", // Larger touch target on mobile
               isActive ? "text-primary-foreground hover:text-primary-foreground/80" : "text-muted-foreground"
             )}
           />
@@ -70,19 +85,28 @@ export const TrailNode = memo(({ data }: TrailNodeProps) => {
 
         {/* Source text preview if available */}
         {trail.source_text && (
-          <p className="text-xs opacity-70 line-clamp-2 italic">
+          <p className={cn(
+            "opacity-70 line-clamp-2 italic",
+            isMobile ? "text-[10px]" : "text-xs"
+          )}>
             &quot;{trail.source_text}&quot;
           </p>
         )}
 
         {/* Stats */}
-        <div className="flex items-center justify-between gap-3 text-xs pt-1 border-t border-current/10">
-          <div className="flex items-center gap-1.5 opacity-75">
-            <MessageSquare className="h-3.5 w-3.5" />
+        <div className={cn(
+          "flex items-center justify-between gap-2 md:gap-3 pt-1 border-t border-current/10",
+          isMobile ? "text-[10px]" : "text-xs"
+        )}>
+          <div className="flex items-center gap-1 md:gap-1.5 opacity-75">
+            <MessageSquare className={cn(isMobile ? "h-3 w-3" : "h-3.5 w-3.5")} />
             <span>{messageCount} {messageCount === 1 ? 'msg' : 'msgs'}</span>
           </div>
           {lastActivity && (
-            <span className="text-xs opacity-60">
+            <span className={cn(
+              "opacity-60",
+              isMobile ? "text-[9px]" : "text-xs"
+            )}>
               {lastActivity}
             </span>
           )}
@@ -91,7 +115,10 @@ export const TrailNode = memo(({ data }: TrailNodeProps) => {
         {/* Base Camp Badge */}
         {trail.is_base_camp && (
           <div className="pt-1 mt-1 border-t border-current/10">
-            <div className="text-xs font-medium opacity-75 flex items-center gap-1">
+            <div className={cn(
+              "font-medium opacity-75 flex items-center gap-1",
+              isMobile ? "text-[10px]" : "text-xs"
+            )}>
               🏕️ <span>Base Camp</span>
             </div>
           </div>

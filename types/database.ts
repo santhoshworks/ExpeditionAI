@@ -72,10 +72,11 @@ export interface TrailWithCounts extends Trail {
 export interface Message {
   id: string;
   trail_id: string;
-  role: "user" | "assistant" | "system";
+  role: "user" | "assistant" | "system" | "illustration";
   content: string;
   model: string | null;
   tokens_used: number | null;
+  metadata: string | null;
   created_at: string;
 }
 

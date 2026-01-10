@@ -2,18 +2,28 @@
 
 import { useState, useEffect, useRef, useCallback } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { ChatInputWithOptions } from "./chat-input-with-options"
 import { ChatInput } from "./chat-input"
 import { MessageList } from "./message-list"
 import { useExploreStore } from "@/lib/store"
 import { useMessages } from "@/lib/queries"
+import { useIllustrations } from "@/hooks/use-illustrations"
 import { nanoid } from "nanoid"
 import type { Message as DBMessage } from "@/types/database"
 
 // Message format for the chat
 interface ChatMessage {
   id: string
-  role: "user" | "assistant" | "system"
+  role: "user" | "assistant" | "system" | "illustration"
   content: string
+  metadata?: {
+    topic?: string
+    imageUrl?: string
+    description?: string
+    query?: string
+    generatedAt?: string
+    trailId?: string
+  }
 }
 
 interface ChatInterfaceProps {
@@ -25,10 +35,14 @@ interface ChatInterfaceProps {
 export function ChatInterface({ trailId, expeditionId, model }: ChatInterfaceProps) {
   const { selectedModel, autoMessageData, setAutoMessageData } = useExploreStore()
   const { data: existingMessages, refetch } = useMessages(trailId)
+  const { generateIllustration, isGenerating: isGeneratingIllustration } = useIllustrations()
   const scrollRef = useRef<HTMLDivElement>(null)
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<Error | undefined>(undefined)
+
+  // Feature flag for illustrations
+  const illustrationsEnabled = process.env.NEXT_PUBLIC_ENABLE_ILLUSTRATIONS === 'true'
 
   const selectedModelValue = model || selectedModel
 
@@ -37,8 +51,9 @@ export function ChatInterface({ trailId, expeditionId, model }: ChatInterfacePro
     if (existingMessages && existingMessages.length > 0) {
       const formattedMessages: ChatMessage[] = existingMessages.map((m: DBMessage) => ({
         id: m.id,
-        role: m.role as "user" | "assistant" | "system",
+        role: m.role as "user" | "assistant" | "system" | "illustration",
         content: m.content,
+        metadata: m.metadata ? JSON.parse(m.metadata) : undefined,
       }))
       setMessages(formattedMessages)
     } else {
@@ -78,8 +93,8 @@ export function ChatInterface({ trailId, expeditionId, model }: ChatInterfacePro
           trailId,
           model: selectedModelValue,
           messages: [...messages, userMessage].map(m => ({
-            role: m.role,
-            content: m.content,
+            role: m.role === "illustration" ? "system" : m.role, // Convert illustration to system for API
+            content: m.role === "illustration" ? `[Illustration: ${m.content}]` : m.content,
           })),
         }),
       })
@@ -121,6 +136,102 @@ export function ChatInterface({ trailId, expeditionId, model }: ChatInterfacePro
     }
   }, [messages, trailId, selectedModelValue, refetch])
 
+  const handleGenerateIllustration = useCallback(async (topic: string) => {
+    // Determine the actual topic based on the input
+    let actualTopic = topic
+
+    if (topic === "Current conversation topic") {
+      // Extract topic from recent messages
+      const recentMessages = messages.slice(-3).filter(m => m.role === "assistant")
+      if (recentMessages.length > 0) {
+        const lastContent = recentMessages[recentMessages.length - 1].content
+        // Simple extraction - you could make this more sophisticated
+        actualTopic = lastContent.split('.')[0].substring(0, 100) + "..."
+      } else {
+        actualTopic = "General discussion topic"
+      }
+    } else if (topic === "Key concepts discussed") {
+      actualTopic = "Key concepts from our conversation"
+    } else if (topic === "Process diagram") {
+      actualTopic = "Process flow diagram"
+    }
+
+    // Create illustration message immediately
+    const illustrationId = nanoid()
+    const illustrationMessage: ChatMessage = {
+      id: illustrationId,
+      role: "illustration",
+      content: actualTopic,
+      metadata: {
+        topic: actualTopic,
+        trailId: trailId,
+        generatedAt: new Date().toISOString()
+      }
+    }
+
+    // Add illustration message to chat
+    setMessages(prev => [...prev, illustrationMessage])
+
+    try {
+      // Generate the illustration
+      const result = await generateIllustration(trailId, actualTopic)
+
+      if (result) {
+        // Update the illustration message with the result
+        setMessages(prev =>
+          prev.map(m =>
+            m.id === illustrationId
+              ? {
+                ...m,
+                metadata: {
+                  ...m.metadata,
+                  imageUrl: result.imageUrl,
+                  description: result.description,
+                  query: result.query,
+                  generatedAt: new Date().toISOString()
+                }
+              }
+              : m
+          )
+        )
+
+        // Save to database
+        await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            trailId,
+            model: "illustration",
+            messages: [{
+              role: "illustration",
+              content: actualTopic,
+              metadata: JSON.stringify({
+                topic: actualTopic,
+                imageUrl: result.imageUrl,
+                description: result.description,
+                query: result.query,
+                trailId: trailId,
+                generatedAt: new Date().toISOString()
+              })
+            }],
+          }),
+        })
+      }
+    } catch (err) {
+      console.error("Failed to generate illustration:", err)
+      // Remove the failed illustration message
+      setMessages(prev => prev.filter(m => m.id !== illustrationId))
+    }
+  }, [messages, trailId, generateIllustration])
+
+  const handleUpdateMessage = useCallback((messageId: string, updates: any) => {
+    setMessages(prev =>
+      prev.map(m =>
+        m.id === messageId ? { ...m, ...updates } : m
+      )
+    )
+  }, [])
+
   // Handle auto-message for new trails
   useEffect(() => {
     if (autoMessageData && autoMessageData.trailId === trailId && messages.length === 0 && !isLoading) {
@@ -134,14 +245,27 @@ export function ChatInterface({ trailId, expeditionId, model }: ChatInterfacePro
     }
   }, [trailId, autoMessageData, messages.length, isLoading, setAutoMessageData, handleSend])
 
-
   return (
     <div className="flex flex-col h-full mobile-chat-container">
       <ScrollArea className="flex-1 p-4 md:p-6" ref={scrollRef}>
-        <MessageList messages={messages} isLoading={isLoading} error={error} />
+        <MessageList
+          messages={messages}
+          isLoading={isLoading}
+          error={error}
+          onUpdateMessage={handleUpdateMessage}
+        />
       </ScrollArea>
       <div className="border-t bg-background mobile-input-container mobile-keyboard-safe p-4 md:p-6">
-        <ChatInput onSend={handleSend} disabled={isLoading} />
+        {illustrationsEnabled ? (
+          <ChatInputWithOptions
+            onSend={handleSend}
+            onGenerateIllustration={handleGenerateIllustration}
+            disabled={isLoading}
+            isGeneratingIllustration={isGeneratingIllustration}
+          />
+        ) : (
+          <ChatInput onSend={handleSend} disabled={isLoading} />
+        )}
       </div>
     </div>
   )

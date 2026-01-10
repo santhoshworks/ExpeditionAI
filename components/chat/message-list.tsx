@@ -5,14 +5,23 @@ import { Message } from "./message"
 interface MessageListProps {
   messages: Array<{
     id: string
-    role: "user" | "assistant" | "system"
+    role: "user" | "assistant" | "system" | "illustration"
     content: string
+    metadata?: {
+      topic?: string
+      imageUrl?: string
+      description?: string
+      query?: string
+      generatedAt?: string
+      trailId?: string
+    }
   }>
   isLoading: boolean
   error?: Error
+  onUpdateMessage?: (messageId: string, updates: any) => void
 }
 
-export function MessageList({ messages, isLoading, error }: MessageListProps) {
+export function MessageList({ messages, isLoading, error, onUpdateMessage }: MessageListProps) {
   if (error) {
     return (
       <div className="text-center py-8 text-destructive">
@@ -32,7 +41,11 @@ export function MessageList({ messages, isLoading, error }: MessageListProps) {
   return (
     <div className="space-y-4 md:space-y-6 pb-4">
       {messages.map((message) => (
-        <Message key={message.id} message={message} />
+        <Message
+          key={message.id}
+          message={message}
+          onUpdateMessage={onUpdateMessage}
+        />
       ))}
       {isLoading && (
         <div className="flex items-center gap-2 text-muted-foreground px-2">

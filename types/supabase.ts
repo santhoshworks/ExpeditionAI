@@ -115,28 +115,31 @@ export interface Database {
         Row: {
           id: string
           trail_id: string
-          role: "user" | "assistant" | "system"
+          role: "user" | "assistant" | "system" | "illustration"
           content: string
           model: string | null
           tokens_used: number | null
+          metadata: string | null
           created_at: string
         }
         Insert: {
           id?: string
           trail_id: string
-          role: "user" | "assistant" | "system"
+          role: "user" | "assistant" | "system" | "illustration"
           content: string
           model?: string | null
           tokens_used?: number | null
+          metadata?: string | null
           created_at?: string
         }
         Update: {
           id?: string
           trail_id?: string
-          role?: "user" | "assistant" | "system"
+          role?: "user" | "assistant" | "system" | "illustration"
           content?: string
           model?: string | null
           tokens_used?: number | null
+          metadata?: string | null
           created_at?: string
         }
       }
@@ -191,6 +194,32 @@ export interface Database {
           tier?: string
           trails_today?: number
           last_trail_date?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      trail_illustrations: {
+        Row: {
+          id: string
+          trail_id: string
+          illustration_query: string
+          generated_at: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          trail_id: string
+          illustration_query: string
+          generated_at?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          trail_id?: string
+          illustration_query?: string
+          generated_at?: string
           created_at?: string
           updated_at?: string
         }

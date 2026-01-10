@@ -21,8 +21,9 @@ const chatSchema = z.object({
   model: z.string().optional(),
   messages: z.array(
     z.object({
-      role: z.enum(["user", "assistant", "system"]),
+      role: z.enum(["user", "assistant", "system", "illustration"]),
       content: z.string(),
+      metadata: z.string().optional(),
     })
   ),
 })
@@ -91,6 +92,44 @@ export async function POST(req: Request) {
       }
     }
 
+    // Handle illustration messages (save directly, don't process with AI)
+    // Only process if illustrations are enabled
+    if (messages.length === 1 && messages[0].role === "illustration" && process.env.NEXT_PUBLIC_ENABLE_ILLUSTRATIONS === 'true') {
+      const illustrationMessage = messages[0]
+
+      try {
+        const { error: illustrationError } = await supabase
+          .from("messages")
+          .insert({
+            trail_id: trailId,
+            role: "illustration",
+            content: illustrationMessage.content,
+            model: "illustration",
+            metadata: illustrationMessage.metadata,
+          } as any)
+
+        if (illustrationError) {
+          console.error("Failed to save illustration message:", illustrationError)
+          return new Response("Failed to save illustration", { status: 500 })
+        }
+
+        return new Response(JSON.stringify({ success: true }), {
+          headers: { 'Content-Type': 'application/json' }
+        })
+      } catch (error) {
+        console.error("Illustration save error:", error)
+        return new Response("Failed to save illustration", { status: 500 })
+      }
+    }
+
+    // If illustrations are disabled, reject illustration messages
+    if (messages.length === 1 && messages[0].role === "illustration") {
+      return new Response(
+        JSON.stringify({ error: "Illustration feature is disabled" }),
+        { status: 403, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
+
     // Get the latest user message from the messages array
     const latestUserMessage = messages.filter(m => m.role === "user").pop()
 
@@ -116,10 +155,15 @@ export async function POST(req: Request) {
       await incrementTrailCount(user.id)
     }
 
-    // Stream AI response using the full conversation history
+    // Stream AI response using the full conversation history (filter out illustration messages for AI)
+    const aiMessages = messages.filter(m => m.role !== "illustration").map(m => ({
+      role: m.role,
+      content: m.content
+    }))
+
     const result = await streamText({
       model: openrouter(selectedModel),
-      messages: messages,
+      messages: aiMessages,
       onFinish: async ({ text, usage }) => {
         // Save assistant message after streaming completes
         try {
