@@ -2,7 +2,9 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { createClient } from "@/lib/supabase/client"
-import type { Expedition, Trail, Message, ExpeditionWithStats, TrailWithCounts, Journal } from "@/types/database"
+import type { Expedition, Trail, Message, ExpeditionWithStats, TrailWithCounts, Journal, UserCredits, UserTier } from "@/types/database"
+import { useExploreStore } from "@/lib/store"
+import { useEffect } from "react"
 
 // Expeditions
 export function useExpeditions() {
@@ -243,7 +245,7 @@ export function useGenerateJournal() {
   return useMutation({
     mutationFn: async ({
       expeditionId,
-      model = "anthropic/claude-3.5-sonnet",
+      model = "deepseek/deepseek-chat",
     }: {
       expeditionId: string
       model?: string
@@ -269,4 +271,61 @@ export function useGenerateJournal() {
       })
     },
   })
+}
+
+// User Credits
+export function useUserCredits() {
+  const setUserCredits = useExploreStore((state) => state.setUserCredits)
+
+  const query = useQuery({
+    queryKey: ["userCredits"],
+    queryFn: async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+
+      if (!user) {
+        return { credits: 0, tier: 'free' as UserTier, trails_today: 0 }
+      }
+
+      const { data, error } = await supabase
+        .from("user_credits")
+        .select("credits, tier, trails_today, last_trail_date")
+        .eq("user_id", user.id)
+        .single()
+
+      if (error || !data) {
+        // Return default free tier if no record exists
+        return { credits: 0, tier: 'free' as UserTier, trails_today: 0 }
+      }
+
+      // Reset trails_today if it's a new day
+      const today = new Date().toISOString().split('T')[0]
+      const trailsToday = data.last_trail_date === today ? data.trails_today : 0
+
+      return {
+        credits: data.credits,
+        tier: data.tier as UserTier,
+        trails_today: trailsToday,
+      }
+    },
+    staleTime: 30000, // Consider data stale after 30 seconds
+    refetchOnWindowFocus: true,
+  })
+
+  // Sync to Zustand store when data changes
+  useEffect(() => {
+    if (query.data) {
+      setUserCredits(query.data.credits, query.data.tier, query.data.trails_today)
+    }
+  }, [query.data, setUserCredits])
+
+  return query
+}
+
+export function useRefreshCredits() {
+  const queryClient = useQueryClient()
+
+  return () => {
+    queryClient.invalidateQueries({ queryKey: ["userCredits"] })
+  }
 }

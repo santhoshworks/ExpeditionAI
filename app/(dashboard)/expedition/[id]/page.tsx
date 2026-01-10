@@ -2,7 +2,7 @@
 
 import { useEffect } from "react"
 import { useParams, useSearchParams } from "next/navigation"
-import { useExpedition, useTrails } from "@/lib/queries"
+import { useExpedition, useTrails, useUserCredits } from "@/lib/queries"
 import { useExploreStore } from "@/lib/store"
 import { ChatInterface } from "@/components/chat/chat-interface"
 import { ModelSelector } from "@/components/chat/model-selector"
@@ -20,9 +20,12 @@ export default function ExpeditionPage() {
   const expeditionId = params.id as string
   const trailIdParam = searchParams.get("trailId")
 
-  const { setCurrentExpedition, currentTrailId, setCurrentTrail } = useExploreStore()
+  const { setCurrentExpedition, currentTrailId, setCurrentTrail, userTier, userCredits } = useExploreStore()
   const { data: expedition, isLoading: expeditionLoading } = useExpedition(expeditionId)
   const { data: trails, isLoading: trailsLoading } = useTrails(expeditionId)
+
+  // Fetch and sync user credits
+  useUserCredits()
 
   // Enable text selection for explore feature
   useTextSelection()
@@ -102,7 +105,7 @@ export default function ExpeditionPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <ModelSelector />
+          <ModelSelector userTier={userTier} userCredits={userCredits} />
           <div className="h-4 w-[1px] bg-border mx-1" />
           <Link href={`/expedition/${expeditionId}/map`}>
             <Button variant="ghost" size="sm" className="h-8 gap-2">

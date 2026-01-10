@@ -1,5 +1,6 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
+import type { UserTier } from "./constants"
 
 interface ExploreState {
   // Current expedition context
@@ -22,6 +23,11 @@ interface ExploreState {
   // Model selection
   selectedModel: string
 
+  // User credits and tier
+  userTier: UserTier
+  userCredits: number
+  trailsToday: number
+
   // Actions
   setCurrentExpedition: (id: string | null) => void
   setCurrentTrail: (id: string | null) => void
@@ -33,6 +39,8 @@ interface ExploreState {
   toggleSidebar: () => void
   toggleMapExpanded: () => void
   setSelectedModel: (model: string) => void
+  setUserCredits: (credits: number, tier: UserTier, trailsToday?: number) => void
+  deductCreditsLocally: (amount: number) => void
   reset: () => void
 }
 
@@ -48,7 +56,10 @@ export const useExploreStore = create<ExploreState>()(
       sidebarCollapsed: false,
       mapExpanded: false,
       autoMessageData: null,
-      selectedModel: "anthropic/claude-3.5-sonnet",
+      selectedModel: "deepseek/deepseek-chat",
+      userTier: "free",
+      userCredits: 0,
+      trailsToday: 0,
 
       // Actions
       setCurrentExpedition: (id) => set({ currentExpeditionId: id }),
@@ -74,6 +85,18 @@ export const useExploreStore = create<ExploreState>()(
         })),
 
       setSelectedModel: (model) => set({ selectedModel: model }),
+
+      setUserCredits: (credits, tier, trailsToday = 0) =>
+        set({
+          userCredits: credits,
+          userTier: tier,
+          trailsToday,
+        }),
+
+      deductCreditsLocally: (amount) =>
+        set((state) => ({
+          userCredits: Math.max(0, state.userCredits - amount),
+        })),
 
       reset: () =>
         set({

@@ -2,13 +2,20 @@ import { createClient } from "@/lib/supabase/server"
 import { createOpenRouter } from "@openrouter/ai-sdk-provider"
 import { streamText } from "ai"
 import { z } from "zod"
+import {
+  getUserCredits,
+  hasEnoughCredits,
+  deductCredits,
+  canCreateTrail,
+  incrementTrailCount,
+} from "@/lib/credits"
+import { canUseModel, getModelById, DEFAULT_MODELS } from "@/lib/constants"
 
 const openrouter = createOpenRouter({
   apiKey: process.env.OPENROUTER_API_KEY!,
 })
 
 // Schema for AI SDK useChat hook format
-// The useChat hook sends messages array with all messages including the latest user message
 const chatSchema = z.object({
   trailId: z.string(),
   model: z.string().optional(),
@@ -45,7 +52,46 @@ export async function POST(req: Request) {
       return new Response("Trail not found or access denied", { status: 403 })
     }
 
-    // Get the latest user message from the messages array (it's always the last one when using append)
+    // Get user credits and tier
+    const userCredits = await getUserCredits(user.id)
+    const userTier = userCredits?.tier || 'free'
+
+    // Check daily trail limit for free tier
+    const trailCheck = await canCreateTrail(user.id)
+    if (!trailCheck.allowed) {
+      return new Response(
+        JSON.stringify({ error: trailCheck.reason }),
+        { status: 429, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Validate model access based on tier
+    const selectedModel = model || DEFAULT_MODELS[userTier]
+    const modelConfig = getModelById(selectedModel)
+
+    if (!canUseModel(userTier, selectedModel)) {
+      return new Response(
+        JSON.stringify({
+          error: `Model ${modelConfig?.name || selectedModel} requires a higher tier. Please upgrade your plan.`
+        }),
+        { status: 403, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Check credit balance for paid models
+    if (modelConfig && modelConfig.costPerTrail > 0) {
+      const creditCheck = await hasEnoughCredits(user.id, selectedModel)
+      if (!creditCheck.hasCredits) {
+        return new Response(
+          JSON.stringify({
+            error: `Insufficient credits. You need ~${creditCheck.required} credits but have ${creditCheck.available}. Add more credits or use a free model.`
+          }),
+          { status: 402, headers: { 'Content-Type': 'application/json' } }
+        )
+      }
+    }
+
+    // Get the latest user message from the messages array
     const latestUserMessage = messages.filter(m => m.role === "user").pop()
 
     if (!latestUserMessage) {
@@ -65,13 +111,16 @@ export async function POST(req: Request) {
       console.error("Failed to save user message:", userMsgError)
     }
 
-    const selectedModel = model || "anthropic/claude-3.5-sonnet"
+    // Increment trail count for free tier daily limit tracking
+    if (userTier === 'free') {
+      await incrementTrailCount(user.id)
+    }
 
     // Stream AI response using the full conversation history
     const result = await streamText({
       model: openrouter(selectedModel),
       messages: messages,
-      onFinish: async ({ text }) => {
+      onFinish: async ({ text, usage }) => {
         // Save assistant message after streaming completes
         try {
           const supabaseClient = await createClient()
@@ -82,7 +131,22 @@ export async function POST(req: Request) {
               role: "assistant",
               content: text,
               model: selectedModel,
+              tokens_used: (usage?.promptTokens || 0) + (usage?.completionTokens || 0),
             } as any)
+
+          // Deduct credits based on actual token usage (for paid models)
+          if (modelConfig && modelConfig.costPerTrail > 0 && usage) {
+            const deductResult = await deductCredits(
+              user.id,
+              selectedModel,
+              usage.promptTokens || 0,
+              usage.completionTokens || 0
+            )
+
+            if (!deductResult.success) {
+              console.error("Failed to deduct credits:", deductResult.error)
+            }
+          }
         } catch (error) {
           console.error("Failed to save assistant message:", error)
         }

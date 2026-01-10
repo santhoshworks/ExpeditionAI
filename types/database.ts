@@ -1,5 +1,7 @@
 // Database types matching Supabase schema
 
+export type UserTier = 'free' | 'basic' | 'pro'
+
 export interface Profile {
   id: string;
   email: string | null;
@@ -9,6 +11,28 @@ export interface Profile {
   openrouter_api_key: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface UserCredits {
+  id: string;
+  user_id: string;
+  credits: number;
+  tier: UserTier;
+  trails_today: number;
+  last_trail_date: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreditTransaction {
+  id: string;
+  user_id: string;
+  amount: number;
+  type: 'deduct' | 'add' | 'purchase' | 'bonus';
+  model_id: string | null;
+  trail_id: string | null;
+  description: string | null;
+  created_at: string;
 }
 
 export interface Expedition {

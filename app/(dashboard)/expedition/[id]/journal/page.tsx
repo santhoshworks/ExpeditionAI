@@ -1,7 +1,7 @@
 "use client"
 
 import { useParams } from "next/navigation"
-import { useExpedition, useJournal, useGenerateJournal, useTrails } from "@/lib/queries"
+import { useExpedition, useJournal, useGenerateJournal, useTrails, useUserCredits } from "@/lib/queries"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -38,9 +38,12 @@ export default function JournalPage() {
   const expeditionId = params.id as string
   const { data: expedition, isLoading: isExpeditionLoading } = useExpedition(expeditionId)
   const { data: journal, isLoading: isJournalLoading } = useJournal(expeditionId)
-  const { selectedModel, setCurrentExpedition, currentTrailId, setCurrentTrail } = useExploreStore()
+  const { selectedModel, setCurrentExpedition, currentTrailId, setCurrentTrail, userTier, userCredits } = useExploreStore()
   const { mutate: generateJournal, isPending: isGenerating } = useGenerateJournal()
   const { data: trails } = useTrails(expeditionId)
+
+  // Fetch and sync user credits
+  useUserCredits()
   const [isExporting, setIsExporting] = React.useState(false)
 
   // Enable text selection for explore feature
@@ -217,7 +220,7 @@ export default function JournalPage() {
                   </DropdownMenuContent>
                 </DropdownMenu>
               )}
-              <ModelSelector />
+              <ModelSelector userTier={userTier} userCredits={userCredits} />
               <Button
                 size="sm"
                 onClick={handleGenerate}
@@ -343,7 +346,7 @@ export default function JournalPage() {
                 </p>
                 <div className="flex flex-col items-center gap-4 mb-4">
                   <span className="text-sm text-muted-foreground uppercase tracking-widest font-semibold">Select Synthesis Model</span>
-                  <ModelSelector />
+                  <ModelSelector userTier={userTier} userCredits={userCredits} />
                 </div>
                 <Button
                   size="lg"
