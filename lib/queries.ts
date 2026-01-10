@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { createClient } from "@/lib/supabase/client"
 import type { Expedition, Trail, Message, ExpeditionWithStats, TrailWithCounts, Journal, UserCredits, UserTier } from "@/types/database"
+import type { Database } from "@/types/supabase"
 import { useExploreStore } from "@/lib/store"
 import { useEffect } from "react"
 
@@ -298,13 +299,15 @@ export function useUserCredits() {
         return { credits: 0, tier: 'free' as UserTier, trails_today: 0 }
       }
 
+      const typedData = data as Database['public']['Tables']['user_credits']['Row']
+
       // Reset trails_today if it's a new day
       const today = new Date().toISOString().split('T')[0]
-      const trailsToday = data.last_trail_date === today ? data.trails_today : 0
+      const trailsToday = typedData.last_trail_date === today ? typedData.trails_today : 0
 
       return {
-        credits: data.credits,
-        tier: data.tier as UserTier,
+        credits: typedData.credits,
+        tier: typedData.tier as UserTier,
         trails_today: trailsToday,
       }
     },

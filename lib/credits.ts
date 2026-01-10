@@ -1,5 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { getModelById, type UserTier } from './constants'
+import type { Database } from '@/types/supabase'
+
+type UserCreditsRow = Database['public']['Tables']['user_credits']['Row']
 
 // Token cost per million for different models (in USD)
 const MODEL_COSTS: Record<string, { input: number; output: number }> = {
@@ -93,12 +96,14 @@ export async function getUserCredits(userId: string): Promise<UserCredits | null
     }
   }
 
+  const typedData = data as UserCreditsRow
+
   return {
     userId,
-    credits: data.credits,
-    tier: data.tier as UserTier,
-    trailsToday: data.trails_today,
-    lastTrailDate: data.last_trail_date,
+    credits: typedData.credits,
+    tier: typedData.tier as UserTier,
+    trailsToday: typedData.trails_today,
+    lastTrailDate: typedData.last_trail_date,
   }
 }
 
@@ -190,10 +195,15 @@ export async function deductCredits(
   const supabase = await createClient()
 
   // Deduct credits atomically
-  const { data, error } = await supabase.rpc('deduct_credits', {
+  const result = await (supabase as any).rpc('deduct_credits', {
     p_user_id: userId,
     p_amount: creditsToDeduct,
   })
+
+  const { data, error } = result as {
+    data: { success: boolean; remaining_credits: number; error?: string } | null;
+    error: any
+  }
 
   if (error) {
     console.error('Credit deduction error:', error)
@@ -204,11 +214,11 @@ export async function deductCredits(
     }
   }
 
-  if (!data.success) {
+  if (!data?.success) {
     return {
       success: false,
       creditsUsed: 0,
-      error: data.error || 'Insufficient credits'
+      error: data?.error || 'Insufficient credits'
     }
   }
 
@@ -226,10 +236,13 @@ export async function incrementTrailCount(userId: string): Promise<void> {
   const supabase = await createClient()
   const today = new Date().toISOString().split('T')[0]
 
-  await supabase.rpc('increment_trail_count', {
+  const result = await (supabase as any).rpc('increment_trail_count', {
     p_user_id: userId,
     p_date: today,
   })
+
+  // Type assertion for the result
+  const _ = result as { data: void; error: any }
 }
 
 /**
@@ -241,17 +254,19 @@ export async function addCredits(
 ): Promise<{ success: boolean; newBalance?: number; error?: string }> {
   const supabase = await createClient()
 
-  const { data, error } = await supabase.rpc('add_credits', {
+  const result = await (supabase as any).rpc('add_credits', {
     p_user_id: userId,
     p_amount: amount,
   })
+
+  const { data, error } = result as { data: { new_balance: number } | null; error: any }
 
   if (error) {
     console.error('Add credits error:', error)
     return { success: false, error: 'Failed to add credits' }
   }
 
-  return { success: true, newBalance: data.new_balance }
+  return { success: true, newBalance: data?.new_balance }
 }
 
 /**
@@ -264,17 +279,19 @@ export async function upgradeTier(
 ): Promise<{ success: boolean; error?: string }> {
   const supabase = await createClient()
 
-  const { error } = await supabase
+  const insertData = {
+    user_id: userId,
+    tier: newTier,
+    credits: creditsToAdd,
+    trails_today: 0,
+    last_trail_date: null,
+  }
+
+  const { error } = await (supabase
     .from('user_credits')
-    .upsert({
-      user_id: userId,
-      tier: newTier,
-      credits: creditsToAdd,
-      trails_today: 0,
-      last_trail_date: null,
-    }, {
+    .upsert(insertData as any, {
       onConflict: 'user_id',
-    })
+    }))
 
   if (error) {
     console.error('Upgrade tier error:', error)

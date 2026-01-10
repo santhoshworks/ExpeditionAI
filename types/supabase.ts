@@ -166,6 +166,35 @@ export interface Database {
           created_at?: string
         }
       }
+      user_credits: {
+        Row: {
+          user_id: string
+          credits: number
+          tier: string
+          trails_today: number
+          last_trail_date: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          user_id: string
+          credits?: number
+          tier?: string
+          trails_today?: number
+          last_trail_date?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          user_id?: string
+          credits?: number
+          tier?: string
+          trails_today?: number
+          last_trail_date?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Views: {
       trails_with_counts: {
@@ -197,6 +226,35 @@ export interface Database {
           message_count: number
           flagged_count: number
         }
+      }
+    }
+    Functions: {
+      deduct_credits: {
+        Args: {
+          p_user_id: string
+          p_amount: number
+        }
+        Returns: {
+          success: boolean
+          remaining_credits: number
+          error?: string
+        }
+      }
+      add_credits: {
+        Args: {
+          p_user_id: string
+          p_amount: number
+        }
+        Returns: {
+          new_balance: number
+        }
+      }
+      increment_trail_count: {
+        Args: {
+          p_user_id: string
+          p_date: string
+        }
+        Returns: void
       }
     }
   }
