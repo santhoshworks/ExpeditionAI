@@ -15,13 +15,43 @@ interface ExploreButtonProps {
 }
 
 export function ExploreButton({ expeditionId, parentTrailId }: ExploreButtonProps) {
-  const { selectedText, selectedTextPosition, setSelectedText, setCurrentTrail, currentTrailId } = useExploreStore()
+  const { selectedText, selectedTextPosition, setSelectedText, setCurrentTrail, currentTrailId, setAutoMessageData } = useExploreStore()
   const [showInput, setShowInput] = useState(false)
   const [title, setTitle] = useState("")
+  const [definition, setDefinition] = useState<string | null>(null)
+  const [isDefining, setIsDefining] = useState(false)
   const createTrail = useCreateTrail()
   const router = useRouter()
   const inputRef = useRef<HTMLInputElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+
+  // Fetch definition when text is selected
+  useEffect(() => {
+    if (selectedText && selectedText.length > 0 && selectedText.length < 100) {
+      const fetchDefinition = async () => {
+        setIsDefining(true)
+        setDefinition(null)
+        try {
+          const response = await fetch("/api/define", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: selectedText }),
+          })
+          if (response.ok) {
+            const data = await response.json()
+            setDefinition(data.definition)
+          }
+        } catch (error) {
+          console.error("Failed to fetch definition:", error)
+        } finally {
+          setIsDefining(false)
+        }
+      }
+      fetchDefinition()
+    } else {
+      setDefinition(null)
+    }
+  }, [selectedText])
 
   // Focus input when showing
   useEffect(() => {
@@ -45,19 +75,35 @@ export function ExploreButton({ expeditionId, parentTrailId }: ExploreButtonProp
   }, [selectedText])
 
   const handleExplore = async () => {
-    if (!title.trim() || !selectedText) return
+    if (!selectedText) return
 
     try {
+      const effectiveParentId = (parentTrailId || currentTrailId) ?? undefined
+      const newTitle = title.trim() || selectedText.substring(0, 30) || "New Exploration"
+
       const trail = await createTrail.mutateAsync({
         expeditionId,
-        parentTrailId: parentTrailId || currentTrailId || undefined,
-        title: title.trim(),
+        parentTrailId: effectiveParentId,
+        title: newTitle,
         sourceText: selectedText,
       })
 
-      handleCancel()
-      setCurrentTrail(trail.id)
-      router.refresh()
+      if (trail && trail.id) {
+        // Store the auto-message data for the ChatInterface to pick up
+        setAutoMessageData({
+          trailId: trail.id,
+          selectedText: (title.trim() || selectedText || "this topic"),
+        })
+
+        // Clear the selection state
+        handleCancel()
+
+        // Set the new trail as current
+        setCurrentTrail(trail.id)
+
+        // Navigate to ensure we're on the expedition page
+        router.push(`/expedition/${expeditionId}?trailId=${trail.id}`)
+      }
     } catch (error) {
       console.error("Failed to create trail:", error)
     }
@@ -67,10 +113,14 @@ export function ExploreButton({ expeditionId, parentTrailId }: ExploreButtonProp
     setShowInput(false)
     setSelectedText(null)
     setTitle("")
+    setDefinition(null)
   }
 
   const handleStartExplore = () => {
     setShowInput(true)
+    if (selectedText) {
+      setTitle(selectedText)
+    }
   }
 
   if (!selectedText || !selectedTextPosition) return null
@@ -79,7 +129,7 @@ export function ExploreButton({ expeditionId, parentTrailId }: ExploreButtonProp
   const tooltipStyle: React.CSSProperties = {
     position: "fixed",
     left: Math.min(Math.max(selectedTextPosition.x - 100, 10), window.innerWidth - 320),
-    top: Math.max(selectedTextPosition.y - (showInput ? 120 : 50), 10),
+    top: Math.max(selectedTextPosition.y - (showInput ? 120 : (definition ? 150 : 80)), 10),
     zIndex: 1000,
   }
 
@@ -88,28 +138,56 @@ export function ExploreButton({ expeditionId, parentTrailId }: ExploreButtonProp
       ref={containerRef}
       style={tooltipStyle}
       className={cn(
-        "bg-popover border rounded-lg shadow-lg p-2 animate-in fade-in-0 zoom-in-95",
-        showInput ? "w-[300px]" : "w-auto"
+        "bg-popover border rounded-xl shadow-2xl p-3 animate-in fade-in-0 zoom-in-95 backdrop-blur-md ring-1 ring-white/10",
+        showInput || definition ? "w-[300px]" : "w-auto"
       )}
     >
       {!showInput ? (
-        <div className="flex items-center gap-2">
-          <Button
-            size="sm"
-            onClick={handleStartExplore}
-            className="gap-2"
-          >
-            <Compass className="h-4 w-4" />
-            Start New Trail
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={handleCancel}
-            className="h-8 w-8 p-0"
-          >
-            <X className="h-4 w-4" />
-          </Button>
+        <div className="space-y-3">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-start justify-between gap-2">
+              <span className="text-xs font-bold text-primary uppercase tracking-wider">
+                {selectedText}
+              </span>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={handleCancel}
+                className="h-6 w-6 p-0 rounded-full hover:bg-muted"
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            </div>
+            {isDefining ? (
+              <div className="space-y-2 py-1">
+                <div className="h-3 bg-muted animate-pulse rounded w-full" />
+                <div className="h-3 bg-muted animate-pulse rounded w-2/3" />
+              </div>
+            ) : definition ? (
+              <p className="text-sm text-foreground/90 leading-relaxed italic border-l-2 border-primary/30 pl-3">
+                {definition}
+              </p>
+            ) : null}
+          </div>
+
+          <div className="flex items-center gap-2 pt-1">
+            <Button
+              size="sm"
+              onClick={handleStartExplore}
+              className="flex-1 gap-2 bg-primary hover:bg-primary/90 shadow-sm"
+            >
+              <Compass className="h-3.5 w-3.5" />
+              Explore More
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleCancel}
+              className="gap-2"
+            >
+              Close
+            </Button>
+          </div>
         </div>
       ) : (
         <div className="space-y-2">
@@ -151,7 +229,7 @@ export function ExploreButton({ expeditionId, parentTrailId }: ExploreButtonProp
             disabled={!title.trim() || createTrail.isPending}
             className="w-full"
           >
-            {createTrail.isPending ? "Creating..." : "Create Trail"}
+            {createTrail.isPending ? "Exploring..." : "Explore this topic"}
           </Button>
         </div>
       )}

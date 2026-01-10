@@ -1,8 +1,10 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { TrailWithCounts } from "@/types/database"
 import { cn } from "@/lib/utils"
-import { Flag, MessageSquare, ChevronRight } from "lucide-react"
+import { Flag, MessageSquare, ChevronRight, ChevronDown, FolderOpen, Folder, FileText, Tent } from "lucide-react"
+import { FlagButton } from "@/components/trail/flag-button"
 
 interface MiniTreeProps {
   trails: TrailWithCounts[]
@@ -11,10 +13,12 @@ interface MiniTreeProps {
 }
 
 export function MiniTree({ trails, currentTrailId, onTrailSelect }: MiniTreeProps) {
+  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set())
+
   if (trails.length === 0) {
     return (
-      <div className="flex items-center justify-center h-full text-muted-foreground text-xs p-4">
-        <p>No trails yet</p>
+      <div className="flex items-center justify-center h-full text-muted-foreground text-sm p-4">
+        <p>No trails yet. Start exploring!</p>
       </div>
     )
   }
@@ -22,52 +26,118 @@ export function MiniTree({ trails, currentTrailId, onTrailSelect }: MiniTreeProp
   // Find root trails (base camps or trails without parents)
   const rootTrails = trails.filter((t) => t.is_base_camp || !t.parent_trail_id)
 
+  const toggleExpanded = (trailId: string) => {
+    setExpandedNodes((prev) => {
+      const next = new Set(prev)
+      if (next.has(trailId)) {
+        next.delete(trailId)
+      } else {
+        next.add(trailId)
+      }
+      return next
+    })
+  }
+
   const renderTrail = (trail: TrailWithCounts, depth: number = 0): React.ReactNode => {
     const children = trails.filter((t) => t.parent_trail_id === trail.id)
     const isActive = trail.id === currentTrailId
     const hasChildren = children.length > 0
+    const isExpanded = expandedNodes.has(trail.id)
 
-    // Use predefined padding classes for depths 0-5
-    const paddingClass = [
-      "pl-2",
-      "pl-5",
-      "pl-8",
-      "pl-11",
-      "pl-14",
-      "pl-16",
-    ][Math.min(depth, 5)]
+    // Calculate indent
+    const indent = depth * 16
 
     return (
       <div key={trail.id}>
-        <button
-          onClick={() => onTrailSelect?.(trail.id)}
+        <div
           className={cn(
-            "w-full text-left pr-2 py-1.5 rounded text-xs transition-colors flex items-center gap-1",
-            "hover:bg-accent",
-            isActive && "bg-primary text-primary-foreground hover:bg-primary/90",
-            paddingClass
+            "group relative flex items-center gap-1 pr-2 py-1.5 text-sm transition-all rounded-md cursor-pointer select-none",
+            "hover:bg-accent/50",
+            isActive && "bg-primary/10 border-l-2 border-primary"
           )}
+          style={{ paddingLeft: `${indent + 8}px` }}
         >
-          {hasChildren && (
-            <ChevronRight className="h-3 w-3 flex-shrink-0" />
-          )}
-          {!hasChildren && <span className="w-3" />}
-
-          <span className="truncate flex-1">{trail.title}</span>
-
-          <span className="flex items-center gap-1 flex-shrink-0">
-            {trail.is_flagged && (
-              <Flag className="h-2.5 w-2.5 text-yellow-500 fill-yellow-500" />
+          {/* Expand/Collapse Button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              if (hasChildren) {
+                toggleExpanded(trail.id)
+              }
+            }}
+            className={cn(
+              "flex items-center justify-center w-4 h-4 rounded hover:bg-accent transition-colors",
+              !hasChildren && "invisible"
             )}
-            <span className="flex items-center gap-0.5 text-[10px] opacity-70">
-              <MessageSquare className="h-2.5 w-2.5" />
-              {trail.message_count || 0}
-            </span>
-          </span>
-        </button>
+          >
+            {hasChildren && (
+              isExpanded ? (
+                <ChevronDown className="h-3 w-3 text-muted-foreground" />
+              ) : (
+                <ChevronRight className="h-3 w-3 text-muted-foreground" />
+              )
+            )}
+          </button>
 
-        {children.length > 0 && (
-          <div className="border-l border-border ml-3">
+          {/* Trail Icon */}
+          <div className="flex-shrink-0">
+            {trail.is_base_camp ? (
+              <Tent className={cn("h-4 w-4", isActive ? "text-primary" : "text-blue-500")} />
+            ) : hasChildren ? (
+              isExpanded ? (
+                <FolderOpen className={cn("h-4 w-4", isActive ? "text-primary" : "text-yellow-500")} />
+              ) : (
+                <Folder className={cn("h-4 w-4", isActive ? "text-primary" : "text-yellow-600")} />
+              )
+            ) : (
+              <FileText className={cn("h-4 w-4", isActive ? "text-primary" : "text-muted-foreground")} />
+            )}
+          </div>
+
+          {/* Trail Title and Info */}
+          <div
+            onClick={() => onTrailSelect?.(trail.id)}
+            className="flex-1 flex items-center justify-between min-w-0 gap-2"
+          >
+            <span
+              className={cn(
+                "truncate font-medium",
+                isActive ? "text-primary" : "text-foreground",
+                trail.is_base_camp && "font-semibold"
+              )}
+            >
+              {trail.title}
+            </span>
+
+            <div className="flex items-center gap-1 flex-shrink-0 text-xs">
+              <div className={cn(
+                "transition-opacity duration-200",
+                trail.is_flagged ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+              )}>
+                <FlagButton
+                  trailId={trail.id}
+                  isFlagged={trail.is_flagged}
+                  size="xs"
+                />
+              </div>
+              {(trail.message_count || 0) > 0 && (
+                <span className="flex items-center gap-0.5 text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                  <MessageSquare className="h-3 w-3" />
+                  <span className="text-[10px] font-medium">{trail.message_count}</span>
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Children */}
+        {hasChildren && isExpanded && (
+          <div className="relative">
+            {/* Connecting Line */}
+            <div
+              className="absolute top-0 bottom-0 w-px bg-border/50"
+              style={{ left: `${indent + 20}px` }}
+            />
             {children.map((child) => renderTrail(child, depth + 1))}
           </div>
         )}
@@ -75,8 +145,37 @@ export function MiniTree({ trails, currentTrailId, onTrailSelect }: MiniTreeProp
     )
   }
 
+  // Auto-expand the active trail's path
+  useEffect(() => {
+    if (currentTrailId) {
+      const parentIds: string[] = []
+      const findParents = (trailId: string) => {
+        const trail = trails.find((t) => t.id === trailId)
+        if (trail?.parent_trail_id) {
+          parentIds.push(trail.parent_trail_id)
+          findParents(trail.parent_trail_id)
+        }
+      }
+      findParents(currentTrailId)
+
+      if (parentIds.length > 0) {
+        setExpandedNodes((prev) => {
+          const next = new Set(prev)
+          let changed = false
+          parentIds.forEach(id => {
+            if (!next.has(id)) {
+              next.add(id)
+              changed = true
+            }
+          })
+          return changed ? next : prev
+        })
+      }
+    }
+  }, [currentTrailId, trails])
+
   return (
-    <div className="p-2 space-y-0.5">
+    <div className="p-2 space-y-0.5 w-full">
       {rootTrails.map((trail) => renderTrail(trail))}
     </div>
   )

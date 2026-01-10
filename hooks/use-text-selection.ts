@@ -11,8 +11,8 @@ export function useTextSelection() {
       const selection = window.getSelection()
       const selectedText = selection?.toString().trim()
 
-      if (selectedText && selectedText.length > 10) {
-        // Only show explore button for meaningful selections (at least 10 chars)
+      if (selectedText) {
+        // Show explore button for the selection
         const range = selection?.getRangeAt(0)
         if (range) {
           const rect = range.getBoundingClientRect()

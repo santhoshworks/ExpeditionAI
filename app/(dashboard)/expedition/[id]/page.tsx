@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
-import { useParams } from "next/navigation"
+import { useParams, useSearchParams } from "next/navigation"
 import { useExpedition, useTrails } from "@/lib/queries"
 import { useExploreStore } from "@/lib/store"
 import { ChatInterface } from "@/components/chat/chat-interface"
@@ -16,8 +16,10 @@ import Link from "next/link"
 
 export default function ExpeditionPage() {
   const params = useParams()
+  const searchParams = useSearchParams()
   const expeditionId = params.id as string
-  
+  const trailIdParam = searchParams.get("trailId")
+
   const { setCurrentExpedition, currentTrailId, setCurrentTrail } = useExploreStore()
   const { data: expedition, isLoading: expeditionLoading } = useExpedition(expeditionId)
   const { data: trails, isLoading: trailsLoading } = useTrails(expeditionId)
@@ -35,9 +37,16 @@ export default function ExpeditionPage() {
     }
   }, [expeditionId, setCurrentExpedition, setCurrentTrail])
 
+  // Sync trail ID from URL param if present
+  useEffect(() => {
+    if (trailIdParam) {
+      setCurrentTrail(trailIdParam)
+    }
+  }, [trailIdParam, setCurrentTrail])
+
   // Set default trail to base camp if no trail is selected
   useEffect(() => {
-    if (trails && trails.length > 0 && !currentTrailId) {
+    if (trails && trails.length > 0 && !currentTrailId && !trailIdParam) {
       const baseCamp = trails.find((t) => t.is_base_camp)
       if (baseCamp) {
         setCurrentTrail(baseCamp.id)
@@ -45,7 +54,7 @@ export default function ExpeditionPage() {
         setCurrentTrail(trails[0].id)
       }
     }
-  }, [trails, currentTrailId, setCurrentTrail])
+  }, [trails, currentTrailId, setCurrentTrail, trailIdParam])
 
   if (expeditionLoading || trailsLoading) {
     return (
@@ -121,14 +130,20 @@ export default function ExpeditionPage() {
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
         {/* Sidebar - Trail Tree */}
-        <aside className="w-72 border-r bg-card flex flex-col">
-          <div className="p-3 border-b">
+        <aside className="w-80 border-r bg-card/50 backdrop-blur-sm flex flex-col shadow-sm">
+          <div className="px-4 py-3 border-b bg-accent/30">
             <div className="flex items-center justify-between">
-              <h2 className="font-semibold text-sm">Trail Map</h2>
-              <span className="text-xs text-muted-foreground">
-                {trails?.length || 0} trails
+              <h2 className="font-semibold text-base flex items-center gap-2">
+                <Map className="h-4 w-4 text-primary" />
+                Trails
+              </h2>
+              <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full font-medium">
+                {trails?.length || 0}
               </span>
             </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Navigate your exploration paths
+            </p>
           </div>
           <div className="flex-1 overflow-y-auto">
             <MiniTree

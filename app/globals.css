@@ -53,10 +53,12 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
 }
+
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
@@ -74,4 +76,24 @@
 
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-muted-foreground/30;
+}
+
+@layer utilities {
+  .bg-journal-pattern {
+    background-image: radial-gradient(circle at 1px 1px, hsl(var(--muted-foreground) / 0.05) 1px, transparent 0);
+    background-size: 40px 40px;
+  }
+
+  .glass {
+    @apply bg-background/80 backdrop-blur-md border border-white/10;
+  }
+
+  .text-glow {
+    text-shadow: 0 0 10px hsl(var(--primary) / 0.3);
+  }
+
+  /* Markdown Typography Fixes - Relying on @tailwindcss/typography plugin */
+  .prose li::marker {
+    @apply text-primary/60 font-bold;
+  }
 }

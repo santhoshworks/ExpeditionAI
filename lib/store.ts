@@ -13,6 +13,12 @@ interface ExploreState {
   sidebarCollapsed: boolean
   mapExpanded: boolean
 
+  // Auto-message for new trails
+  autoMessageData: {
+    trailId: string
+    selectedText: string
+  } | null
+
   // Model selection
   selectedModel: string
 
@@ -23,6 +29,7 @@ interface ExploreState {
     text: string | null,
     position?: { x: number; y: number }
   ) => void
+  setAutoMessageData: (data: { trailId: string; selectedText: string } | null) => void
   toggleSidebar: () => void
   toggleMapExpanded: () => void
   setSelectedModel: (model: string) => void
@@ -40,6 +47,7 @@ export const useExploreStore = create<ExploreState>()(
       showExploreButton: false,
       sidebarCollapsed: false,
       mapExpanded: false,
+      autoMessageData: null,
       selectedModel: "anthropic/claude-3.5-sonnet",
 
       // Actions
@@ -52,6 +60,8 @@ export const useExploreStore = create<ExploreState>()(
           selectedTextPosition: position || null,
           showExploreButton: !!text,
         }),
+
+      setAutoMessageData: (data) => set({ autoMessageData: data }),
 
       toggleSidebar: () =>
         set((state) => ({

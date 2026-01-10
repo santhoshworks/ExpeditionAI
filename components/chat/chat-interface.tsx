@@ -23,7 +23,7 @@ interface ChatInterfaceProps {
 }
 
 export function ChatInterface({ trailId, expeditionId, model }: ChatInterfaceProps) {
-  const { selectedModel } = useExploreStore()
+  const { selectedModel, autoMessageData, setAutoMessageData } = useExploreStore()
   const { data: existingMessages, refetch } = useMessages(trailId)
   const scrollRef = useRef<HTMLDivElement>(null)
   const [messages, setMessages] = useState<ChatMessage[]>([])
@@ -120,6 +120,20 @@ export function ChatInterface({ trailId, expeditionId, model }: ChatInterfacePro
       setIsLoading(false)
     }
   }, [messages, trailId, selectedModelValue, refetch])
+
+  // Handle auto-message for new trails
+  useEffect(() => {
+    if (autoMessageData && autoMessageData.trailId === trailId && messages.length === 0 && !isLoading) {
+      const { selectedText } = autoMessageData
+      // Clear the auto-message data immediately so it doesn't trigger again
+      setAutoMessageData(null)
+
+      // Trigger the first message
+      const autoMessage = `Explain more about this ${selectedText}`
+      handleSend(autoMessage)
+    }
+  }, [trailId, autoMessageData, messages.length, isLoading, setAutoMessageData, handleSend])
+
 
   return (
     <div className="flex flex-col h-full">

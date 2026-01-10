@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { createClient } from "@/lib/supabase/client"
-import type { Expedition, Trail, Message, ExpeditionWithStats, TrailWithCounts } from "@/types/database"
+import type { Expedition, Trail, Message, ExpeditionWithStats, TrailWithCounts, Journal } from "@/types/database"
 
 // Expeditions
 export function useExpeditions() {
@@ -15,7 +15,7 @@ export function useExpeditions() {
         .select("*")
         .eq("is_archived", false)
         .order("updated_at", { ascending: false })
-      
+
       if (error) throw error
       return data as ExpeditionWithStats[]
     },
@@ -32,7 +32,7 @@ export function useExpedition(id: string) {
         .select("*")
         .eq("id", id)
         .single()
-      
+
       if (error) throw error
       return data as Expedition
     },
@@ -51,7 +51,7 @@ export function useTrails(expeditionId: string) {
         .select("*")
         .eq("expedition_id", expeditionId)
         .order("created_at")
-      
+
       if (error) throw error
       return data as TrailWithCounts[]
     },
@@ -70,7 +70,7 @@ export function useMessages(trailId: string) {
         .select("*")
         .eq("trail_id", trailId)
         .order("created_at")
-      
+
       if (error) throw error
       return data as Message[]
     },
@@ -86,7 +86,7 @@ export function useCreateExpedition() {
     mutationFn: async (data: { title: string; description?: string }) => {
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
-      
+
       if (!user) throw new Error("Not authenticated")
 
       const { data: expedition, error } = await supabase
@@ -131,7 +131,7 @@ export function useCreateTrail() {
       sourceText?: string
     }) => {
       const supabase = createClient()
-      
+
       // Get position for ordering - use filter for nullable parent_trail_id
       let query = supabase
         .from("trails")
@@ -212,6 +212,61 @@ export function useDeleteExpedition() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["expeditions"] })
+    },
+  })
+}
+
+// Journals
+export function useJournal(expeditionId: string) {
+  return useQuery({
+    queryKey: ["journal", expeditionId],
+    queryFn: async () => {
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from("journals")
+        .select("*")
+        .eq("expedition_id", expeditionId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle()
+
+      if (error) throw error
+      return data as Journal | null
+    },
+    enabled: !!expeditionId,
+  })
+}
+
+export function useGenerateJournal() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({
+      expeditionId,
+      model = "anthropic/claude-3.5-sonnet",
+    }: {
+      expeditionId: string
+      model?: string
+    }) => {
+      const response = await fetch(`/api/expeditions/${expeditionId}/journal`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ model }),
+      })
+
+      if (!response.ok) {
+        const error = await response.text()
+        throw new Error(error || "Failed to generate journal")
+      }
+
+      return response.json() as Promise<Journal>
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["journal", variables.expeditionId],
+      })
     },
   })
 }

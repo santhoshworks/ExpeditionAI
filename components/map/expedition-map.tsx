@@ -114,10 +114,21 @@ export function ExpeditionMap({
 
   if (trails.length === 0) {
     return (
-      <div className="flex items-center justify-center h-full text-muted-foreground text-sm p-4">
-        <div className="text-center">
-          <p className="mb-2">No trails yet</p>
-          <p className="text-xs">Start chatting to create your first trail!</p>
+      <div className="flex items-center justify-center h-full text-muted-foreground p-4">
+        <div className="text-center max-w-md">
+          <div className="mb-4 text-6xl">🗺️</div>
+          <h3 className="text-xl font-semibold mb-2 text-foreground">Your Expedition Awaits</h3>
+          <p className="mb-4">
+            Start exploring by chatting about a topic that interests you. Each conversation creates a trail on this map, forming a visual journey of your learning.
+          </p>
+          <div className="text-sm space-y-2 text-left bg-muted/30 p-4 rounded-lg">
+            <p className="font-medium text-foreground">💡 Tips to get started:</p>
+            <ul className="space-y-1 list-disc list-inside">
+              <li>Ask a question about any topic</li>
+              <li>Highlight text to create a new trail</li>
+              <li>Watch your knowledge map grow organically</li>
+            </ul>
+          </div>
         </div>
       </div>
     )

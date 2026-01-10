@@ -1,95 +1,261 @@
 "use client"
 
 import { useParams } from "next/navigation"
-import { useExpedition } from "@/lib/queries"
+import { useExpedition, useJournal, useGenerateJournal } from "@/lib/queries"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowLeft, BookOpen } from "lucide-react"
+import { ArrowLeft, BookOpen, RefreshCw, Download, Calendar, Loader2 } from "lucide-react"
 import Link from "next/link"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import { format } from "date-fns"
+import { ModelSelector } from "@/components/chat/model-selector"
+import { useExploreStore } from "@/lib/store"
+import { useTextSelection } from "@/hooks/use-text-selection"
+import { ExploreButton } from "@/components/chat/explore-button"
+import { useEffect } from "react"
 
 export default function JournalPage() {
   const params = useParams()
   const expeditionId = params.id as string
-  const { data: expedition, isLoading } = useExpedition(expeditionId)
+  const { data: expedition, isLoading: isExpeditionLoading } = useExpedition(expeditionId)
+  const { data: journal, isLoading: isJournalLoading } = useJournal(expeditionId)
+  const { selectedModel, setCurrentExpedition } = useExploreStore()
+  const { mutate: generateJournal, isPending: isGenerating } = useGenerateJournal()
 
-  // TODO: Implement journal fetching and generation
-  const journal = null
+  // Enable text selection for explore feature
+  useTextSelection()
 
-  if (isLoading) {
+  useEffect(() => {
+    if (expeditionId) {
+      setCurrentExpedition(expeditionId)
+    }
+  }, [expeditionId, setCurrentExpedition])
+
+  const handleGenerate = () => {
+    generateJournal(
+      { expeditionId, model: selectedModel },
+      {
+        onSuccess: () => {
+          console.log("Journal generated successfully!")
+        },
+        onError: (error) => {
+          console.error("Failed to generate journal:", error)
+          alert("Failed to generate journal. Please try again.")
+        },
+      }
+    )
+  }
+
+  const handleExport = () => {
+    if (!journal) return
+    const blob = new Blob([journal.content], { type: "text/markdown" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `${expedition?.title || "expedition"}-journal.md`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
+  if (isExpeditionLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-muted-foreground">Loading journal...</p>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-muted-foreground animate-pulse">Loading expedition details...</p>
+        </div>
       </div>
     )
   }
 
   if (!expedition) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-muted-foreground mb-4">Expedition not found</p>
-          <Link href="/dashboard">
-            <Button>Back to Dashboard</Button>
-          </Link>
-        </div>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Card className="max-w-md w-full mx-4">
+          <CardContent className="pt-10 pb-10 text-center">
+            <h3 className="text-xl font-bold mb-2">Expedition not found</h3>
+            <p className="text-muted-foreground mb-6">We couldn't find the expedition you're looking for.</p>
+            <Link href="/dashboard">
+              <Button>Back to Dashboard</Button>
+            </Link>
+          </CardContent>
+        </Card>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background text-foreground relative overflow-hidden">
+      {/* Background Decor */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '2s' }} />
+      </div>
+
       {/* Header */}
-      <header className="border-b bg-card">
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center gap-4">
-            <Link href={`/expedition/${expeditionId}`}>
-              <Button variant="ghost" size="icon">
-                <ArrowLeft className="h-4 w-4" />
+      <header className="sticky top-0 z-10 border-b bg-background/80 backdrop-blur-md">
+        <div className="container mx-auto px-4 sm:px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Link href={`/expedition/${expeditionId}`}>
+                <Button variant="ghost" size="icon" className="rounded-full">
+                  <ArrowLeft className="h-5 w-5" />
+                </Button>
+              </Link>
+              <div>
+                <h1 className="text-xl font-bold tracking-tight">{expedition.title}</h1>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Calendar className="h-3 w-3" />
+                  <span>Created {format(new Date(expedition.created_at), "PPP")}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {journal && (
+                <Button variant="outline" size="sm" onClick={handleExport} className="hidden sm:flex items-center gap-2">
+                  <Download className="h-4 w-4" />
+                  Export
+                </Button>
+              )}
+              <ModelSelector />
+              <Button
+                size="sm"
+                onClick={handleGenerate}
+                disabled={isGenerating}
+                className="flex items-center gap-2 bg-primary hover:bg-primary/90"
+              >
+                {isGenerating ? (
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                ) : (
+                  <BookOpen className="h-4 w-4" />
+                )}
+                {journal ? "Regenerate" : "Generate Journal"}
               </Button>
-            </Link>
-            <div>
-              <h1 className="text-xl font-bold">{expedition.title}</h1>
-              <p className="text-sm text-muted-foreground">Learning Journal</p>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Content */}
-      <div className="container mx-auto px-4 py-8">
-        {journal ? (
-          <Card>
-            <CardHeader>
-              <CardTitle>Learning Journal</CardTitle>
-              <CardDescription>
-                Summary of your learning journey
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="prose dark:prose-invert max-w-none">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {journal}
-                </ReactMarkdown>
+      {/* Main Content */}
+      <main className="container mx-auto px-4 sm:px-6 py-8">
+        <div className="max-w-4xl mx-auto">
+          {isJournalLoading ? (
+            <div className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <div className="h-8 w-1/3 bg-muted animate-pulse rounded" />
+                  <div className="h-4 w-1/2 bg-muted animate-pulse rounded mt-2" />
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="h-4 w-full bg-muted animate-pulse rounded" />
+                  <div className="h-4 w-full bg-muted animate-pulse rounded" />
+                  <div className="h-4 w-3/4 bg-muted animate-pulse rounded" />
+                  <div className="h-40 w-full bg-muted animate-pulse rounded pt-8" />
+                </CardContent>
+              </Card>
+            </div>
+          ) : journal ? (
+            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+              <Card className="border-none shadow-2xl bg-card/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-primary/50 to-primary/20" />
+                <CardHeader className="pt-10 pb-6 border-b border-white/5">
+                  <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+                    <div className="space-y-1">
+                      <div className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary/10 text-primary mb-2">
+                        COMPLETED EXPEDITION
+                      </div>
+                      <CardTitle className="text-4xl font-extrabold tracking-tight text-foreground">
+                        {expedition.title}
+                      </CardTitle>
+                      <CardDescription className="text-lg text-muted-foreground/80 font-medium">
+                        Learning Synthesis & Knowledge Consolidation
+                      </CardDescription>
+                    </div>
+                    <div className="flex flex-col items-end gap-1 text-xs text-muted-foreground bg-muted/30 p-3 rounded-lg border border-white/5">
+                      <span className="font-semibold uppercase tracking-wider text-[10px] opacity-70">Synthesized using</span>
+                      <span className="text-primary font-medium">{journal.model?.split('/').pop() || "Advanced AI"}</span>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-10 pb-16 px-6 sm:px-12 bg-journal-pattern">
+                  <article className="prose prose-slate dark:prose-invert max-w-none 
+                    prose-headings:font-bold prose-headings:tracking-tight
+                    prose-h1:text-3xl prose-h1:mb-8 prose-h1:text-primary
+                    prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-6 prose-h2:border-b prose-h2:pb-2 prose-h2:border-primary/20
+                    prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-4 prose-h3:text-primary/80
+                    prose-p:text-lg prose-p:leading-relaxed prose-p:text-foreground/80
+                    prose-li:text-lg prose-li:my-2
+                    prose-blockquote:border-l-primary prose-blockquote:bg-primary/5 prose-blockquote:py-2 prose-blockquote:px-6 prose-blockquote:rounded-r-lg
+                    prose-strong:text-foreground prose-strong:font-bold
+                    prose-code:text-primary prose-code:bg-primary/10 prose-code:px-1 prose-code:rounded">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {journal.content}
+                    </ReactMarkdown>
+                  </article>
+                </CardContent>
+              </Card>
+
+              {/* Action Footer for the Journal */}
+              <div className="flex justify-center gap-4">
+                <Button variant="outline" size="lg" onClick={handleExport} className="gap-2 rounded-full px-8 border-primary/20 hover:bg-primary/5">
+                  <Download className="h-5 w-5" />
+                  Download as Markdown
+                </Button>
+                <Button variant="ghost" size="lg" onClick={handleGenerate} disabled={isGenerating} className="gap-2 rounded-full px-8 text-muted-foreground hover:text-primary">
+                  <RefreshCw className={`h-5 w-5 ${isGenerating ? 'animate-spin' : ''}`} />
+                  Regenerate Insights
+                </Button>
               </div>
-            </CardContent>
-          </Card>
-        ) : (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <BookOpen className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No journal yet</h3>
-              <p className="text-muted-foreground mb-4">
-                Generate a summary of your learning journey
-              </p>
-              <Button disabled>
-                Generate Journal (Coming Soon)
-              </Button>
-            </CardContent>
-          </Card>
-        )}
-      </div>
+            </div>
+          ) : (
+            <Card className="border-dashed border-2 bg-muted/30">
+              <CardContent className="py-20 text-center">
+                <div className="flex justify-center mb-6">
+                  <div className="p-4 rounded-full bg-primary/10 text-primary">
+                    <BookOpen size={48} />
+                  </div>
+                </div>
+                <h3 className="text-2xl font-bold mb-3">Your Journey Awaits</h3>
+                <p className="text-muted-foreground max-w-md mx-auto mb-8 text-lg">
+                  Once you've explored some trails and gathered knowledge,
+                  you can generate a beautiful summary of everything you've learned.
+                </p>
+                <div className="flex flex-col items-center gap-4 mb-4">
+                  <span className="text-sm text-muted-foreground uppercase tracking-widest font-semibold">Select Synthesis Model</span>
+                  <ModelSelector />
+                </div>
+                <Button
+                  size="lg"
+                  onClick={handleGenerate}
+                  disabled={isGenerating}
+                  className="gap-2 px-8 py-6 text-lg shadow-lg hover:shadow-primary/20 transition-all"
+                >
+                  {isGenerating ? (
+                    <RefreshCw className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <BookOpen className="h-5 w-5" />
+                  )}
+                  {isGenerating ? "Building your journal..." : "Start Generation"}
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </main>
+
+      {/* Footer / Mobile floating button? */}
+      {journal && (
+        <div className="fixed bottom-6 right-6 sm:hidden">
+          <Button onClick={handleExport} size="icon" className="h-14 w-14 rounded-full shadow-2xl">
+            <Download className="h-6 w-6" />
+          </Button>
+        </div>
+      )}
+      <ExploreButton expeditionId={expeditionId} />
     </div>
   )
 }

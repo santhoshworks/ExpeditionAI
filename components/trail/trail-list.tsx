@@ -3,7 +3,8 @@
 import { TrailWithCounts } from "@/types/database"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Flag, MessageSquare } from "lucide-react"
+import { MessageSquare } from "lucide-react"
+import { FlagButton } from "@/components/trail/flag-button"
 import { cn } from "@/lib/utils"
 import { formatDate } from "@/lib/utils"
 
@@ -21,7 +22,6 @@ export function TrailList({
   expeditionId,
 }: TrailListProps) {
   // Build tree structure
-  const trailMap = new Map(trails.map((t) => [t.id, t]))
   const rootTrails = trails.filter((t) => !t.parent_trail_id)
 
   const renderTrail = (trail: TrailWithCounts, level: number = 0) => {
@@ -30,32 +30,39 @@ export function TrailList({
 
     return (
       <div key={trail.id}>
-        <Button
-          variant={isActive ? "secondary" : "ghost"}
-          className={cn(
-            "w-full justify-start text-left h-auto py-2 px-3 mb-1",
-            level > 0 && "ml-4"
-          )}
-          onClick={() => onTrailSelect(trail.id)}
-        >
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              {trail.is_flagged && (
-                <Flag className="h-3 w-3 text-yellow-500 fill-yellow-500" />
-              )}
-              <span className="font-medium truncate">{trail.title}</span>
+        <div className="group relative flex items-center mb-1">
+          <Button
+            variant={isActive ? "secondary" : "ghost"}
+            className={cn(
+              "flex-1 justify-start text-left h-auto py-2 px-3",
+              level > 0 && "ml-4"
+            )}
+            onClick={() => onTrailSelect(trail.id)}
+          >
+            <div className="flex-1 min-w-0">
+              <span className="font-medium truncate block">{trail.title}</span>
+              <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <MessageSquare className="h-3 w-3" />
+                  {trail.message_count || 0}
+                </span>
+                {trail.last_message_at && (
+                  <span>{formatDate(trail.last_message_at)}</span>
+                )}
+              </div>
             </div>
-            <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1">
-                <MessageSquare className="h-3 w-3" />
-                {trail.message_count || 0}
-              </span>
-              {trail.last_message_at && (
-                <span>{formatDate(trail.last_message_at)}</span>
-              )}
-            </div>
+          </Button>
+          <div className={cn(
+            "absolute right-2 transition-opacity duration-200",
+            trail.is_flagged ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+          )}>
+            <FlagButton
+              trailId={trail.id}
+              isFlagged={trail.is_flagged}
+              size="xs"
+            />
           </div>
-        </Button>
+        </div>
         {children.map((child) => renderTrail(child, level + 1))}
       </div>
     )
