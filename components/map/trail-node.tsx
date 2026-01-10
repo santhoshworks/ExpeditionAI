@@ -1,7 +1,7 @@
 "use client"
 
 import { memo } from "react"
-import { Handle, Position, NodeProps } from "@xyflow/react"
+import { Handle, Position } from "@xyflow/react"
 import { TrailWithCounts } from "@/types/database"
 import { cn } from "@/lib/utils"
 import { Flag, MessageSquare } from "lucide-react"
@@ -14,7 +14,11 @@ interface TrailNodeData {
   onClick?: () => void
 }
 
-export const TrailNode = memo(({ data }: NodeProps<TrailNodeData>) => {
+interface TrailNodeProps {
+  data: TrailNodeData
+}
+
+export const TrailNode = memo(({ data }: TrailNodeProps) => {
   const { trail, isActive, isFlagged, messageCount, onClick } = data
 
   return (

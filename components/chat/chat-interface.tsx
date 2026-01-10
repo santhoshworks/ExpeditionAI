@@ -1,12 +1,20 @@
 "use client"
 
-import { useChat } from "ai/react"
-import { useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { ChatInput } from "./chat-input"
 import { MessageList } from "./message-list"
 import { useExploreStore } from "@/lib/store"
 import { useMessages } from "@/lib/queries"
+import { nanoid } from "nanoid"
+import type { Message as DBMessage } from "@/types/database"
+
+// Message format for the chat
+interface ChatMessage {
+  id: string
+  role: "user" | "assistant" | "system"
+  content: string
+}
 
 interface ChatInterfaceProps {
   trailId: string
@@ -16,39 +24,27 @@ interface ChatInterfaceProps {
 
 export function ChatInterface({ trailId, expeditionId, model }: ChatInterfaceProps) {
   const { selectedModel } = useExploreStore()
-  const { data: existingMessages } = useMessages(trailId)
+  const { data: existingMessages, refetch } = useMessages(trailId)
   const scrollRef = useRef<HTMLDivElement>(null)
+  const [messages, setMessages] = useState<ChatMessage[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<Error | undefined>(undefined)
 
   const selectedModelValue = model || selectedModel
-
-  const initialMessages = existingMessages?.map((m) => ({
-    id: m.id,
-    role: m.role as "user" | "assistant",
-    content: m.content,
-  })) || []
-
-  const { messages, append, isLoading, error, setMessages } = useChat({
-    api: "/api/chat",
-    body: {
-      trailId,
-      model: selectedModelValue,
-    },
-    initialMessages,
-  })
 
   // Update messages when existing messages change (e.g., when switching trails)
   useEffect(() => {
     if (existingMessages && existingMessages.length > 0) {
-      const formattedMessages = existingMessages.map((m) => ({
+      const formattedMessages: ChatMessage[] = existingMessages.map((m: DBMessage) => ({
         id: m.id,
-        role: m.role as "user" | "assistant",
+        role: m.role as "user" | "assistant" | "system",
         content: m.content,
       }))
       setMessages(formattedMessages)
     } else {
       setMessages([])
     }
-  }, [trailId, existingMessages, setMessages])
+  }, [trailId, existingMessages])
 
   // Scroll to bottom when new messages arrive
   useEffect(() => {
@@ -58,22 +54,72 @@ export function ChatInterface({ trailId, expeditionId, model }: ChatInterfacePro
     }
   }, [messages])
 
-  const handleSend = async (content: string) => {
-    // Build message history from current messages
-    const messageHistory = messages.map((m) => ({
-      role: m.role,
-      content: m.content,
-    }))
-
-    await append({
+  const handleSend = useCallback(async (content: string) => {
+    const userMessage: ChatMessage = {
+      id: nanoid(),
       role: "user",
       content,
-      data: {
-        trailId,
-        messages: messageHistory,
-      },
-    })
-  }
+    }
+
+    // Add user message immediately
+    setMessages(prev => [...prev, userMessage])
+    setIsLoading(true)
+    setError(undefined)
+
+    // Create assistant placeholder
+    const assistantId = nanoid()
+    setMessages(prev => [...prev, { id: assistantId, role: "assistant", content: "" }])
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          trailId,
+          model: selectedModelValue,
+          messages: [...messages, userMessage].map(m => ({
+            role: m.role,
+            content: m.content,
+          })),
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error(await response.text())
+      }
+
+      // Handle streaming response
+      const reader = response.body?.getReader()
+      const decoder = new TextDecoder()
+      let assistantContent = ""
+
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+
+          const chunk = decoder.decode(value, { stream: true })
+          assistantContent += chunk
+
+          // Update assistant message with streaming content
+          setMessages(prev =>
+            prev.map(m =>
+              m.id === assistantId ? { ...m, content: assistantContent } : m
+            )
+          )
+        }
+      }
+
+      // Refetch messages from DB to get the saved versions
+      await refetch()
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error("Failed to send message"))
+      // Remove the empty assistant message on error
+      setMessages(prev => prev.filter(m => m.id !== assistantId))
+    } finally {
+      setIsLoading(false)
+    }
+  }, [messages, trailId, selectedModelValue, refetch])
 
   return (
     <div className="flex flex-col h-full">

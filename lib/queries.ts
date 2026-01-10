@@ -95,7 +95,7 @@ export function useCreateExpedition() {
           user_id: user.id,
           title: data.title,
           description: data.description || null,
-        })
+        } as any)
         .select()
         .single()
 
@@ -105,10 +105,10 @@ export function useCreateExpedition() {
       const { error: trailError } = await supabase
         .from("trails")
         .insert({
-          expedition_id: expedition.id,
+          expedition_id: (expedition as any).id,
           title: data.title,
           is_base_camp: true,
-        })
+        } as any)
 
       if (trailError) throw trailError
 
@@ -132,12 +132,19 @@ export function useCreateTrail() {
     }) => {
       const supabase = createClient()
       
-      // Get position for ordering
-      const { count } = await supabase
+      // Get position for ordering - use filter for nullable parent_trail_id
+      let query = supabase
         .from("trails")
         .select("*", { count: "exact", head: true })
         .eq("expedition_id", data.expeditionId)
-        .eq("parent_trail_id", data.parentTrailId || null)
+
+      if (data.parentTrailId) {
+        query = query.eq("parent_trail_id", data.parentTrailId)
+      } else {
+        query = query.is("parent_trail_id", null)
+      }
+
+      const { count } = await query
 
       const { data: trail, error } = await supabase
         .from("trails")
@@ -148,7 +155,7 @@ export function useCreateTrail() {
           source_text: data.sourceText || null,
           is_base_camp: !data.parentTrailId,
           position: (count || 0) + 1,
-        })
+        } as any)
         .select()
         .single()
 
@@ -175,7 +182,7 @@ export function useToggleFlag() {
       trailId: string
       isFlagged: boolean
     }) => {
-      const supabase = createClient()
+      const supabase = createClient() as any
       const { error } = await supabase
         .from("trails")
         .update({ is_flagged: isFlagged })

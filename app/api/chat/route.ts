@@ -1,18 +1,23 @@
 import { createClient } from "@/lib/supabase/server"
-import { openrouter } from "@openrouter/ai-sdk-provider/openrouter"
+import { createOpenRouter } from "@openrouter/ai-sdk-provider"
 import { streamText } from "ai"
 import { z } from "zod"
 
+const openrouter = createOpenRouter({
+  apiKey: process.env.OPENROUTER_API_KEY!,
+})
+
+// Schema for AI SDK useChat hook format
+// The useChat hook sends messages array with all messages including the latest user message
 const chatSchema = z.object({
   trailId: z.string(),
-  message: z.string(),
   model: z.string().optional(),
   messages: z.array(
     z.object({
       role: z.enum(["user", "assistant", "system"]),
       content: z.string(),
     })
-  ).optional(),
+  ),
 })
 
 export async function POST(req: Request) {
@@ -27,7 +32,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json()
-    const { trailId, message, model, messages = [] } = chatSchema.parse(body)
+    const { trailId, model, messages } = chatSchema.parse(body)
 
     // Verify trail ownership
     const { data: trail, error: trailError } = await supabase
@@ -40,37 +45,32 @@ export async function POST(req: Request) {
       return new Response("Trail not found or access denied", { status: 403 })
     }
 
-    // Save user message first
+    // Get the latest user message from the messages array (it's always the last one when using append)
+    const latestUserMessage = messages.filter(m => m.role === "user").pop()
+
+    if (!latestUserMessage) {
+      return new Response("No user message found", { status: 400 })
+    }
+
+    // Save user message to database
     const { error: userMsgError } = await supabase
       .from("messages")
       .insert({
         trail_id: trailId,
         role: "user",
-        content: message,
-      })
+        content: latestUserMessage.content,
+      } as any)
 
     if (userMsgError) {
       console.error("Failed to save user message:", userMsgError)
     }
 
-    // Build conversation history (messages array already includes all previous messages)
-    // We add the current user message to the history
-    const conversationHistory = [
-      ...messages,
-      {
-        role: "user" as const,
-        content: message,
-      },
-    ]
-
     const selectedModel = model || "anthropic/claude-3.5-sonnet"
 
-    // Stream AI response
+    // Stream AI response using the full conversation history
     const result = await streamText({
-      model: openrouter(selectedModel, {
-        apiKey: process.env.OPENROUTER_API_KEY!,
-      }),
-      messages: conversationHistory,
+      model: openrouter(selectedModel),
+      messages: messages,
       onFinish: async ({ text }) => {
         // Save assistant message after streaming completes
         try {
@@ -82,14 +82,14 @@ export async function POST(req: Request) {
               role: "assistant",
               content: text,
               model: selectedModel,
-            })
+            } as any)
         } catch (error) {
           console.error("Failed to save assistant message:", error)
         }
       },
     })
 
-    return result.toDataStreamResponse()
+    return result.toTextStreamResponse()
   } catch (error) {
     console.error("Chat API error:", error)
     return new Response(

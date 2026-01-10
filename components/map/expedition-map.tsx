@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useMemo } from "react"
+import { useCallback, useMemo, useEffect } from "react"
 import {
   ReactFlow,
   MiniMap,
@@ -12,6 +12,7 @@ import {
   Connection,
   Node,
   Edge,
+  BackgroundVariant,
 } from "@xyflow/react"
 import "@xyflow/react/dist/style.css"
 import { TrailWithCounts } from "@/types/database"
@@ -19,7 +20,7 @@ import { TrailNode } from "./trail-node"
 
 const nodeTypes = {
   trailNode: TrailNode,
-}
+} as const
 
 interface ExpeditionMapProps {
   trails: TrailWithCounts[]
@@ -42,7 +43,6 @@ export function ExpeditionMap({
 
     const nodes: Node[] = []
     const edges: Edge[] = []
-    const trailMap = new Map(trails.map((t) => [t.id, t]))
 
     // Find base camp (root)
     const baseCamp = trails.find((t) => t.is_base_camp) || trails[0]
@@ -73,7 +73,7 @@ export function ExpeditionMap({
       // Position children
       const childCount = children.length
       const startX = x - (childCount - 1) * 150
-      
+
       children.forEach((child, index) => {
         const childX = startX + index * 300
         const childY = y + 150
@@ -105,7 +105,8 @@ export function ExpeditionMap({
   // Update nodes when trails or currentTrailId changes
   const trailMap = useMemo(() => new Map(trails.map((t) => [t.id, t])), [trails])
 
-  useMemo(() => {
+  // Use useEffect for side effects instead of useMemo
+  useEffect(() => {
     setNodes((nds) =>
       nds.map((node) => {
         const trail = trailMap.get(node.id)
@@ -148,7 +149,7 @@ export function ExpeditionMap({
           <>
             <Controls />
             <MiniMap />
-            <Background variant="dots" gap={12} size={1} />
+            <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
           </>
         )}
       </ReactFlow>

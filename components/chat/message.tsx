@@ -5,6 +5,7 @@ import remarkGfm from "remark-gfm"
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism"
 import { cn } from "@/lib/utils"
+import type { Components } from "react-markdown"
 
 interface MessageProps {
   message: {
@@ -20,6 +21,32 @@ export function Message({ message }: MessageProps) {
 
   if (isSystem) {
     return null
+  }
+
+  const markdownComponents: Components = {
+    code({ className, children, ...props }) {
+      const match = /language-(\w+)/.exec(className || "")
+      const codeString = String(children).replace(/\n$/, "")
+
+      // Check if this is a code block (has language) vs inline code
+      if (match) {
+        return (
+          <SyntaxHighlighter
+            style={vscDarkPlus}
+            language={match[1]}
+            PreTag="div"
+          >
+            {codeString}
+          </SyntaxHighlighter>
+        )
+      }
+
+      return (
+        <code className={className} {...props}>
+          {children}
+        </code>
+      )
+    },
   }
 
   return (
@@ -43,25 +70,7 @@ export function Message({ message }: MessageProps) {
           <div className="prose prose-sm dark:prose-invert max-w-none select-text">
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
-              components={{
-                code({ node, inline, className, children, ...props }: any) {
-                  const match = /language-(\w+)/.exec(className || "")
-                  return !inline && match ? (
-                    <SyntaxHighlighter
-                      style={vscDarkPlus}
-                      language={match[1]}
-                      PreTag="div"
-                      {...props}
-                    >
-                      {String(children).replace(/\n$/, "")}
-                    </SyntaxHighlighter>
-                  ) : (
-                    <code className={className} {...props}>
-                      {children}
-                    </code>
-                  )
-                },
-              }}
+              components={markdownComponents}
             >
               {message.content}
             </ReactMarkdown>
