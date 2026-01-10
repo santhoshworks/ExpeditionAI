@@ -136,11 +136,11 @@ export function ChatInterface({ trailId, expeditionId, model }: ChatInterfacePro
 
 
   return (
-    <div className="flex flex-col h-full">
-      <ScrollArea className="flex-1 p-4" ref={scrollRef}>
+    <div className="flex flex-col h-full mobile-chat-container">
+      <ScrollArea className="flex-1 p-4 md:p-6" ref={scrollRef}>
         <MessageList messages={messages} isLoading={isLoading} error={error} />
       </ScrollArea>
-      <div className="border-t p-4">
+      <div className="border-t bg-background mobile-input-container mobile-keyboard-safe p-4 md:p-6">
         <ChatInput onSend={handleSend} disabled={isLoading} />
       </div>
     </div>

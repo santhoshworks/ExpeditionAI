@@ -1,10 +1,15 @@
+"use client"
+
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Network, Map, BookOpen, Share2, Sparkles, Brain, ArrowRight, CheckCircle2 } from "lucide-react"
+import { Network, Map, BookOpen, Share2, Sparkles, Brain, ArrowRight, CheckCircle2, Menu, X } from "lucide-react"
+import { useState } from "react"
 
 export default function LandingPage() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       {/* Navbar */}
@@ -14,27 +19,78 @@ export default function LandingPage() {
             <div className="bg-primary/10 p-2 rounded-lg group-hover:bg-primary/20 transition-colors">
               <Network className="w-5 h-5 text-primary" />
             </div>
-            <span className="text-xl font-bold tracking-tight">ExplorerAI</span>
+            <span className="text-lg md:text-xl font-bold tracking-tight">ExplorerAI</span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
+          <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-medium">
             <Link href="#features" className="text-muted-foreground hover:text-foreground transition-colors">Features</Link>
             <Link href="#use-cases" className="text-muted-foreground hover:text-foreground transition-colors">Use Cases</Link>
             <Link href="/pricing" className="text-muted-foreground hover:text-foreground transition-colors">Pricing</Link>
             <Link href="/blog" className="text-muted-foreground hover:text-foreground transition-colors">Blog</Link>
           </nav>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             <Link href="/login" className="hidden sm:block">
-              <Button variant="ghost" className="text-muted-foreground hover:text-foreground">Log in</Button>
+              <Button variant="ghost" className="text-muted-foreground hover:text-foreground text-sm md:text-base">Log in</Button>
             </Link>
             <Link href="/signup">
-              <Button className="rounded-full px-6 shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all">
+              <Button className="rounded-full px-4 md:px-6 shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all text-sm md:text-base">
                 Get Started
               </Button>
             </Link>
+
+            {/* Mobile menu button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </Button>
           </div>
         </div>
+
+        {/* Mobile menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t bg-background/95 backdrop-blur-md">
+            <nav className="container mx-auto px-4 py-4 space-y-4">
+              <Link
+                href="#features"
+                className="block text-muted-foreground hover:text-foreground transition-colors py-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Features
+              </Link>
+              <Link
+                href="#use-cases"
+                className="block text-muted-foreground hover:text-foreground transition-colors py-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Use Cases
+              </Link>
+              <Link
+                href="/pricing"
+                className="block text-muted-foreground hover:text-foreground transition-colors py-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Pricing
+              </Link>
+              <Link
+                href="/blog"
+                className="block text-muted-foreground hover:text-foreground transition-colors py-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Blog
+              </Link>
+              <div className="pt-4 border-t">
+                <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+                  <Button variant="ghost" className="w-full justify-start">Log in</Button>
+                </Link>
+              </div>
+            </nav>
+          </div>
+        )}
       </header>
 
       <main>
@@ -50,32 +106,32 @@ export default function LandingPage() {
                   <span>Now running with GPT-4 Omni</span>
                 </div>
 
-                <h1 className="text-5xl lg:text-7xl font-bold tracking-tight leading-[1.1]">
+                <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight leading-[1.1]">
                   Map Your <br />
                   <span className="text-primary bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary/80 to-blue-600">
                     Curiosity
                   </span>
                 </h1>
 
-                <p className="text-xl text-muted-foreground max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+                <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto lg:mx-0 leading-relaxed">
                   Turn any topic into an interactive learning journey. ExplorerAI visualizes knowledge, connects concepts, and helps you master complex subjects faster.
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
                   <Link href="/signup" className="w-full sm:w-auto">
-                    <Button size="lg" className="w-full h-12 px-8 rounded-full text-lg shadow-xl shadow-primary/20 hover:scale-105 transition-transform">
+                    <Button size="lg" className="w-full h-11 md:h-12 px-6 md:px-8 rounded-full text-base md:text-lg shadow-xl shadow-primary/20 hover:scale-105 transition-transform">
                       Start Exploring Free
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
                   </Link>
                   <Link href="#demo" className="w-full sm:w-auto">
-                    <Button size="lg" variant="outline" className="w-full h-12 px-8 rounded-full text-lg hover:bg-muted/50">
+                    <Button size="lg" variant="outline" className="w-full h-11 md:h-12 px-6 md:px-8 rounded-full text-base md:text-lg hover:bg-muted/50">
                       View Demo
                     </Button>
                   </Link>
                 </div>
 
-                <div className="pt-8 flex items-center justify-center lg:justify-start gap-8 text-sm text-muted-foreground">
+                <div className="pt-6 md:pt-8 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 sm:gap-8 text-sm text-muted-foreground">
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-green-500" />
                     <span>No credit card required</span>
@@ -134,32 +190,32 @@ export default function LandingPage() {
         </section>
 
         {/* Feature Grid - Zig Zag */}
-        <section id="features" className="py-24 space-y-24 container mx-auto px-4">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl lg:text-5xl font-bold mb-6">More than just a search bar.</h2>
-            <p className="text-xl text-muted-foreground">ExplorerAI transforms linear information into a dynamic map of understanding.</p>
+        <section id="features" className="py-16 md:py-24 space-y-16 md:space-y-24 container mx-auto px-4">
+          <div className="text-center max-w-3xl mx-auto mb-12 md:mb-16">
+            <h2 className="text-2xl md:text-3xl lg:text-5xl font-bold mb-4 md:mb-6">More than just a search bar.</h2>
+            <p className="text-lg md:text-xl text-muted-foreground">ExplorerAI transforms linear information into a dynamic map of understanding.</p>
           </div>
 
           {/* Feature 1 */}
-          <div className="flex flex-col lg:flex-row items-center gap-16">
-            <div className="flex-1 space-y-6">
+          <div className="flex flex-col lg:flex-row items-center gap-8 md:gap-16">
+            <div className="flex-1 space-y-4 md:space-y-6">
               <div className="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
                 <Map className="w-6 h-6 text-blue-600 dark:text-blue-400" />
               </div>
-              <h3 className="text-3xl font-bold">Visual Knowledge Mapping</h3>
-              <p className="text-lg text-muted-foreground leading-relaxed">
+              <h3 className="text-2xl md:text-3xl font-bold">Visual Knowledge Mapping</h3>
+              <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
                 Don&apos;t just read—visualize. Every query creates a node, and every follow-up branches out. See exactly how concepts connect and navigate your learning history spatially.
               </p>
               <ul className="space-y-3">
                 {['Interactive Zoom & Pan', 'Auto-organized clusters', 'Persistent map history'].map((item) => (
                   <li key={item} className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-primary" />
-                    <span>{item}</span>
+                    <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
+                    <span className="text-sm md:text-base">{item}</span>
                   </li>
                 ))}
               </ul>
             </div>
-            <div className="flex-1 relative h-[400px] w-full bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-900 dark:to-slate-800 rounded-2xl border border-border/50 overflow-hidden shadow-2xl">
+            <div className="flex-1 relative h-[300px] md:h-[400px] w-full bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-900 dark:to-slate-800 rounded-2xl border border-border/50 overflow-hidden shadow-2xl">
               <div className="absolute inset-0 flex items-center justify-center text-muted-foreground/20">
                 {/* Abstract Representation of Map UI */}
                 <Image
@@ -173,32 +229,32 @@ export default function LandingPage() {
           </div>
 
           {/* Feature 2 */}
-          <div className="flex flex-col lg:flex-row-reverse items-center gap-16">
-            <div className="flex-1 space-y-6">
+          <div className="flex flex-col lg:flex-row-reverse items-center gap-8 md:gap-16">
+            <div className="flex-1 space-y-4 md:space-y-6">
               <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
                 <BookOpen className="w-6 h-6 text-purple-600 dark:text-purple-400" />
               </div>
-              <h3 className="text-3xl font-bold">Automated Journaling</h3>
-              <p className="text-lg text-muted-foreground leading-relaxed">
+              <h3 className="text-2xl md:text-3xl font-bold">Automated Journaling</h3>
+              <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
                 Forget taking messy notes. ExplorerAI automatically synthesizes your entire session into a structured learning journal.
               </p>
               <ul className="space-y-3">
                 {['Smart Summaries', 'Key Takeaways extraction', 'One-click PDF Export'].map((item) => (
                   <li key={item} className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-primary" />
-                    <span>{item}</span>
+                    <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
+                    <span className="text-sm md:text-base">{item}</span>
                   </li>
                 ))}
               </ul>
             </div>
-            <div className="flex-1 relative h-[400px] w-full bg-gradient-to-br from-purple-50 to-pink-50 dark:from-slate-900 dark:to-slate-800 rounded-2xl border border-border/50 overflow-hidden shadow-2xl p-8 flex items-center justify-center">
+            <div className="flex-1 relative h-[300px] md:h-[400px] w-full bg-gradient-to-br from-purple-50 to-pink-50 dark:from-slate-900 dark:to-slate-800 rounded-2xl border border-border/50 overflow-hidden shadow-2xl p-6 md:p-8 flex items-center justify-center">
               {/* Journal Graphic */}
-              <div className="bg-background rounded-xl w-3/4 h-full shadow-lg p-6 space-y-4 border opacity-90 rotate-2 hover:rotate-0 transition-transform duration-500">
-                <div className="h-4 w-1/3 bg-muted rounded animate-pulse" />
+              <div className="bg-background rounded-xl w-3/4 h-full shadow-lg p-4 md:p-6 space-y-3 md:space-y-4 border opacity-90 rotate-2 hover:rotate-0 transition-transform duration-500">
+                <div className="h-3 md:h-4 w-1/3 bg-muted rounded animate-pulse" />
                 <div className="space-y-2">
-                  <div className="h-3 w-full bg-muted/50 rounded" />
-                  <div className="h-3 w-full bg-muted/50 rounded" />
-                  <div className="h-3 w-2/3 bg-muted/50 rounded" />
+                  <div className="h-2 md:h-3 w-full bg-muted/50 rounded" />
+                  <div className="h-2 md:h-3 w-full bg-muted/50 rounded" />
+                  <div className="h-2 md:h-3 w-2/3 bg-muted/50 rounded" />
                 </div>
               </div>
             </div>

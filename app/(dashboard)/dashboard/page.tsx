@@ -78,69 +78,76 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="container mx-auto px-6 py-8">
+    <div className="h-full overflow-y-auto container mx-auto px-4 md:px-6 py-4 md:py-8">
       {/* Welcome & Quick Actions */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
-            Welcome back Explorer
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Pick up where you left off or start a new adventure.
-          </p>
-        </div>
+      <div className="flex flex-col gap-4 mb-6 md:mb-10">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
+              Welcome back Explorer
+            </h1>
+            <p className="text-muted-foreground mt-1 text-sm md:text-base">
+              Pick up where you left off or start a new adventure.
+            </p>
+          </div>
 
-        <div className="flex items-center gap-3">
-          <div className="flex items-center bg-accent/50 p-1 rounded-lg mr-2 border">
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <div className="flex items-center bg-accent/50 p-1 rounded-lg border flex-shrink-0">
+              <Button
+                variant={viewMode === "grid" ? "secondary" : "ghost"}
+                size="icon"
+                className="h-8 w-8 rounded-md"
+                onClick={() => setViewMode("grid")}
+              >
+                <LayoutGrid className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={viewMode === "list" ? "secondary" : "ghost"}
+                size="icon"
+                className="h-8 w-8 rounded-md"
+                onClick={() => setViewMode("list")}
+              >
+                <LayoutList className="h-4 w-4" />
+              </Button>
+            </div>
             <Button
-              variant={viewMode === "grid" ? "secondary" : "ghost"}
-              size="icon"
-              className="h-8 w-8 rounded-md"
-              onClick={() => setViewMode("grid")}
+              onClick={() => setShowNewDialog(true)}
+              className="rounded-full shadow-lg shadow-primary/20 gap-2 flex-1 md:flex-initial"
             >
-              <LayoutGrid className="h-4 w-4" />
-            </Button>
-            <Button
-              variant={viewMode === "list" ? "secondary" : "ghost"}
-              size="icon"
-              className="h-8 w-8 rounded-md"
-              onClick={() => setViewMode("list")}
-            >
-              <LayoutList className="h-4 w-4" />
+              <Plus className="h-4 w-4" />
+              <span className="hidden sm:inline">New Expedition</span>
+              <span className="sm:hidden">New</span>
             </Button>
           </div>
-          <Button onClick={() => setShowNewDialog(true)} className="rounded-full shadow-lg shadow-primary/20 gap-2">
-            <Plus className="h-4 w-4" />
-            New Expedition
-          </Button>
         </div>
       </div>
 
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {[1, 2, 3].map(i => (
-            <div key={i} className="h-[220px] rounded-2xl bg-accent/30 animate-pulse border" />
+            <div key={i} className="h-[200px] md:h-[220px] rounded-2xl bg-accent/30 animate-pulse border" />
           ))}
         </div>
       ) : !expeditions || expeditions.length === 0 ? (
-        <div className="flex flex-col items-center justify-center min-h-[40vh] text-center p-8 border-2 border-dashed rounded-3xl bg-accent/5">
-          <div className="bg-primary/5 p-6 rounded-full mb-6">
-            <Sparkles className="w-12 h-12 text-primary/40" />
+        <div className="flex flex-col items-center justify-center min-h-[40vh] text-center p-4 md:p-8 border-2 border-dashed rounded-3xl bg-accent/5">
+          <div className="bg-primary/5 p-4 md:p-6 rounded-full mb-4 md:mb-6">
+            <Sparkles className="w-8 h-8 md:w-12 md:h-12 text-primary/40" />
           </div>
-          <h3 className="text-2xl font-bold mb-3">Your journey begins here</h3>
-          <p className="text-muted-foreground mb-8 max-w-sm">
+          <h3 className="text-xl md:text-2xl font-bold mb-2 md:mb-3">Your journey begins here</h3>
+          <p className="text-muted-foreground mb-6 md:mb-8 max-w-sm text-sm md:text-base">
             You haven&apos;t created any expeditions yet. Start your first one to begin mapping your curiosity.
           </p>
-          <Button onClick={() => setShowNewDialog(true)} size="lg" className="rounded-full px-8 animate-bounce-slow">
-            Create Your First Expedition
+          <Button onClick={() => setShowNewDialog(true)} size="lg" className="rounded-full px-6 md:px-8 animate-bounce-slow">
+            <span className="hidden sm:inline">Create Your First Expedition</span>
+            <span className="sm:hidden">Create Expedition</span>
           </Button>
         </div>
       ) : (
         <>
           {/* Expeditions Grid/List - sorted by recent activity */}
           <div className={cn(
-            "grid gap-6",
-            viewMode === "grid" ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"
+            "grid gap-4 md:gap-6",
+            viewMode === "grid" ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"
           )}>
             {[...expeditions].sort((a, b) =>
               new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
@@ -149,28 +156,28 @@ export default function DashboardPage() {
                 key={expedition.id}
                 className={cn(
                   "group relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-primary/20 cursor-pointer bg-card/40 backdrop-blur-sm",
-                  viewMode === "list" ? "flex flex-row items-center h-24" : "h-[240px]"
+                  viewMode === "list" ? "flex flex-col sm:flex-row items-start sm:items-center min-h-[120px]" : "h-[200px] md:h-[240px]"
                 )}
                 onClick={() => router.push(`/expedition/${expedition.id}`)}
               >
                 {/* Decorative background glow */}
                 <div className="absolute -right-10 -top-10 w-32 h-32 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-colors" />
 
-                <CardHeader className={cn(viewMode === "list" ? "p-4 flex-1" : "p-6")}>
+                <CardHeader className={cn(viewMode === "list" ? "p-4 flex-1" : "p-4 md:p-6")}>
                   <div className="flex justify-between items-start">
-                    <div className="space-y-1 flex-1">
+                    <div className="space-y-1 flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <CardTitle className="text-xl group-hover:text-primary transition-colors line-clamp-1">
+                        <CardTitle className="text-lg md:text-xl group-hover:text-primary transition-colors line-clamp-1">
                           {expedition.title}
                         </CardTitle>
                         {expedition.flagged_count > 0 && (
-                          <span className="flex items-center gap-1 text-[10px] bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded-full font-bold">
+                          <span className="flex items-center gap-1 text-[10px] bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded-full font-bold flex-shrink-0">
                             <Flag className="w-2 h-2" />
                             {expedition.flagged_count}
                           </span>
                         )}
                       </div>
-                      <CardDescription className="line-clamp-2 min-h-[40px] text-xs mt-2">
+                      <CardDescription className="line-clamp-2 min-h-[32px] md:min-h-[40px] text-xs mt-2">
                         {expedition.description || "No description provided."}
                       </CardDescription>
                     </div>
@@ -178,7 +185,7 @@ export default function DashboardPage() {
                       variant="ghost"
                       size="icon"
                       onClick={(e) => handleDelete(expedition.id, e)}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:text-destructive h-8 w-8 rounded-full"
+                      className="opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:text-destructive h-8 w-8 rounded-full flex-shrink-0"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -186,40 +193,42 @@ export default function DashboardPage() {
                 </CardHeader>
 
                 <CardContent className={cn(
-                  "flex flex-col justify-end gap-4",
-                  viewMode === "list" ? "p-4 w-auto flex-row items-center border-l h-full bg-accent/10" : "p-6 pt-0"
+                  "flex flex-col justify-end gap-3 md:gap-4",
+                  viewMode === "list" ? "p-4 w-full sm:w-auto flex-row items-center border-t sm:border-t-0 sm:border-l h-auto sm:h-full bg-accent/10" : "p-4 md:p-6 pt-0"
                 )}>
-                  <div className="flex items-center gap-4 text-[11px] text-muted-foreground font-medium">
-                    <div className="flex items-center gap-1.5 capitalize">
+                  <div className="flex items-center gap-2 md:gap-4 text-[10px] md:text-[11px] text-muted-foreground font-medium">
+                    <div className="flex items-center gap-1 md:gap-1.5 capitalize">
                       <Compass className="w-3 h-3 text-primary/60" />
                       <span>{expedition.trail_count || 0} Trails</span>
                     </div>
-                    <div className="flex items-center gap-1.5 capitalize">
+                    <div className="flex items-center gap-1 md:gap-1.5 capitalize">
                       <MessageSquare className="w-3 h-3 text-primary/60" />
                       <span>{expedition.message_count || 0} Msgs</span>
                     </div>
-                    <div className="flex items-center gap-1.5 ml-auto">
+                    <div className="flex items-center gap-1 md:gap-1.5 ml-auto">
                       <Clock className="w-3 h-3" />
-                      <span>{formatDate(expedition.updated_at)}</span>
+                      <span className="hidden sm:inline">{formatDate(expedition.updated_at)}</span>
+                      <span className="sm:hidden">{formatDate(expedition.updated_at).split(' ')[0]}</span>
                     </div>
                   </div>
 
-                  <div className={cn("flex gap-2", viewMode === "list" ? "ml-4" : "mt-2")}>
+                  <div className={cn("flex gap-2", viewMode === "list" ? "ml-0 sm:ml-4" : "mt-2")}>
                     <Button
                       variant="default"
                       size="sm"
-                      className="flex-1 rounded-full text-xs h-9 bg-primary/90 hover:bg-primary shadow-sm hover:translate-x-1 transition-all group/btn"
+                      className="flex-1 rounded-full text-xs h-8 md:h-9 bg-primary/90 hover:bg-primary shadow-sm hover:translate-x-1 transition-all group/btn"
                     >
-                      Continue
-                      <ArrowRight className="w-3 h-3 ml-2 group-hover/btn:translate-x-1 transition-transform" />
+                      <span className="hidden sm:inline">Continue</span>
+                      <span className="sm:hidden">Open</span>
+                      <ArrowRight className="w-3 h-3 ml-1 md:ml-2 group-hover/btn:translate-x-1 transition-transform" />
                     </Button>
                     <Link
                       href={`/expedition/${expedition.id}/map`}
                       className="flex-shrink-0"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <Button variant="outline" size="icon" className="h-9 w-9 rounded-full hover:bg-primary/5 hover:text-primary transition-colors">
-                        <MapIcon className="h-4 w-4" />
+                      <Button variant="outline" size="icon" className="h-8 w-8 md:h-9 md:w-9 rounded-full hover:bg-primary/5 hover:text-primary transition-colors">
+                        <MapIcon className="h-3 w-3 md:h-4 md:w-4" />
                       </Button>
                     </Link>
                   </div>
@@ -232,21 +241,21 @@ export default function DashboardPage() {
 
       {/* New Expedition Dialog */}
       <Dialog open={showNewDialog} onOpenChange={setShowNewDialog}>
-        <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden border-none shadow-2xl rounded-3xl">
-          <div className="bg-primary/10 p-8 text-center relative">
-            <div className="bg-primary p-4 rounded-2xl w-fit mx-auto mb-4 shadow-xl shadow-primary/20">
-              <Compass className="w-8 h-8 text-primary-foreground" />
+        <DialogContent className="sm:max-w-[500px] mx-4 p-0 overflow-hidden border-none shadow-2xl rounded-3xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-primary/10 p-6 md:p-8 text-center relative">
+            <div className="bg-primary p-3 md:p-4 rounded-2xl w-fit mx-auto mb-3 md:mb-4 shadow-xl shadow-primary/20">
+              <Compass className="w-6 h-6 md:w-8 md:h-8 text-primary-foreground" />
             </div>
-            <DialogTitle className="text-2xl font-bold">Start New Expedition</DialogTitle>
-            <DialogDescription className="text-primary/70 mt-1">
+            <DialogTitle className="text-xl md:text-2xl font-bold">Start New Expedition</DialogTitle>
+            <DialogDescription className="text-primary/70 mt-1 text-sm md:text-base">
               Where shall your curiosity take you today?
             </DialogDescription>
-            <div className="absolute top-0 right-0 p-8 opacity-10">
-              <Sparkles className="w-24 h-24" />
+            <div className="absolute top-0 right-0 p-4 md:p-8 opacity-10">
+              <Sparkles className="w-16 h-16 md:w-24 md:h-24" />
             </div>
           </div>
 
-          <div className="p-8 space-y-6">
+          <div className="p-6 md:p-8 space-y-4 md:space-y-6">
             <div className="space-y-2">
               <label htmlFor="title" className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">
                 Expedition Title *
@@ -255,7 +264,7 @@ export default function DashboardPage() {
                 id="title"
                 placeholder="e.g., Quantum Mechanics, Cooking Ethics..."
                 value={title}
-                className="rounded-xl h-12 focus:ring-primary/20 border-accent transition-all"
+                className="rounded-xl h-10 md:h-12 focus:ring-primary/20 border-accent transition-all"
                 onChange={(e) => setTitle(e.target.value)}
                 autoFocus
               />
@@ -268,27 +277,32 @@ export default function DashboardPage() {
                 id="description"
                 placeholder="What specific aspects are you curious about?"
                 value={description}
-                className="rounded-xl h-12 focus:ring-primary/20 border-accent transition-all"
+                className="rounded-xl h-10 md:h-12 focus:ring-primary/20 border-accent transition-all"
                 onChange={(e) => setDescription(e.target.value)}
               />
             </div>
           </div>
 
-          <DialogFooter className="p-8 pt-2">
-            <Button variant="ghost" onClick={() => setShowNewDialog(false)} className="rounded-full px-6">
+          <DialogFooter className="p-6 md:p-8 pt-2 flex-col sm:flex-row gap-2">
+            <Button variant="ghost" onClick={() => setShowNewDialog(false)} className="rounded-full px-6 w-full sm:w-auto">
               Cancel
             </Button>
             <Button
               onClick={handleCreate}
               disabled={!title.trim() || createExpedition.isPending}
-              className="rounded-full px-8 shadow-lg shadow-primary/20 min-w-[120px]"
+              className="rounded-full px-6 md:px-8 shadow-lg shadow-primary/20 min-w-[120px] w-full sm:w-auto"
             >
               {createExpedition.isPending ? (
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-white rounded-full animate-spin" />
                   Creating...
                 </div>
-              ) : "Begin Expedition"}
+              ) : (
+                <>
+                  <span className="hidden sm:inline">Begin Expedition</span>
+                  <span className="sm:hidden">Create</span>
+                </>
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

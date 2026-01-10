@@ -57,6 +57,56 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Mobile viewport fixes */
+  html {
+    height: 100%;
+    height: -webkit-fill-available;
+  }
+
+  body {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
+
+  /* Prevent zoom on input focus on iOS */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  textarea {
+    font-size: 16px;
+  }
+
+  /* Mobile text selection improvements */
+  @media (max-width: 768px) {
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    textarea {
+      font-size: 16px !important;
+    }
+
+    /* Improve text selection on mobile */
+    [data-ai-response] {
+      -webkit-user-select: text;
+      -moz-user-select: text;
+      -ms-user-select: text;
+      user-select: text;
+      -webkit-touch-callout: default;
+    }
+
+    /* Better selection highlighting on mobile */
+    [data-ai-response]::selection {
+      background-color: hsl(var(--primary) / 0.3);
+      color: hsl(var(--primary-foreground));
+    }
+
+    [data-ai-response]::-moz-selection {
+      background-color: hsl(var(--primary) / 0.3);
+      color: hsl(var(--primary-foreground));
+    }
+  }
 }
 
 
@@ -92,6 +142,34 @@
     text-shadow: 0 0 10px hsl(var(--primary) / 0.3);
   }
 
+  /* Mobile-specific utilities */
+  .mobile-safe-area {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .mobile-keyboard-safe {
+    padding-bottom: max(env(safe-area-inset-bottom), 0px);
+  }
+
+  /* Text selection improvements */
+  .selectable-text {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+    -webkit-touch-callout: default;
+  }
+
+  .selectable-text::selection {
+    background-color: hsl(var(--primary) / 0.2);
+    color: hsl(var(--foreground));
+  }
+
+  .selectable-text::-moz-selection {
+    background-color: hsl(var(--primary) / 0.2);
+    color: hsl(var(--foreground));
+  }
+
   /* Markdown Typography Fixes - Relying on @tailwindcss/typography plugin */
   .prose li::marker {
     @apply text-primary/60 font-bold;
@@ -99,6 +177,22 @@
 
   .no-print {
     @apply print:hidden;
+  }
+}
+
+/* Mobile keyboard handling */
+@media (max-width: 768px) {
+  .mobile-chat-container {
+    height: 100vh;
+    height: -webkit-fill-available;
+  }
+
+  /* Ensure input stays visible when keyboard appears */
+  .mobile-input-container {
+    position: sticky;
+    bottom: 0;
+    background: hsl(var(--background));
+    z-index: 10;
   }
 }
 

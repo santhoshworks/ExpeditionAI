@@ -58,16 +58,16 @@ export function Message({ message }: MessageProps) {
     >
       <div
         className={cn(
-          "max-w-[85%] rounded-lg px-4 py-3 select-text",
+          "max-w-[90%] md:max-w-[85%] rounded-lg px-3 md:px-4 py-2 md:py-3 select-text",
           isUser
             ? "bg-primary text-primary-foreground"
             : "bg-muted text-foreground"
         )}
       >
         {isUser ? (
-          <p className="whitespace-pre-wrap">{message.content}</p>
+          <p className="whitespace-pre-wrap text-sm md:text-base">{message.content}</p>
         ) : (
-          <div className="prose prose-sm dark:prose-invert max-w-none select-text" data-ai-response>
+          <div className="prose prose-sm dark:prose-invert max-w-none select-text text-sm md:text-base" data-ai-response>
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               components={markdownComponents}

@@ -23,19 +23,19 @@ export function MessageList({ messages, isLoading, error }: MessageListProps) {
 
   if (messages.length === 0 && !isLoading) {
     return (
-      <div className="text-center py-12 text-muted-foreground">
-        <p>Start a conversation to begin your learning journey</p>
+      <div className="text-center py-8 md:py-12 text-muted-foreground px-4">
+        <p className="text-sm md:text-base">Start a conversation to begin your learning journey</p>
       </div>
     )
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 md:space-y-6 pb-4">
       {messages.map((message) => (
         <Message key={message.id} message={message} />
       ))}
       {isLoading && (
-        <div className="flex items-center gap-2 text-muted-foreground">
+        <div className="flex items-center gap-2 text-muted-foreground px-2">
           <div className="flex gap-1">
             <div className="h-2 w-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
             <div className="h-2 w-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />

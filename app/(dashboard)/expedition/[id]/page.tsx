@@ -83,19 +83,19 @@ export default function ExpeditionPage() {
   const currentTrail = trails?.find((t) => t.id === currentTrailId)
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="h-full bg-background flex flex-col">
       {/* Expedition Actions / Sub-header */}
-      <div className="border-b bg-card/30 px-6 py-2 flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="border-b bg-card/30 px-4 md:px-6 py-2 flex items-center justify-between">
+        <div className="flex items-center gap-2 md:gap-4 min-w-0 flex-1">
           <Link href="/dashboard">
-            <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
               <ArrowLeft className="h-4 w-4" />
             </Button>
           </Link>
           {currentTrail && (
-            <div className="flex items-center gap-3 border-l pl-4">
-              <span className="text-sm font-medium text-muted-foreground uppercase tracking-widest text-[10px]">Current Trail</span>
-              <span className="text-sm font-bold">{currentTrail.title}</span>
+            <div className="flex items-center gap-2 md:gap-3 border-l pl-2 md:pl-4 min-w-0 flex-1">
+              <span className="text-xs font-medium text-muted-foreground uppercase tracking-widest hidden sm:inline">Current Trail</span>
+              <span className="text-sm font-bold truncate">{currentTrail.title}</span>
               <FlagButton
                 trailId={currentTrail.id}
                 isFlagged={currentTrail.is_flagged}
@@ -104,19 +104,21 @@ export default function ExpeditionPage() {
           )}
         </div>
 
-        <div className="flex items-center gap-2">
-          <ModelSelector userTier={userTier} userCredits={userCredits} />
-          <div className="h-4 w-[1px] bg-border mx-1" />
+        <div className="flex items-center gap-1 md:gap-2 flex-shrink-0">
+          <div className="hidden md:block">
+            <ModelSelector userTier={userTier} userCredits={userCredits} />
+          </div>
+          <div className="h-4 w-[1px] bg-border mx-1 hidden md:block" />
           <Link href={`/expedition/${expeditionId}/map`}>
-            <Button variant="ghost" size="sm" className="h-8 gap-2">
+            <Button variant="ghost" size="sm" className="h-8 gap-1 md:gap-2 px-2 md:px-3">
               <Map className="h-4 w-4" />
-              Map
+              <span className="hidden sm:inline">Map</span>
             </Button>
           </Link>
           <Link href={`/expedition/${expeditionId}/journal`}>
-            <Button variant="ghost" size="sm" className="h-8 gap-2">
+            <Button variant="ghost" size="sm" className="h-8 gap-1 md:gap-2 px-2 md:px-3">
               <BookOpen className="h-4 w-4" />
-              Journal
+              <span className="hidden sm:inline">Journal</span>
             </Button>
           </Link>
         </div>
@@ -124,8 +126,8 @@ export default function ExpeditionPage() {
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Sidebar - Trail Tree */}
-        <aside className="w-80 border-r bg-card/50 backdrop-blur-sm flex flex-col shadow-sm">
+        {/* Sidebar - Trail Tree - Hidden on mobile, shown as overlay when needed */}
+        <aside className="hidden md:flex w-80 border-r bg-card/50 backdrop-blur-sm flex-col shadow-sm">
           <div className="px-4 py-3 border-b bg-accent/30">
             <div className="flex items-center justify-between">
               <h2 className="font-semibold text-base flex items-center gap-2">
@@ -150,9 +152,14 @@ export default function ExpeditionPage() {
         </aside>
 
         {/* Main Chat Area */}
-        <main className="flex-1 flex flex-col relative">
+        <main className="flex-1 flex flex-col relative min-h-0">
+          {/* Mobile Model Selector */}
+          <div className="md:hidden border-b bg-card/30 p-2 flex-shrink-0">
+            <ModelSelector userTier={userTier} userCredits={userCredits} />
+          </div>
+
           {currentTrailId ? (
-            <>
+            <div className="flex-1 flex flex-col min-h-0">
               <ChatInterface
                 trailId={currentTrailId}
                 expeditionId={expeditionId}
@@ -161,10 +168,20 @@ export default function ExpeditionPage() {
                 expeditionId={expeditionId}
                 parentTrailId={currentTrailId}
               />
-            </>
+            </div>
           ) : (
-            <div className="flex-1 flex items-center justify-center text-muted-foreground">
-              <p>Select a trail to start chatting</p>
+            <div className="flex-1 flex items-center justify-center text-muted-foreground p-4">
+              <div className="text-center">
+                <p className="mb-4">Select a trail to start chatting</p>
+                <Button
+                  variant="outline"
+                  onClick={() => {/* TODO: Show mobile trail selector */ }}
+                  className="md:hidden"
+                >
+                  <Map className="h-4 w-4 mr-2" />
+                  Browse Trails
+                </Button>
+              </div>
             </div>
           )}
         </main>

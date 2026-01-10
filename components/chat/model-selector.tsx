@@ -54,25 +54,25 @@ export function ModelSelector({ userTier = 'free', userCredits = 0 }: ModelSelec
     <DropdownMenuItem
       key={model.id}
       onClick={() => !disabled && setSelectedModel(model.id)}
-      className={`${selectedModel === model.id ? "bg-accent" : ""} ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+      className={`${selectedModel === model.id ? "bg-accent" : ""} ${disabled ? "opacity-50 cursor-not-allowed" : ""} p-3`}
       disabled={disabled}
     >
-      <div className="flex items-center justify-between w-full gap-4">
+      <div className="flex items-center justify-between w-full gap-3">
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <span className="font-medium truncate">{model.name}</span>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="font-medium truncate text-sm">{model.name}</span>
             {model.recommended && (
-              <span className="inline-flex items-center gap-1 text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 px-1.5 py-0.5 rounded">
-                <Star className="h-3 w-3" />
+              <span className="inline-flex items-center gap-1 text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 px-1.5 py-0.5 rounded flex-shrink-0">
+                <Star className="h-2.5 w-2.5" />
                 Best
               </span>
             )}
             {model.badge && (
-              <span className={`text-xs px-1.5 py-0.5 rounded ${getBadgeStyles(model.badge)}`}>
+              <span className={`text-xs px-1.5 py-0.5 rounded flex-shrink-0 ${getBadgeStyles(model.badge)}`}>
                 {model.badge}
               </span>
             )}
-            {disabled && <Lock className="h-3 w-3 text-muted-foreground" />}
+            {disabled && <Lock className="h-3 w-3 text-muted-foreground flex-shrink-0" />}
           </div>
           <p className="text-xs text-muted-foreground truncate">{model.description}</p>
         </div>
@@ -96,24 +96,24 @@ export function ModelSelector({ userTier = 'free', userCredits = 0 }: ModelSelec
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2">
-          <div className="flex items-center gap-2">
-            {currentModel?.badge === 'Premium' && <Sparkles className="h-3 w-3 text-orange-500" />}
-            <span>{currentModel?.name || 'Select Model'}</span>
+        <Button variant="outline" size="sm" className="gap-2 max-w-[200px] md:max-w-none">
+          <div className="flex items-center gap-2 min-w-0">
+            {currentModel?.badge === 'Premium' && <Sparkles className="h-3 w-3 text-orange-500 flex-shrink-0" />}
+            <span className="truncate">{currentModel?.name || 'Select Model'}</span>
             {currentModel?.costPerTrail === 0 ? (
-              <span className="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 px-1.5 py-0.5 rounded">
+              <span className="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 px-1.5 py-0.5 rounded flex-shrink-0">
                 Free
               </span>
             ) : currentModel?.costPerTrail ? (
-              <span className="text-xs text-muted-foreground">
+              <span className="text-xs text-muted-foreground flex-shrink-0">
                 {currentModel.costPerTrail}c
               </span>
             ) : null}
           </div>
-          <ChevronDown className="h-4 w-4" />
+          <ChevronDown className="h-4 w-4 flex-shrink-0" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-80">
+      <DropdownMenuContent align="end" className="w-72 md:w-80 max-h-[70vh] overflow-y-auto">
         {/* Credit balance display for paid tiers */}
         {userTier !== 'free' && (
           <>

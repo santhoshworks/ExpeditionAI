@@ -17,29 +17,29 @@ export default function PricingPage() {
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2">
             <span className="text-2xl">🧭</span>
-            <span className="text-xl font-bold">ExplorerAI</span>
+            <span className="text-lg md:text-xl font-bold">ExplorerAI</span>
           </Link>
-          <div className="flex gap-4">
+          <div className="flex gap-2 md:gap-4">
             <Link href="/login">
-              <Button variant="ghost">Login</Button>
+              <Button variant="ghost" size="sm" className="text-sm">Login</Button>
             </Link>
             <Link href="/signup">
-              <Button>Get Started</Button>
+              <Button size="sm" className="text-sm">Get Started</Button>
             </Link>
           </div>
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-20">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">Simple, Credit-Based Pricing</h1>
-          <p className="text-xl text-muted-foreground">
+      <div className="container mx-auto px-4 py-12 md:py-20">
+        <div className="text-center mb-8 md:mb-12">
+          <h1 className="text-3xl md:text-4xl font-bold mb-4">Simple, Credit-Based Pricing</h1>
+          <p className="text-lg md:text-xl text-muted-foreground">
             Pay only for what you use. No subscriptions required.
           </p>
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-5xl mx-auto mb-12 md:mb-16">
           {/* Free Tier */}
           <Card className="relative">
             <CardHeader>
@@ -173,59 +173,61 @@ export default function PricingPage() {
         </div>
 
         {/* Model Performance Comparison Table */}
-        <div className="max-w-4xl mx-auto mb-16">
-          <h2 className="text-2xl font-bold text-center mb-8">Model Comparison</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
+        <div className="max-w-4xl mx-auto mb-12 md:mb-16">
+          <h2 className="text-xl md:text-2xl font-bold text-center mb-6 md:mb-8">Model Comparison</h2>
+          <div className="overflow-x-auto -mx-4 px-4">
+            <table className="w-full border-collapse min-w-[600px]">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-3 px-4">Model</th>
-                  <th className="text-center py-3 px-4">Speed</th>
-                  <th className="text-center py-3 px-4">Quality</th>
-                  <th className="text-center py-3 px-4">Cost/Trail</th>
-                  <th className="text-left py-3 px-4">Best For</th>
+                  <th className="text-left py-3 px-2 md:px-4 text-sm md:text-base">Model</th>
+                  <th className="text-center py-3 px-2 md:px-4 text-sm md:text-base">Speed</th>
+                  <th className="text-center py-3 px-2 md:px-4 text-sm md:text-base">Quality</th>
+                  <th className="text-center py-3 px-2 md:px-4 text-sm md:text-base">Cost/Trail</th>
+                  <th className="text-left py-3 px-2 md:px-4 text-sm md:text-base">Best For</th>
                 </tr>
               </thead>
               <tbody>
                 {MODELS.map((model) => (
                   <tr key={model.id} className="border-b hover:bg-muted/50">
-                    <td className="py-3 px-4">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">{model.name}</span>
-                        {model.recommended && (
-                          <span className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 px-1.5 py-0.5 rounded flex items-center gap-1">
-                            <Star className="h-2.5 w-2.5" /> Best
-                          </span>
-                        )}
-                        {model.badge === 'Premium' && (
-                          <span className="text-xs bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200 px-1.5 py-0.5 rounded">
-                            Premium
-                          </span>
-                        )}
+                    <td className="py-3 px-2 md:px-4">
+                      <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-2">
+                        <span className="font-medium text-sm md:text-base">{model.name}</span>
+                        <div className="flex gap-1">
+                          {model.recommended && (
+                            <span className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 px-1.5 py-0.5 rounded flex items-center gap-1">
+                              <Star className="h-2.5 w-2.5" /> Best
+                            </span>
+                          )}
+                          {model.badge === 'Premium' && (
+                            <span className="text-xs bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200 px-1.5 py-0.5 rounded">
+                              Premium
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </td>
-                    <td className="text-center py-3 px-4">
+                    <td className="text-center py-3 px-2 md:px-4">
                       <span className="text-sm">
                         {model.speed === 'Very Fast' && '⚡⚡⚡⚡'}
                         {model.speed === 'Fast' && '⚡⚡⚡'}
                         {model.speed === 'Medium' && '⚡⚡'}
                       </span>
                     </td>
-                    <td className="text-center py-3 px-4">
+                    <td className="text-center py-3 px-2 md:px-4">
                       <span className="text-sm">
                         {model.tier === 'free' && '⭐⭐⭐'}
                         {model.tier === 'basic' && '⭐⭐⭐⭐'}
                         {model.tier === 'pro' && (model.id === 'openai/gpt-4o' ? '⭐⭐⭐⭐⭐' : '⭐⭐⭐⭐')}
                       </span>
                     </td>
-                    <td className="text-center py-3 px-4">
+                    <td className="text-center py-3 px-2 md:px-4">
                       {model.costPerTrail === 0 ? (
-                        <span className="text-green-600 dark:text-green-400 font-medium">Free</span>
+                        <span className="text-green-600 dark:text-green-400 font-medium text-sm">Free</span>
                       ) : (
-                        <span>{model.costPerTrail} credits</span>
+                        <span className="text-sm">{model.costPerTrail} credits</span>
                       )}
                     </td>
-                    <td className="py-3 px-4 text-sm text-muted-foreground">
+                    <td className="py-3 px-2 md:px-4 text-xs md:text-sm text-muted-foreground">
                       {model.description}
                     </td>
                   </tr>
@@ -236,12 +238,12 @@ export default function PricingPage() {
         </div>
 
         {/* Credit Calculator */}
-        <div className="max-w-2xl mx-auto text-center bg-muted/50 rounded-lg p-8">
-          <h3 className="text-xl font-bold mb-4">How Credits Work</h3>
-          <div className="grid grid-cols-2 gap-6 text-sm">
+        <div className="max-w-2xl mx-auto text-center bg-muted/50 rounded-lg p-6 md:p-8">
+          <h3 className="text-lg md:text-xl font-bold mb-4">How Credits Work</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 text-sm">
             <div>
               <p className="font-semibold mb-2">Basic ($5 = 100 credits)</p>
-              <ul className="text-muted-foreground space-y-1">
+              <ul className="text-muted-foreground space-y-1 text-left">
                 <li>~400 trails with Gemini Flash 8B</li>
                 <li>~200 trails with Gemini 2.0 Flash</li>
                 <li>~100 trails with GPT-4o Mini</li>
@@ -249,7 +251,7 @@ export default function PricingPage() {
             </div>
             <div>
               <p className="font-semibold mb-2">Pro ($15 = 500 credits)</p>
-              <ul className="text-muted-foreground space-y-1">
+              <ul className="text-muted-foreground space-y-1 text-left">
                 <li>~250 trails with Claude Haiku</li>
                 <li>~166 trails with Gemini Pro</li>
                 <li>~100 trails with GPT-4o</li>
@@ -261,8 +263,8 @@ export default function PricingPage() {
           </p>
         </div>
 
-        <div className="mt-12 text-center text-muted-foreground">
-          <p>Questions? Email us at support@expeditionai.com</p>
+        <div className="mt-8 md:mt-12 text-center text-muted-foreground">
+          <p className="text-sm">Questions? Email us at support@expeditionai.com</p>
         </div>
       </div>
     </div>

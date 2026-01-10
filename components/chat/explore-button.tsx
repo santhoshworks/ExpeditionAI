@@ -81,17 +81,24 @@ export function ExploreButton({ expeditionId, parentTrailId }: ExploreButtonProp
     }
   }, [showInput])
 
-  // Close when clicking outside
+  // Close when clicking outside (handle both mouse and touch)
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
+    const handleClickOutside = (e: MouseEvent | TouchEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         handleCancel()
       }
     }
 
+    const handleTouchOutside = (e: TouchEvent) => handleClickOutside(e)
+    const handleMouseOutside = (e: MouseEvent) => handleClickOutside(e)
+
     if (selectedText) {
-      document.addEventListener("mousedown", handleClickOutside)
-      return () => document.removeEventListener("mousedown", handleClickOutside)
+      document.addEventListener("mousedown", handleMouseOutside)
+      document.addEventListener("touchstart", handleTouchOutside, { passive: true })
+      return () => {
+        document.removeEventListener("mousedown", handleMouseOutside)
+        document.removeEventListener("touchstart", handleTouchOutside)
+      }
     }
   }, [selectedText, handleCancel])
 
@@ -146,11 +153,14 @@ export function ExploreButton({ expeditionId, parentTrailId }: ExploreButtonProp
 
   if (!selectedText || !selectedTextPosition) return null
 
-  // Calculate position - ensure it stays within viewport
+  // Calculate position - ensure it stays within viewport with better mobile handling
+  const isMobile = window.innerWidth <= 768
+  const tooltipWidth = showInput || definition ? (isMobile ? 280 : 300) : 200
+
   const tooltipStyle: React.CSSProperties = {
     position: "fixed",
-    left: Math.min(Math.max(selectedTextPosition.x - 100, 10), window.innerWidth - 320),
-    top: Math.max(selectedTextPosition.y - (showInput ? 120 : (definition ? 150 : 80)), 10),
+    left: Math.min(Math.max(selectedTextPosition.x - (tooltipWidth / 2), 10), window.innerWidth - tooltipWidth - 10),
+    top: Math.max(selectedTextPosition.y - (showInput ? (isMobile ? 140 : 120) : (definition ? (isMobile ? 170 : 150) : (isMobile ? 100 : 80))), 10),
     zIndex: 1000,
   }
 
@@ -160,8 +170,9 @@ export function ExploreButton({ expeditionId, parentTrailId }: ExploreButtonProp
       style={tooltipStyle}
       data-ignore-selection
       className={cn(
-        "bg-popover border rounded-xl shadow-2xl p-3 animate-in fade-in-0 zoom-in-95 backdrop-blur-md ring-1 ring-white/10",
-        showInput || definition ? "w-[300px]" : "w-auto"
+        "bg-popover border rounded-xl shadow-2xl p-3 md:p-4 animate-in fade-in-0 zoom-in-95 backdrop-blur-md ring-1 ring-white/10",
+        "touch-manipulation", // Better touch handling on mobile
+        showInput || definition ? "w-[280px] md:w-[300px]" : "w-auto min-w-[200px]"
       )}
     >
       {!showInput ? (
@@ -186,7 +197,7 @@ export function ExploreButton({ expeditionId, parentTrailId }: ExploreButtonProp
                 <div className="h-3 bg-muted animate-pulse rounded w-2/3" />
               </div>
             ) : definition ? (
-              <p className="text-sm text-foreground/90 leading-relaxed italic border-l-2 border-primary/30 pl-3">
+              <p className="text-xs md:text-sm text-foreground/90 leading-relaxed italic border-l-2 border-primary/30 pl-3">
                 {definition}
               </p>
             ) : null}
@@ -197,7 +208,7 @@ export function ExploreButton({ expeditionId, parentTrailId }: ExploreButtonProp
               size="sm"
               onClick={handleExplore}
               disabled={createTrail.isPending}
-              className="flex-1 gap-2 bg-primary hover:bg-primary/90 shadow-sm"
+              className="flex-1 gap-2 bg-primary hover:bg-primary/90 shadow-sm text-xs md:text-sm"
             >
               {createTrail.isPending ? (
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -210,7 +221,7 @@ export function ExploreButton({ expeditionId, parentTrailId }: ExploreButtonProp
               size="sm"
               variant="outline"
               onClick={handleCancel}
-              className="gap-2"
+              className="gap-2 text-xs md:text-sm px-2 md:px-3"
               disabled={createTrail.isPending}
             >
               Close
