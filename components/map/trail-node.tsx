@@ -71,7 +71,7 @@ export const TrailNode = memo(({ data }: TrailNodeProps) => {
         {/* Source text preview if available */}
         {trail.source_text && (
           <p className="text-xs opacity-70 line-clamp-2 italic">
-            "{trail.source_text}"
+            &quot;{trail.source_text}&quot;
           </p>
         )}
 

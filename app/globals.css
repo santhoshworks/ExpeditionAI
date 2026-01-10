@@ -96,4 +96,72 @@
   .prose li::marker {
     @apply text-primary/60 font-bold;
   }
+
+  .no-print {
+    @apply print:hidden;
+  }
+}
+
+@media print {
+  @page {
+    margin: 2cm;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  .bg-background,
+  .bg-card,
+  .bg-muted {
+    background: white !important;
+  }
+
+  .text-foreground,
+  .text-muted-foreground {
+    color: black !important;
+  }
+
+  .border-none {
+    border: none !important;
+  }
+
+  .shadow-2xl,
+  .shadow-lg,
+  .shadow-md,
+  .shadow-sm {
+    box-shadow: none !important;
+  }
+
+  .ring-1,
+  .ring-2 {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Ensure the journal card takes full width and looks like a document */
+  #journal-card {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    background: white !important;
+  }
+
+  /* Hide background decor dots */
+  .bg-journal-pattern {
+    background-image: none !important;
+  }
+
+  /* Typography adjustments for print */
+  .prose {
+    max-width: none !important;
+  }
+
+  .prose h1,
+  .prose h2,
+  .prose h3 {
+    color: black !important;
+  }
 }

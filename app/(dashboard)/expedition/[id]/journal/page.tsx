@@ -1,10 +1,20 @@
 "use client"
 
 import { useParams } from "next/navigation"
-import { useExpedition, useJournal, useGenerateJournal } from "@/lib/queries"
+import { useExpedition, useJournal, useGenerateJournal, useTrails } from "@/lib/queries"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowLeft, BookOpen, RefreshCw, Download, Calendar, Loader2 } from "lucide-react"
+import {
+  ArrowLeft,
+  BookOpen,
+  RefreshCw,
+  Download,
+  Calendar,
+  Loader2,
+  FileDown,
+  FileText,
+  FileCode
+} from "lucide-react"
 import Link from "next/link"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
@@ -13,15 +23,25 @@ import { ModelSelector } from "@/components/chat/model-selector"
 import { useExploreStore } from "@/lib/store"
 import { useTextSelection } from "@/hooks/use-text-selection"
 import { ExploreButton } from "@/components/chat/explore-button"
-import { useEffect } from "react"
+import React, { useEffect } from "react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import jsPDF from "jspdf"
+import html2canvas from "html2canvas"
 
 export default function JournalPage() {
   const params = useParams()
   const expeditionId = params.id as string
   const { data: expedition, isLoading: isExpeditionLoading } = useExpedition(expeditionId)
   const { data: journal, isLoading: isJournalLoading } = useJournal(expeditionId)
-  const { selectedModel, setCurrentExpedition } = useExploreStore()
+  const { selectedModel, setCurrentExpedition, currentTrailId, setCurrentTrail } = useExploreStore()
   const { mutate: generateJournal, isPending: isGenerating } = useGenerateJournal()
+  const { data: trails } = useTrails(expeditionId)
+  const [isExporting, setIsExporting] = React.useState(false)
 
   // Enable text selection for explore feature
   useTextSelection()
@@ -31,6 +51,18 @@ export default function JournalPage() {
       setCurrentExpedition(expeditionId)
     }
   }, [expeditionId, setCurrentExpedition])
+
+  // Set default trail to base camp if no trail is selected
+  useEffect(() => {
+    if (trails && trails.length > 0 && !currentTrailId) {
+      const baseCamp = trails.find((t: any) => t.is_base_camp)
+      if (baseCamp) {
+        setCurrentTrail(baseCamp.id)
+      } else {
+        setCurrentTrail(trails[0].id)
+      }
+    }
+  }, [trails, currentTrailId, setCurrentTrail])
 
   const handleGenerate = () => {
     generateJournal(
@@ -47,7 +79,7 @@ export default function JournalPage() {
     )
   }
 
-  const handleExport = () => {
+  const handleExportMarkdown = () => {
     if (!journal) return
     const blob = new Blob([journal.content], { type: "text/markdown" })
     const url = URL.createObjectURL(blob)
@@ -58,6 +90,56 @@ export default function JournalPage() {
     a.click()
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
+  }
+
+  const handleExportPDF = async () => {
+    if (!journal) return
+    const element = document.getElementById("journal-card")
+    if (!element) return
+
+    setIsExporting(true)
+    try {
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: "#ffffff",
+        windowWidth: element.scrollWidth,
+        windowHeight: element.scrollHeight,
+      })
+
+      const imgData = canvas.toDataURL("image/png")
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "px",
+        format: "a4",
+      })
+
+      const imgProps = pdf.getImageProperties(imgData)
+      const pdfWidth = pdf.internal.pageSize.getWidth()
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width
+
+      let heightLeft = pdfHeight
+      let position = 0
+      const pageHeight = pdf.internal.pageSize.getHeight()
+
+      pdf.addImage(imgData, "PNG", 0, position, pdfWidth, pdfHeight)
+      heightLeft -= pageHeight
+
+      while (heightLeft >= 0) {
+        position = heightLeft - pdfHeight
+        pdf.addPage()
+        pdf.addImage(imgData, "PNG", 0, position, pdfWidth, pdfHeight)
+        heightLeft -= pageHeight
+      }
+
+      pdf.save(`${expedition?.title || "expedition"}-journal.pdf`)
+    } catch (error) {
+      console.error("Failed to generate PDF:", error)
+      alert("Failed to generate PDF. Please try again.")
+    } finally {
+      setIsExporting(false)
+    }
   }
 
   if (isExpeditionLoading) {
@@ -77,7 +159,7 @@ export default function JournalPage() {
         <Card className="max-w-md w-full mx-4">
           <CardContent className="pt-10 pb-10 text-center">
             <h3 className="text-xl font-bold mb-2">Expedition not found</h3>
-            <p className="text-muted-foreground mb-6">We couldn't find the expedition you're looking for.</p>
+            <p className="text-muted-foreground mb-6">We couldn&apos;t find the expedition you&apos;re looking for.</p>
             <Link href="/dashboard">
               <Button>Back to Dashboard</Button>
             </Link>
@@ -96,7 +178,7 @@ export default function JournalPage() {
       </div>
 
       {/* Header */}
-      <header className="sticky top-0 z-10 border-b bg-background/80 backdrop-blur-md">
+      <header className="sticky top-0 z-10 border-b bg-background/80 backdrop-blur-md no-print">
         <div className="container mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -116,10 +198,24 @@ export default function JournalPage() {
 
             <div className="flex items-center gap-2">
               {journal && (
-                <Button variant="outline" size="sm" onClick={handleExport} className="hidden sm:flex items-center gap-2">
-                  <Download className="h-4 w-4" />
-                  Export
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="hidden sm:flex items-center gap-2" disabled={isExporting}>
+                      {isExporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                      Export
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={handleExportPDF} className="gap-2">
+                      <FileText className="h-4 w-4 text-muted-foreground" />
+                      Export as PDF
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleExportMarkdown} className="gap-2">
+                      <FileCode className="h-4 w-4 text-muted-foreground" />
+                      Export as Markdown
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               )}
               <ModelSelector />
               <Button
@@ -160,7 +256,7 @@ export default function JournalPage() {
             </div>
           ) : journal ? (
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-              <Card className="border-none shadow-2xl bg-card/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden">
+              <Card id="journal-card" className="border-none shadow-2xl bg-card/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden print:shadow-none print:ring-0 print:bg-white print:text-black">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-primary/50 to-primary/20" />
                 <CardHeader className="pt-10 pb-6 border-b border-white/5">
                   <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
@@ -200,11 +296,32 @@ export default function JournalPage() {
               </Card>
 
               {/* Action Footer for the Journal */}
-              <div className="flex justify-center gap-4">
-                <Button variant="outline" size="lg" onClick={handleExport} className="gap-2 rounded-full px-8 border-primary/20 hover:bg-primary/5">
-                  <Download className="h-5 w-5" />
-                  Download as Markdown
-                </Button>
+              <div className="flex justify-center gap-4 no-print">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="lg" className="gap-2 rounded-full px-8 border-primary/20 hover:bg-primary/5" disabled={isExporting}>
+                      {isExporting ? <Loader2 className="h-5 w-5 animate-spin" /> : <Download className="h-5 w-5" />}
+                      Export Journal
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="center" className="min-w-[200px]">
+                    <DropdownMenuItem onClick={handleExportPDF} className="gap-3 py-3">
+                      <FileText className="h-5 w-5 text-muted-foreground" />
+                      <div className="flex flex-col">
+                        <span className="font-medium">Export as PDF</span>
+                        <span className="text-xs text-muted-foreground">Print-ready format</span>
+                      </div>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleExportMarkdown} className="gap-3 py-3">
+                      <FileCode className="h-5 w-5 text-muted-foreground" />
+                      <div className="flex flex-col">
+                        <span className="font-medium">Export as Markdown</span>
+                        <span className="text-xs text-muted-foreground">For editors & blogs</span>
+                      </div>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
                 <Button variant="ghost" size="lg" onClick={handleGenerate} disabled={isGenerating} className="gap-2 rounded-full px-8 text-muted-foreground hover:text-primary">
                   <RefreshCw className={`h-5 w-5 ${isGenerating ? 'animate-spin' : ''}`} />
                   Regenerate Insights
@@ -221,8 +338,8 @@ export default function JournalPage() {
                 </div>
                 <h3 className="text-2xl font-bold mb-3">Your Journey Awaits</h3>
                 <p className="text-muted-foreground max-w-md mx-auto mb-8 text-lg">
-                  Once you've explored some trails and gathered knowledge,
-                  you can generate a beautiful summary of everything you've learned.
+                  Once you&apos;ve explored some trails and gathered knowledge,
+                  you can generate a beautiful summary of everything you&apos;ve learned.
                 </p>
                 <div className="flex flex-col items-center gap-4 mb-4">
                   <span className="text-sm text-muted-foreground uppercase tracking-widest font-semibold">Select Synthesis Model</span>
@@ -249,13 +366,30 @@ export default function JournalPage() {
 
       {/* Footer / Mobile floating button? */}
       {journal && (
-        <div className="fixed bottom-6 right-6 sm:hidden">
-          <Button onClick={handleExport} size="icon" className="h-14 w-14 rounded-full shadow-2xl">
-            <Download className="h-6 w-6" />
-          </Button>
+        <div className="fixed bottom-6 right-6 sm:hidden no-print">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="icon" className="h-14 w-14 rounded-full shadow-2xl" disabled={isExporting}>
+                {isExporting ? <Loader2 className="h-6 w-6 animate-spin" /> : <Download className="h-6 w-6" />}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={handleExportPDF} className="gap-2">
+                <FileText className="h-4 w-4" />
+                Export as PDF
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportMarkdown} className="gap-2">
+                <FileCode className="h-4 w-4" />
+                Export as Markdown
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       )}
-      <ExploreButton expeditionId={expeditionId} />
+
+      <div className="no-print">
+        <ExploreButton expeditionId={expeditionId} />
+      </div>
     </div>
   )
 }

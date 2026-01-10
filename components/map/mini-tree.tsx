@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { TrailWithCounts } from "@/types/database"
 import { cn } from "@/lib/utils"
-import { Flag, MessageSquare, ChevronRight, ChevronDown, FolderOpen, Folder, FileText, Tent } from "lucide-react"
+import { MessageSquare, ChevronRight, ChevronDown, FolderOpen, Folder, FileText, Tent } from "lucide-react"
 import { FlagButton } from "@/components/trail/flag-button"
 
 interface MiniTreeProps {
@@ -13,7 +13,40 @@ interface MiniTreeProps {
 }
 
 export function MiniTree({ trails, currentTrailId, onTrailSelect }: MiniTreeProps) {
-  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set())
+  // Initialize with all trails that have children expanded
+  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(() => {
+    const trailsWithChildren = new Set<string>()
+    trails.forEach(trail => {
+      if (trail.parent_trail_id) {
+        trailsWithChildren.add(trail.parent_trail_id)
+      }
+    })
+    return trailsWithChildren
+  })
+
+  // Auto-expand all nodes with children and the active trail's path
+  useEffect(() => {
+    const trailsWithChildren = new Set<string>()
+    trails.forEach(trail => {
+      if (trail.parent_trail_id) {
+        trailsWithChildren.add(trail.parent_trail_id)
+      }
+    })
+
+    // Also expand the active trail's parents
+    if (currentTrailId) {
+      const findParents = (trailId: string) => {
+        const trail = trails.find((t) => t.id === trailId)
+        if (trail?.parent_trail_id) {
+          trailsWithChildren.add(trail.parent_trail_id)
+          findParents(trail.parent_trail_id)
+        }
+      }
+      findParents(currentTrailId)
+    }
+
+    setExpandedNodes(trailsWithChildren)
+  }, [currentTrailId, trails])
 
   if (trails.length === 0) {
     return (
@@ -144,35 +177,6 @@ export function MiniTree({ trails, currentTrailId, onTrailSelect }: MiniTreeProp
       </div>
     )
   }
-
-  // Auto-expand the active trail's path
-  useEffect(() => {
-    if (currentTrailId) {
-      const parentIds: string[] = []
-      const findParents = (trailId: string) => {
-        const trail = trails.find((t) => t.id === trailId)
-        if (trail?.parent_trail_id) {
-          parentIds.push(trail.parent_trail_id)
-          findParents(trail.parent_trail_id)
-        }
-      }
-      findParents(currentTrailId)
-
-      if (parentIds.length > 0) {
-        setExpandedNodes((prev) => {
-          const next = new Set(prev)
-          let changed = false
-          parentIds.forEach(id => {
-            if (!next.has(id)) {
-              next.add(id)
-              changed = true
-            }
-          })
-          return changed ? next : prev
-        })
-      }
-    }
-  }, [currentTrailId, trails])
 
   return (
     <div className="p-2 space-y-0.5 w-full">

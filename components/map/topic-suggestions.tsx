@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { TrailWithCounts } from "@/types/database"
 import { Button } from "@/components/ui/button"
 import { Lightbulb, Sparkles, ChevronRight, RefreshCw } from "lucide-react"
@@ -53,12 +53,7 @@ export function TopicSuggestions({
     const createTrail = useCreateTrail()
     const { setCurrentTrail, setAutoMessageData } = useExploreStore()
 
-    // Generate suggestions based on existing trails
-    useEffect(() => {
-        generateSuggestions()
-    }, [trails])
-
-    const generateSuggestions = () => {
+    const generateSuggestions = useCallback(() => {
         setIsGenerating(true)
 
         // Extract topics from trails
@@ -134,7 +129,12 @@ export function TopicSuggestions({
 
         setSuggestions(newSuggestions)
         setIsGenerating(false)
-    }
+    }, [trails])
+
+    // Generate suggestions based on existing trails
+    useEffect(() => {
+        generateSuggestions()
+    }, [generateSuggestions])
 
     const handleCreateTrail = async (suggestion: Suggestion) => {
         try {

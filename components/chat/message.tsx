@@ -67,7 +67,7 @@ export function Message({ message }: MessageProps) {
         {isUser ? (
           <p className="whitespace-pre-wrap">{message.content}</p>
         ) : (
-          <div className="prose prose-sm dark:prose-invert max-w-none select-text">
+          <div className="prose prose-sm dark:prose-invert max-w-none select-text" data-ai-response>
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               components={markdownComponents}

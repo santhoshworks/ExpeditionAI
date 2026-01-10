@@ -1,11 +1,11 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useExploreStore } from "@/lib/store"
-import { useCreateTrail } from "@/lib/queries"
-import { Compass, X } from "lucide-react"
+import { useCreateTrail, useExpedition } from "@/lib/queries"
+import { Compass, X, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 
@@ -16,6 +16,7 @@ interface ExploreButtonProps {
 
 export function ExploreButton({ expeditionId, parentTrailId }: ExploreButtonProps) {
   const { selectedText, selectedTextPosition, setSelectedText, setCurrentTrail, currentTrailId, setAutoMessageData } = useExploreStore()
+  const { data: expedition } = useExpedition(expeditionId)
   const [showInput, setShowInput] = useState(false)
   const [title, setTitle] = useState("")
   const [definition, setDefinition] = useState<string | null>(null)
@@ -25,9 +26,19 @@ export function ExploreButton({ expeditionId, parentTrailId }: ExploreButtonProp
   const inputRef = useRef<HTMLInputElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
+  // Function to truncate text to 3 words
+  const truncateText = (text: string) => {
+    if (!text) return ""
+    const words = text.trim().split(/\s+/)
+    if (words.length > 3) {
+      return words.slice(0, 3).join(" ") + "..."
+    }
+    return text
+  }
+
   // Fetch definition when text is selected
   useEffect(() => {
-    if (selectedText && selectedText.length > 0 && selectedText.length < 100) {
+    if (selectedText && selectedText.length > 0 && selectedText.length < 500) {
       const fetchDefinition = async () => {
         setIsDefining(true)
         setDefinition(null)
@@ -35,7 +46,10 @@ export function ExploreButton({ expeditionId, parentTrailId }: ExploreButtonProp
           const response = await fetch("/api/define", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ text: selectedText }),
+            body: JSON.stringify({
+              text: selectedText,
+              context: expedition?.title // Pass expedition title as context
+            }),
           })
           if (response.ok) {
             const data = await response.json()
@@ -51,7 +65,14 @@ export function ExploreButton({ expeditionId, parentTrailId }: ExploreButtonProp
     } else {
       setDefinition(null)
     }
-  }, [selectedText])
+  }, [selectedText, expedition?.title])
+
+  const handleCancel = useCallback(() => {
+    setShowInput(false)
+    setSelectedText(null)
+    setTitle("")
+    setDefinition(null)
+  }, [setSelectedText])
 
   // Focus input when showing
   useEffect(() => {
@@ -72,10 +93,10 @@ export function ExploreButton({ expeditionId, parentTrailId }: ExploreButtonProp
       document.addEventListener("mousedown", handleClickOutside)
       return () => document.removeEventListener("mousedown", handleClickOutside)
     }
-  }, [selectedText])
+  }, [selectedText, handleCancel])
 
   const handleExplore = async () => {
-    if (!selectedText) return
+    if (!selectedText || createTrail.isPending) return
 
     try {
       const effectiveParentId = (parentTrailId || currentTrailId) ?? undefined
@@ -92,28 +113,28 @@ export function ExploreButton({ expeditionId, parentTrailId }: ExploreButtonProp
         // Store the auto-message data for the ChatInterface to pick up
         setAutoMessageData({
           trailId: trail.id,
-          selectedText: (title.trim() || selectedText || "this topic"),
+          selectedText: (newTitle || "this topic"),
         })
 
-        // Clear the selection state
-        handleCancel()
-
-        // Set the new trail as current
+        // 1. Set the new trail as current
         setCurrentTrail(trail.id)
 
-        // Navigate to ensure we're on the expedition page
-        router.push(`/expedition/${expeditionId}?trailId=${trail.id}`)
+        // 2. Clear the selection/input state
+        setShowInput(false)
+        setDefinition(null)
+        setTitle("")
+        setSelectedText(null) // This will unmount the tooltip
+
+        // 3. Navigate to ensure we're on the expedition page
+        // Use a timeout to ensure store updates have flushed
+        setTimeout(() => {
+          router.push(`/expedition/${expeditionId}?trailId=${trail.id}`)
+        }, 0)
       }
     } catch (error) {
       console.error("Failed to create trail:", error)
+      alert("Failed to create exploration trail. Please try again.")
     }
-  }
-
-  const handleCancel = () => {
-    setShowInput(false)
-    setSelectedText(null)
-    setTitle("")
-    setDefinition(null)
   }
 
   const handleStartExplore = () => {
@@ -137,6 +158,7 @@ export function ExploreButton({ expeditionId, parentTrailId }: ExploreButtonProp
     <div
       ref={containerRef}
       style={tooltipStyle}
+      data-ignore-selection
       className={cn(
         "bg-popover border rounded-xl shadow-2xl p-3 animate-in fade-in-0 zoom-in-95 backdrop-blur-md ring-1 ring-white/10",
         showInput || definition ? "w-[300px]" : "w-auto"
@@ -147,7 +169,7 @@ export function ExploreButton({ expeditionId, parentTrailId }: ExploreButtonProp
           <div className="flex flex-col gap-2">
             <div className="flex items-start justify-between gap-2">
               <span className="text-xs font-bold text-primary uppercase tracking-wider">
-                {selectedText}
+                {truncateText(selectedText)}
               </span>
               <Button
                 size="sm"
@@ -173,17 +195,23 @@ export function ExploreButton({ expeditionId, parentTrailId }: ExploreButtonProp
           <div className="flex items-center gap-2 pt-1">
             <Button
               size="sm"
-              onClick={handleStartExplore}
+              onClick={handleExplore}
+              disabled={createTrail.isPending}
               className="flex-1 gap-2 bg-primary hover:bg-primary/90 shadow-sm"
             >
-              <Compass className="h-3.5 w-3.5" />
-              Explore More
+              {createTrail.isPending ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Compass className="h-3.5 w-3.5" />
+              )}
+              {createTrail.isPending ? "Starting..." : "Explore More"}
             </Button>
             <Button
               size="sm"
               variant="outline"
               onClick={handleCancel}
               className="gap-2"
+              disabled={createTrail.isPending}
             >
               Close
             </Button>
@@ -206,7 +234,7 @@ export function ExploreButton({ expeditionId, parentTrailId }: ExploreButtonProp
             </Button>
           </div>
           <div className="text-xs text-muted-foreground bg-muted p-2 rounded max-h-16 overflow-y-auto">
-            "{selectedText.substring(0, 100)}{selectedText.length > 100 ? "..." : ""}"
+            &quot;{selectedText.substring(0, 100)}{selectedText.length > 100 ? "..." : ""}&quot;
           </div>
           <Input
             ref={inputRef}
@@ -227,8 +255,11 @@ export function ExploreButton({ expeditionId, parentTrailId }: ExploreButtonProp
             size="sm"
             onClick={handleExplore}
             disabled={!title.trim() || createTrail.isPending}
-            className="w-full"
+            className="w-full gap-2"
           >
+            {createTrail.isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : null}
             {createTrail.isPending ? "Exploring..." : "Explore this topic"}
           </Button>
         </div>

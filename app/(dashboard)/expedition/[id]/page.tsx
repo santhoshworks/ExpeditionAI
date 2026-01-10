@@ -81,51 +81,43 @@ export default function ExpeditionPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
-      <header className="border-b bg-card">
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href="/dashboard">
-                <Button variant="ghost" size="icon">
-                  <ArrowLeft className="h-4 w-4" />
-                </Button>
-              </Link>
-              <div className="flex items-center gap-3">
-                <div>
-                  <h1 className="text-xl font-bold">{expedition.title}</h1>
-                  {currentTrail && (
-                    <p className="text-sm text-muted-foreground">
-                      Trail: {currentTrail.title}
-                    </p>
-                  )}
-                </div>
-                {currentTrail && (
-                  <FlagButton
-                    trailId={currentTrail.id}
-                    isFlagged={currentTrail.is_flagged}
-                  />
-                )}
-              </div>
+      {/* Expedition Actions / Sub-header */}
+      <div className="border-b bg-card/30 px-6 py-2 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Link href="/dashboard">
+            <Button variant="ghost" size="icon" className="h-8 w-8">
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+          </Link>
+          {currentTrail && (
+            <div className="flex items-center gap-3 border-l pl-4">
+              <span className="text-sm font-medium text-muted-foreground uppercase tracking-widest text-[10px]">Current Trail</span>
+              <span className="text-sm font-bold">{currentTrail.title}</span>
+              <FlagButton
+                trailId={currentTrail.id}
+                isFlagged={currentTrail.is_flagged}
+              />
             </div>
-            <div className="flex items-center gap-2">
-              <ModelSelector />
-              <Link href={`/expedition/${expeditionId}/map`}>
-                <Button variant="outline" size="sm">
-                  <Map className="mr-2 h-4 w-4" />
-                  Map
-                </Button>
-              </Link>
-              <Link href={`/expedition/${expeditionId}/journal`}>
-                <Button variant="outline" size="sm">
-                  <BookOpen className="mr-2 h-4 w-4" />
-                  Journal
-                </Button>
-              </Link>
-            </div>
-          </div>
+          )}
         </div>
-      </header>
+
+        <div className="flex items-center gap-2">
+          <ModelSelector />
+          <div className="h-4 w-[1px] bg-border mx-1" />
+          <Link href={`/expedition/${expeditionId}/map`}>
+            <Button variant="ghost" size="sm" className="h-8 gap-2">
+              <Map className="h-4 w-4" />
+              Map
+            </Button>
+          </Link>
+          <Link href={`/expedition/${expeditionId}/journal`}>
+            <Button variant="ghost" size="sm" className="h-8 gap-2">
+              <BookOpen className="h-4 w-4" />
+              Journal
+            </Button>
+          </Link>
+        </div>
+      </div>
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">

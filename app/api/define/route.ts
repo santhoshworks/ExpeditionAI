@@ -9,6 +9,7 @@ const openrouter = createOpenRouter({
 
 const defineSchema = z.object({
     text: z.string(),
+    context: z.string().optional(),
 })
 
 export async function POST(req: Request) {
@@ -23,11 +24,14 @@ export async function POST(req: Request) {
         }
 
         const body = await req.json()
-        const { text } = defineSchema.parse(body)
+        const { text, context } = defineSchema.parse(body)
 
         const { text: definition } = await generateText({
             model: openrouter("openai/gpt-4o-mini"),
-            prompt: `Provide a very concise, 1-2 sentence definition or explanation of the following term or phrase in the context of an educational expedition: "${text}". If it's a general word, give its primary meaning. Be brief.`,
+            prompt: `You are a specialist in the subject of "${context || 'general knowledge'}". 
+            Provide a very concise (1-2 sentences) definition or explanation of the term: "${text}".
+            Your explanation must be highly relevant to the context of "${context || 'general knowledge'}".
+            Be professional, accurate, and extremely brief.`,
         })
 
         return Response.json({ definition: definition.trim() })
