@@ -1,20 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { useExploreStore } from "@/lib/store"
 import { useCreateTrail } from "@/lib/queries"
-import { Compass } from "lucide-react"
+import { Compass, X } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { cn } from "@/lib/utils"
 
 interface ExploreButtonProps {
   expeditionId: string
@@ -22,18 +15,34 @@ interface ExploreButtonProps {
 }
 
 export function ExploreButton({ expeditionId, parentTrailId }: ExploreButtonProps) {
-  const { selectedText, setSelectedText, setCurrentTrail, currentTrailId } = useExploreStore()
-  const [showDialog, setShowDialog] = useState(false)
+  const { selectedText, selectedTextPosition, setSelectedText, setCurrentTrail, currentTrailId } = useExploreStore()
+  const [showInput, setShowInput] = useState(false)
   const [title, setTitle] = useState("")
   const createTrail = useCreateTrail()
   const router = useRouter()
+  const inputRef = useRef<HTMLInputElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
 
+  // Focus input when showing
   useEffect(() => {
-    if (selectedText && !showDialog) {
-      setShowDialog(true)
-      setTitle("") // Reset title when new text is selected
+    if (showInput && inputRef.current) {
+      inputRef.current.focus()
     }
-  }, [selectedText, showDialog])
+  }, [showInput])
+
+  // Close when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        handleCancel()
+      }
+    }
+
+    if (selectedText) {
+      document.addEventListener("mousedown", handleClickOutside)
+      return () => document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [selectedText])
 
   const handleExplore = async () => {
     if (!title.trim() || !selectedText) return
@@ -46,8 +55,7 @@ export function ExploreButton({ expeditionId, parentTrailId }: ExploreButtonProp
         sourceText: selectedText,
       })
 
-      setShowDialog(false)
-      setSelectedText(null)
+      handleCancel()
       setCurrentTrail(trail.id)
       router.refresh()
     } catch (error) {
@@ -56,55 +64,97 @@ export function ExploreButton({ expeditionId, parentTrailId }: ExploreButtonProp
   }
 
   const handleCancel = () => {
-    setShowDialog(false)
+    setShowInput(false)
     setSelectedText(null)
     setTitle("")
   }
 
-  if (!selectedText) return null
+  const handleStartExplore = () => {
+    setShowInput(true)
+  }
+
+  if (!selectedText || !selectedTextPosition) return null
+
+  // Calculate position - ensure it stays within viewport
+  const tooltipStyle: React.CSSProperties = {
+    position: "fixed",
+    left: Math.min(Math.max(selectedTextPosition.x - 100, 10), window.innerWidth - 320),
+    top: Math.max(selectedTextPosition.y - (showInput ? 120 : 50), 10),
+    zIndex: 1000,
+  }
 
   return (
-    <Dialog open={showDialog} onOpenChange={setShowDialog}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>🧭 Explore New Trail</DialogTitle>
-          <DialogDescription>
-            Create a new trail to explore: "{selectedText.substring(0, 100)}
-            {selectedText.length > 100 ? "..." : ""}"
-          </DialogDescription>
-        </DialogHeader>
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <label htmlFor="trail-title" className="text-sm font-medium">
-              Trail Title *
-            </label>
-            <Input
-              id="trail-title"
-              placeholder="e.g., Understanding Raft Consensus Algorithm"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && title.trim()) {
-                  handleExplore()
-                }
-              }}
-            />
-          </div>
-          <div className="p-3 bg-muted rounded-md text-sm">
-            <p className="font-medium mb-1">Selected Text:</p>
-            <p className="text-muted-foreground">{selectedText}</p>
-          </div>
-        </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={handleCancel}>
-            Cancel
+    <div
+      ref={containerRef}
+      style={tooltipStyle}
+      className={cn(
+        "bg-popover border rounded-lg shadow-lg p-2 animate-in fade-in-0 zoom-in-95",
+        showInput ? "w-[300px]" : "w-auto"
+      )}
+    >
+      {!showInput ? (
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            onClick={handleStartExplore}
+            className="gap-2"
+          >
+            <Compass className="h-4 w-4" />
+            Start New Trail
           </Button>
-          <Button onClick={handleExplore} disabled={!title.trim() || createTrail.isPending}>
-            <Compass className="mr-2 h-4 w-4" />
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={handleCancel}
+            className="h-8 w-8 p-0"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium flex items-center gap-1">
+              <Compass className="h-4 w-4" />
+              New Trail
+            </span>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={handleCancel}
+              className="h-6 w-6 p-0"
+            >
+              <X className="h-3 w-3" />
+            </Button>
+          </div>
+          <div className="text-xs text-muted-foreground bg-muted p-2 rounded max-h-16 overflow-y-auto">
+            "{selectedText.substring(0, 100)}{selectedText.length > 100 ? "..." : ""}"
+          </div>
+          <Input
+            ref={inputRef}
+            placeholder="Trail title..."
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && title.trim()) {
+                handleExplore()
+              }
+              if (e.key === "Escape") {
+                handleCancel()
+              }
+            }}
+            className="h-8 text-sm"
+          />
+          <Button
+            size="sm"
+            onClick={handleExplore}
+            disabled={!title.trim() || createTrail.isPending}
+            className="w-full"
+          >
             {createTrail.isPending ? "Creating..." : "Create Trail"}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </div>
+      )}
+    </div>
   )
 }

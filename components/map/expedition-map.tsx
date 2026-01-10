@@ -17,6 +17,7 @@ import {
 import "@xyflow/react/dist/style.css"
 import { TrailWithCounts } from "@/types/database"
 import { TrailNode } from "./trail-node"
+import { cn } from "@/lib/utils"
 
 const nodeTypes = {
   trailNode: TrailNode,
@@ -36,7 +37,7 @@ export function ExpeditionMap({
   mini = false,
 }: ExpeditionMapProps) {
   // Build nodes and edges from trails
-  const { nodes: initialNodes, edges: initialEdges } = useMemo(() => {
+  const { nodes: computedNodes, edges: computedEdges } = useMemo(() => {
     if (trails.length === 0) {
       return { nodes: [], edges: [] }
     }
@@ -70,85 +71,89 @@ export function ExpeditionMap({
         },
       })
 
-      // Position children
+      // Position children with better spacing
       const childCount = children.length
-      const startX = x - (childCount - 1) * 150
+      const spacing = mini ? 180 : 280
+      const startX = x - ((childCount - 1) * spacing) / 2
 
       children.forEach((child, index) => {
-        const childX = startX + index * 300
-        const childY = y + 150
+        const childX = startX + index * spacing
+        const childY = y + (mini ? 100 : 150)
 
         edges.push({
           id: `${trail.id}-${child.id}`,
           source: trail.id,
           target: child.id,
           type: "smoothstep",
+          style: { stroke: "hsl(var(--border))", strokeWidth: 2 },
         })
 
         buildTree(child, childX, childY, level + 1)
       })
     }
 
-    buildTree(baseCamp, 400, 50)
+    const startX = mini ? 150 : 400
+    buildTree(baseCamp, startX, 50)
 
     return { nodes, edges }
-  }, [trails, currentTrailId, onTrailSelect])
+  }, [trails, currentTrailId, onTrailSelect, mini])
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
+  const [nodes, setNodes, onNodesChange] = useNodesState(computedNodes)
+  const [edges, setEdges, onEdgesChange] = useEdgesState(computedEdges)
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
     [setEdges]
   )
 
-  // Update nodes when trails or currentTrailId changes
-  const trailMap = useMemo(() => new Map(trails.map((t) => [t.id, t])), [trails])
-
-  // Use useEffect for side effects instead of useMemo
+  // Update nodes and edges when trails or currentTrailId changes
   useEffect(() => {
-    setNodes((nds) =>
-      nds.map((node) => {
-        const trail = trailMap.get(node.id)
-        return {
-          ...node,
-          data: {
-            ...node.data,
-            isActive: node.id === currentTrailId,
-            trail,
-            isFlagged: trail?.is_flagged || false,
-            messageCount: trail?.message_count || 0,
-            onClick: () => onTrailSelect?.(node.id),
-          },
-        }
-      })
-    )
-  }, [currentTrailId, trailMap, setNodes, onTrailSelect])
+    setNodes(computedNodes)
+    setEdges(computedEdges)
+  }, [computedNodes, computedEdges, setNodes, setEdges])
 
   if (trails.length === 0) {
     return (
-      <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
-        <p>No trails to display</p>
+      <div className="flex items-center justify-center h-full text-muted-foreground text-sm p-4">
+        <div className="text-center">
+          <p className="mb-2">No trails yet</p>
+          <p className="text-xs">Start chatting to create your first trail!</p>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="w-full h-full">
+    <div className={cn("w-full h-full", mini ? "min-h-[180px]" : "min-h-[400px]")}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
-        nodeTypes={nodeTypes}
+        nodeTypes={nodeTypes as any}
         fitView
+        fitViewOptions={{ padding: mini ? 0.2 : 0.3 }}
         className="bg-background"
+        minZoom={0.1}
+        maxZoom={mini ? 0.8 : 2}
+        nodesDraggable={!mini}
+        nodesConnectable={false}
+        elementsSelectable={!mini}
+        panOnDrag={!mini}
+        zoomOnScroll={!mini}
+        zoomOnPinch={!mini}
+        zoomOnDoubleClick={!mini}
       >
         {!mini && (
           <>
-            <Controls />
-            <MiniMap />
+            <Controls showInteractive={false} />
+            <MiniMap
+              nodeColor={(node) =>
+                node.data?.isActive ? "hsl(var(--primary))" : "hsl(var(--muted))"
+              }
+              maskColor="hsl(var(--background) / 0.8)"
+            />
             <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
           </>
         )}

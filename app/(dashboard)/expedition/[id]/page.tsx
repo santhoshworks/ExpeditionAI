@@ -1,14 +1,13 @@
 "use client"
 
 import { useEffect } from "react"
-import { useParams, useRouter } from "next/navigation"
-import { useExpedition, useTrails, useCreateTrail } from "@/lib/queries"
+import { useParams } from "next/navigation"
+import { useExpedition, useTrails } from "@/lib/queries"
 import { useExploreStore } from "@/lib/store"
 import { ChatInterface } from "@/components/chat/chat-interface"
 import { ModelSelector } from "@/components/chat/model-selector"
 import { ExploreButton } from "@/components/chat/explore-button"
-import { ExpeditionMap } from "@/components/map/expedition-map"
-import { TrailList } from "@/components/trail/trail-list"
+import { MiniTree } from "@/components/map/mini-tree"
 import { FlagButton } from "@/components/trail/flag-button"
 import { useTextSelection } from "@/hooks/use-text-selection"
 import { Button } from "@/components/ui/button"
@@ -17,14 +16,12 @@ import Link from "next/link"
 
 export default function ExpeditionPage() {
   const params = useParams()
-  const router = useRouter()
   const expeditionId = params.id as string
   
   const { setCurrentExpedition, currentTrailId, setCurrentTrail } = useExploreStore()
   const { data: expedition, isLoading: expeditionLoading } = useExpedition(expeditionId)
   const { data: trails, isLoading: trailsLoading } = useTrails(expeditionId)
-  const createTrail = useCreateTrail()
-  
+
   // Enable text selection for explore feature
   useTextSelection()
 
@@ -123,25 +120,21 @@ export default function ExpeditionPage() {
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Sidebar - Trail List & Mini Map */}
-        <aside className="w-80 border-r bg-card flex flex-col">
-          <div className="p-4 border-b">
-            <h2 className="font-semibold mb-2">Trails</h2>
-            <div className="h-48 border rounded-md mb-4">
-              <ExpeditionMap
-                trails={trails || []}
-                currentTrailId={currentTrailId || undefined}
-                onTrailSelect={setCurrentTrail}
-                mini
-              />
+        {/* Sidebar - Trail Tree */}
+        <aside className="w-72 border-r bg-card flex flex-col">
+          <div className="p-3 border-b">
+            <div className="flex items-center justify-between">
+              <h2 className="font-semibold text-sm">Trail Map</h2>
+              <span className="text-xs text-muted-foreground">
+                {trails?.length || 0} trails
+              </span>
             </div>
           </div>
           <div className="flex-1 overflow-y-auto">
-            <TrailList
+            <MiniTree
               trails={trails || []}
               currentTrailId={currentTrailId || undefined}
               onTrailSelect={setCurrentTrail}
-              expeditionId={expeditionId}
             />
           </div>
         </aside>
