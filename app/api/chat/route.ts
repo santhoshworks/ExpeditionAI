@@ -131,16 +131,19 @@ export async function POST(req: Request) {
               role: "assistant",
               content: text,
               model: selectedModel,
-              tokens_used: (usage?.promptTokens || 0) + (usage?.completionTokens || 0),
+              tokens_used: (usage?.totalTokens || 0),
             } as any)
 
           // Deduct credits based on actual token usage (for paid models)
           if (modelConfig && modelConfig.costPerTrail > 0 && usage) {
+            // Log usage object to understand its structure
+            console.log('Usage object:', usage)
+
             const deductResult = await deductCredits(
               user.id,
               selectedModel,
-              usage.promptTokens || 0,
-              usage.completionTokens || 0
+              Math.floor((usage.totalTokens || 0) * 0.7), // Estimate input tokens as ~70%
+              Math.floor((usage.totalTokens || 0) * 0.3)  // Estimate output tokens as ~30%
             )
 
             if (!deductResult.success) {
