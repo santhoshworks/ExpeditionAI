@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from "react"
 import { TrailWithCounts } from "@/types/database"
+import { FlagType } from "@/types/flags"
+import { getDisplayFlagType } from "@/lib/flag-migration"
 import { cn } from "@/lib/utils"
-import { MessageSquare, ChevronRight, ChevronDown, FolderOpen, Folder, FileText, Tent } from "lucide-react"
-import { FlagButton } from "@/components/trail/flag-button"
+import { MessageSquare, ChevronRight, ChevronDown, Compass, MapPin, Tent } from "lucide-react"
+import { MultiFlagButton } from "@/components/trail/multi-flag-button"
 
 interface MiniTreeProps {
   trails: TrailWithCounts[]
@@ -117,13 +119,9 @@ export function MiniTree({ trails, currentTrailId, onTrailSelect }: MiniTreeProp
             {trail.is_base_camp ? (
               <Tent className={cn("h-4 w-4", isActive ? "text-primary" : "text-blue-500")} />
             ) : hasChildren ? (
-              isExpanded ? (
-                <FolderOpen className={cn("h-4 w-4", isActive ? "text-primary" : "text-yellow-500")} />
-              ) : (
-                <Folder className={cn("h-4 w-4", isActive ? "text-primary" : "text-yellow-600")} />
-              )
+              <Compass className={cn("h-4 w-4", isActive ? "text-primary" : "text-amber-500")} />
             ) : (
-              <FileText className={cn("h-4 w-4", isActive ? "text-primary" : "text-muted-foreground")} />
+              <MapPin className={cn("h-4 w-4", isActive ? "text-primary" : "text-green-600")} />
             )}
           </div>
 
@@ -145,11 +143,11 @@ export function MiniTree({ trails, currentTrailId, onTrailSelect }: MiniTreeProp
             <div className="flex items-center gap-1 flex-shrink-0 text-xs">
               <div className={cn(
                 "transition-opacity duration-200",
-                trail.is_flagged ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                getDisplayFlagType(trail) !== FlagType.NOT_EXPLORED ? "opacity-100" : "opacity-0 group-hover:opacity-100"
               )}>
-                <FlagButton
+                <MultiFlagButton
                   trailId={trail.id}
-                  isFlagged={trail.is_flagged}
+                  currentFlag={getDisplayFlagType(trail)}
                   size="xs"
                 />
               </div>

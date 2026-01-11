@@ -57,7 +57,8 @@ export interface Trail {
   parent_trail_id: string | null;
   title: string;
   source_text: string | null;
-  is_flagged: boolean;
+  is_flagged: boolean; // Keep for backward compatibility
+  flag_type: string | null; // New flag system - can be null for existing records
   is_base_camp: boolean;
   position: number;
   created_at: string;

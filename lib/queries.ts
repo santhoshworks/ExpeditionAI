@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { createClient } from "@/lib/supabase/client"
 import type { Expedition, Trail, Message, ExpeditionWithStats, TrailWithCounts, Journal, UserCredits, UserTier, LearningWishlistItem } from "@/types/database"
 import type { Database } from "@/types/supabase"
+import { FlagType } from "@/types/flags"
 import { useExploreStore } from "@/lib/store"
 import { useEffect } from "react"
 
@@ -192,6 +193,40 @@ export function useToggleFlag() {
         .eq("id", trailId)
 
       if (error) throw error
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["trails"] })
+      queryClient.invalidateQueries({ queryKey: ["expeditions"] })
+    },
+  })
+}
+
+export function useUpdateTrailFlag() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({
+      trailId,
+      flagType,
+    }: {
+      trailId: string
+      flagType: FlagType
+    }) => {
+      console.log('Mutation called with:', { trailId, flagType })
+      const supabase = createClient() as any
+      const { error } = await supabase
+        .from("trails")
+        .update({
+          flag_type: flagType,
+          is_flagged: flagType !== FlagType.NOT_EXPLORED // Keep backward compatibility
+        })
+        .eq("id", trailId)
+
+      if (error) {
+        console.error('Database error:', error)
+        throw error
+      }
+      console.log('Database update successful')
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["trails"] })
@@ -402,7 +437,7 @@ export function useUpdateWishlistItem() {
       ...updates
     }: Partial<LearningWishlistItem> & { id: string }) => {
       const supabase = createClient()
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("learning_wishlist")
         .update(updates)
         .eq("id", id)
@@ -452,42 +487,51 @@ export function useConvertToExpedition() {
         .single()
 
       if (fetchError) throw fetchError
+      if (!item) throw new Error("Wishlist item not found")
+
+      const wishlistItem = item as LearningWishlistItem
 
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error("Not authenticated")
 
-      // Create expedition
-      const { data: expedition, error: expeditionError } = await supabase
+      // Create expedition with proper typing
+      const expeditionData = {
+        user_id: user.id,
+        title: wishlistItem.title,
+        description: wishlistItem.description,
+      }
+
+      const { data: expedition, error: expeditionError } = await (supabase as any)
         .from("expeditions")
-        .insert({
-          user_id: user.id,
-          title: item.title,
-          description: item.description,
-        } as any)
+        .insert(expeditionData)
         .select()
         .single()
 
       if (expeditionError) throw expeditionError
 
-      // Create base camp trail
-      const { error: trailError } = await supabase
+      // Create base camp trail with proper typing
+      const trailData = {
+        expedition_id: expedition.id,
+        title: wishlistItem.title,
+        is_base_camp: true,
+      }
+
+      const { error: trailError } = await (supabase as any)
         .from("trails")
-        .insert({
-          expedition_id: (expedition as any).id,
-          title: item.title,
-          is_base_camp: true,
-        } as any)
+        .insert(trailData)
 
       if (trailError) throw trailError
 
       // Update wishlist item to link to expedition and mark as completed
-      const { error: updateError } = await supabase
+      const updateData = {
+        expedition_id: expedition.id,
+        is_completed: true,
+        completed_at: new Date().toISOString(),
+      }
+
+      const { error: updateError } = await (supabase as any)
         .from("learning_wishlist")
-        .update({
-          expedition_id: (expedition as any).id,
-          is_completed: true,
-          completed_at: new Date().toISOString(),
-        })
+        .update(updateData)
         .eq("id", wishlistItemId)
 
       if (updateError) throw updateError

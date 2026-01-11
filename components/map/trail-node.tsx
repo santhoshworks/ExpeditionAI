@@ -3,9 +3,11 @@
 import { memo } from "react"
 import { Handle, Position } from "@xyflow/react"
 import { TrailWithCounts } from "@/types/database"
+import { FlagType } from "@/types/flags"
+import { getDisplayFlagType } from "@/lib/flag-migration"
 import { cn } from "@/lib/utils"
 import { MessageSquare } from "lucide-react"
-import { FlagButton } from "@/components/trail/flag-button"
+import { MultiFlagButton } from "@/components/trail/multi-flag-button"
 
 interface TrailNodeData {
   trail: TrailWithCounts
@@ -71,9 +73,9 @@ export const TrailNode = memo(({ data }: TrailNodeProps) => {
           )}>
             {trail.title}
           </h3>
-          <FlagButton
+          <MultiFlagButton
             trailId={trail.id}
-            isFlagged={trail.is_flagged}
+            currentFlag={getDisplayFlagType(trail)}
             size="sm"
             className={cn(
               "flex-shrink-0",

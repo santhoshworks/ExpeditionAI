@@ -1,10 +1,12 @@
 "use client"
 
 import { TrailWithCounts } from "@/types/database"
+import { FlagType } from "@/types/flags"
+import { getDisplayFlagType } from "@/lib/flag-migration"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { MessageSquare } from "lucide-react"
-import { FlagButton } from "@/components/trail/flag-button"
+import { MultiFlagButton } from "@/components/trail/multi-flag-button"
 import { cn } from "@/lib/utils"
 import { formatDate } from "@/lib/utils"
 
@@ -54,11 +56,11 @@ export function TrailList({
           </Button>
           <div className={cn(
             "absolute right-2 transition-opacity duration-200",
-            trail.is_flagged ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+            getDisplayFlagType(trail) !== FlagType.NOT_EXPLORED ? "opacity-100" : "opacity-0 group-hover:opacity-100"
           )}>
-            <FlagButton
+            <MultiFlagButton
               trailId={trail.id}
-              isFlagged={trail.is_flagged}
+              currentFlag={getDisplayFlagType(trail)}
               size="xs"
             />
           </div>

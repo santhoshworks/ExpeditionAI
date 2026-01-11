@@ -156,10 +156,12 @@ export async function POST(req: Request) {
     }
 
     // Stream AI response using the full conversation history (filter out illustration messages for AI)
-    const aiMessages = messages.filter(m => m.role !== "illustration").map(m => ({
-      role: m.role,
-      content: m.content
-    }))
+    const aiMessages = messages
+      .filter(m => m.role !== "illustration")
+      .map(m => ({
+        role: m.role as "user" | "assistant" | "system",
+        content: m.content
+      }))
 
     const result = await streamText({
       model: openrouter(selectedModel),

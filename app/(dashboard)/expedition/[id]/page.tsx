@@ -4,11 +4,13 @@ import { useEffect } from "react"
 import { useParams, useSearchParams } from "next/navigation"
 import { useExpedition, useTrails, useUserCredits } from "@/lib/queries"
 import { useExploreStore } from "@/lib/store"
+import { FlagType } from "@/types/flags"
+import { getDisplayFlagType } from "@/lib/flag-migration"
 import { ChatInterface } from "@/components/chat/chat-interface"
 import { ModelSelector } from "@/components/chat/model-selector"
 import { ExploreButton } from "@/components/chat/explore-button"
 import { MiniTree } from "@/components/map/mini-tree"
-import { FlagButton } from "@/components/trail/flag-button"
+import { MultiFlagButton } from "@/components/trail/multi-flag-button"
 import { useTextSelection } from "@/hooks/use-text-selection"
 import { useMapPreloader, preloadMapComponents } from "@/hooks/use-map-preloader"
 import { Button } from "@/components/ui/button"
@@ -100,9 +102,9 @@ export default function ExpeditionPage() {
             <div className="flex items-center gap-2 md:gap-3 border-l pl-2 md:pl-4 min-w-0 flex-1">
               <span className="text-xs font-medium text-muted-foreground uppercase tracking-widest hidden sm:inline">Current Trail</span>
               <span className="text-sm font-bold truncate">{currentTrail.title}</span>
-              <FlagButton
+              <MultiFlagButton
                 trailId={currentTrail.id}
-                isFlagged={currentTrail.is_flagged}
+                currentFlag={getDisplayFlagType(currentTrail)}
               />
             </div>
           )}
