@@ -212,7 +212,6 @@ export function useUpdateTrailFlag() {
       trailId: string
       flagType: FlagType
     }) => {
-      console.log('Mutation called with:', { trailId, flagType })
       const supabase = createClient() as any
       const { error } = await supabase
         .from("trails")
@@ -222,11 +221,7 @@ export function useUpdateTrailFlag() {
         })
         .eq("id", trailId)
 
-      if (error) {
-        console.error('Database error:', error)
-        throw error
-      }
-      console.log('Database update successful')
+      if (error) throw error
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["trails"] })

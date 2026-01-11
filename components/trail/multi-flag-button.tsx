@@ -30,12 +30,10 @@ export function MultiFlagButton({
 
     const handleFlagChange = async (newFlag: FlagType) => {
         try {
-            console.log('Updating flag:', { trailId, newFlag })
             await updateFlag.mutateAsync({
                 trailId,
                 flagType: newFlag,
             })
-            console.log('Flag updated successfully')
             setIsOpen(false)
         } catch (error) {
             console.error("Failed to update flag:", error)
