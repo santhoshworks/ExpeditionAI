@@ -102,6 +102,15 @@ export default function DashboardPage() {
           </div>
 
           <div className="flex items-center gap-3 w-full md:w-auto">
+            <Link href="/wishlist">
+              <Button
+                variant="outline"
+                className="rounded-full gap-2 flex-shrink-0"
+              >
+                <BookOpen className="h-4 w-4" />
+                <span className="hidden sm:inline">Wishlist</span>
+              </Button>
+            </Link>
             <div className="flex items-center bg-accent/50 p-1 rounded-lg border flex-shrink-0">
               <Button
                 variant={viewMode === "table" ? "secondary" : "ghost"}

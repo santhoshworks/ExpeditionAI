@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { createClient } from "@/lib/supabase/client"
-import type { Expedition, Trail, Message, ExpeditionWithStats, TrailWithCounts, Journal, UserCredits, UserTier } from "@/types/database"
+import type { Expedition, Trail, Message, ExpeditionWithStats, TrailWithCounts, Journal, UserCredits, UserTier, LearningWishlistItem } from "@/types/database"
 import type { Database } from "@/types/supabase"
 import { useExploreStore } from "@/lib/store"
 import { useEffect } from "react"
@@ -331,4 +331,172 @@ export function useRefreshCredits() {
   return () => {
     queryClient.invalidateQueries({ queryKey: ["userCredits"] })
   }
+}
+
+// Learning Wishlist
+export function useLearningWishlist() {
+  return useQuery({
+    queryKey: ["learningWishlist"],
+    queryFn: async () => {
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from("learning_wishlist")
+        .select("*")
+        .order("priority", { ascending: true })
+        .order("created_at", { ascending: false })
+
+      if (error) throw error
+      return data as LearningWishlistItem[]
+    },
+  })
+}
+
+export function useCreateWishlistItem() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (data: {
+      title: string
+      description?: string
+      category?: string
+      priority?: number
+      source_url?: string
+      estimated_time?: string
+      tags?: string[]
+    }) => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+
+      if (!user) throw new Error("Not authenticated")
+
+      const { data: item, error } = await supabase
+        .from("learning_wishlist")
+        .insert({
+          user_id: user.id,
+          title: data.title,
+          description: data.description || null,
+          category: data.category || null,
+          priority: data.priority || 3,
+          source_url: data.source_url || null,
+          estimated_time: data.estimated_time || null,
+          tags: data.tags || null,
+        } as any)
+        .select()
+        .single()
+
+      if (error) throw error
+      return item as LearningWishlistItem
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["learningWishlist"] })
+    },
+  })
+}
+
+export function useUpdateWishlistItem() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      ...updates
+    }: Partial<LearningWishlistItem> & { id: string }) => {
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from("learning_wishlist")
+        .update(updates)
+        .eq("id", id)
+        .select()
+        .single()
+
+      if (error) throw error
+      return data as LearningWishlistItem
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["learningWishlist"] })
+    },
+  })
+}
+
+export function useDeleteWishlistItem() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const supabase = createClient()
+      const { error } = await supabase
+        .from("learning_wishlist")
+        .delete()
+        .eq("id", id)
+
+      if (error) throw error
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["learningWishlist"] })
+    },
+  })
+}
+
+export function useConvertToExpedition() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (wishlistItemId: string) => {
+      const supabase = createClient()
+
+      // Get the wishlist item
+      const { data: item, error: fetchError } = await supabase
+        .from("learning_wishlist")
+        .select("*")
+        .eq("id", wishlistItemId)
+        .single()
+
+      if (fetchError) throw fetchError
+
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error("Not authenticated")
+
+      // Create expedition
+      const { data: expedition, error: expeditionError } = await supabase
+        .from("expeditions")
+        .insert({
+          user_id: user.id,
+          title: item.title,
+          description: item.description,
+        } as any)
+        .select()
+        .single()
+
+      if (expeditionError) throw expeditionError
+
+      // Create base camp trail
+      const { error: trailError } = await supabase
+        .from("trails")
+        .insert({
+          expedition_id: (expedition as any).id,
+          title: item.title,
+          is_base_camp: true,
+        } as any)
+
+      if (trailError) throw trailError
+
+      // Update wishlist item to link to expedition and mark as completed
+      const { error: updateError } = await supabase
+        .from("learning_wishlist")
+        .update({
+          expedition_id: (expedition as any).id,
+          is_completed: true,
+          completed_at: new Date().toISOString(),
+        })
+        .eq("id", wishlistItemId)
+
+      if (updateError) throw updateError
+
+      return expedition as Expedition
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["learningWishlist"] })
+      queryClient.invalidateQueries({ queryKey: ["expeditions"] })
+    },
+  })
 }

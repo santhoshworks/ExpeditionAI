@@ -106,3 +106,20 @@ export interface FlowEdge {
   target: string;
   type?: string;
 }
+
+export interface LearningWishlistItem {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string | null;
+  category: string | null;
+  priority: number;
+  source_url: string | null;
+  estimated_time: string | null;
+  tags: string[] | null;
+  is_completed: boolean;
+  completed_at: string | null;
+  expedition_id: string | null;
+  created_at: string;
+  updated_at: string;
+}

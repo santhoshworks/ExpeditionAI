@@ -4,7 +4,7 @@ import { usePathname, useRouter } from "next/navigation"
 import Link from "next/link"
 import { useExpeditions } from "@/lib/queries"
 import { Skeleton } from "@/components/ui/skeleton"
-import { User, Bell, Search, Menu, LayoutDashboard, Settings, LogOut, Compass } from "lucide-react"
+import { User, Bell, Search, Menu, LayoutDashboard, Settings, LogOut, Compass, BookOpen } from "lucide-react"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -20,6 +20,7 @@ import { useQueryClient } from "@tanstack/react-query"
 
 const navigationItems = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { name: "Wishlist", href: "/wishlist", icon: BookOpen },
     { name: "Settings", href: "/settings", icon: Settings },
 ]
 
@@ -52,6 +53,7 @@ export function Topbar() {
 
     const getPageTitle = () => {
         if (pathname === "/dashboard") return "Your Dashboard"
+        if (pathname === "/wishlist") return "Learning Wishlist"
         if (pathname.includes("/expedition/")) {
             return currentExpedition?.title || "Loading Expedition..."
         }
