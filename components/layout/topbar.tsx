@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/client"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
+import { useQueryClient } from "@tanstack/react-query"
 
 const navigationItems = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -25,14 +26,24 @@ const navigationItems = [
 export function Topbar() {
     const pathname = usePathname()
     const router = useRouter()
+    const queryClient = useQueryClient()
     const { data: expeditions, isLoading } = useExpeditions()
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+    const [isLoggingOut, setIsLoggingOut] = useState(false)
 
     const handleSignOut = async () => {
-        const supabase = createClient()
-        await supabase.auth.signOut()
-        router.push("/login")
-        router.refresh()
+        setIsLoggingOut(true)
+        try {
+            const supabase = createClient()
+            await supabase.auth.signOut()
+            queryClient.clear()
+            router.push("/login")
+            router.refresh()
+        } catch (error) {
+            console.error("Error signing out:", error)
+        } finally {
+            setIsLoggingOut(false)
+        }
     }
 
     // Find current expedition title if we're on an expedition page
@@ -139,8 +150,8 @@ export function Topbar() {
                                     Settings
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive focus:text-destructive">
-                                    Sign out
+                                <DropdownMenuItem onClick={handleSignOut} disabled={isLoggingOut} className="cursor-pointer text-destructive focus:text-destructive">
+                                    {isLoggingOut ? "Signing out..." : "Sign out"}
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
@@ -168,12 +179,22 @@ export function Topbar() {
 function MobileSidebar({ onClose }: { onClose: () => void }) {
     const pathname = usePathname()
     const router = useRouter()
+    const queryClient = useQueryClient()
+    const [isLoggingOut, setIsLoggingOut] = useState(false)
 
     const handleLogout = async () => {
-        const supabase = createClient()
-        await supabase.auth.signOut()
-        router.push("/login")
-        onClose()
+        setIsLoggingOut(true)
+        try {
+            const supabase = createClient()
+            await supabase.auth.signOut()
+            queryClient.clear()
+            router.push("/login")
+            onClose()
+        } catch (error) {
+            console.error("Error signing out:", error)
+        } finally {
+            setIsLoggingOut(false)
+        }
     }
 
     return (
@@ -209,10 +230,11 @@ function MobileSidebar({ onClose }: { onClose: () => void }) {
             <div className="border-t pt-4">
                 <button
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-colors"
+                    disabled={isLoggingOut}
+                    className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     <LogOut className="w-5 h-5" />
-                    <span>Logout</span>
+                    <span>{isLoggingOut ? "Signing out..." : "Sign out"}</span>
                 </button>
             </div>
         </div>

@@ -10,6 +10,7 @@ import { ExploreButton } from "@/components/chat/explore-button"
 import { MiniTree } from "@/components/map/mini-tree"
 import { FlagButton } from "@/components/trail/flag-button"
 import { useTextSelection } from "@/hooks/use-text-selection"
+import { useMapPreloader, preloadMapComponents } from "@/hooks/use-map-preloader"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, Map, BookOpen } from "lucide-react"
 import Link from "next/link"
@@ -29,6 +30,9 @@ export default function ExpeditionPage() {
 
   // Enable text selection for explore feature
   useTextSelection()
+
+  // Preload map components for faster transitions
+  const isMapPreloaded = useMapPreloader(2000)
 
   useEffect(() => {
     if (expeditionId) {
@@ -110,7 +114,17 @@ export default function ExpeditionPage() {
           </div>
           <div className="h-4 w-[1px] bg-border mx-1 hidden md:block" />
           <Link href={`/expedition/${expeditionId}/map`}>
-            <Button variant="ghost" size="sm" className="h-8 gap-1 md:gap-2 px-2 md:px-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 gap-1 md:gap-2 px-2 md:px-3"
+              onMouseEnter={() => {
+                // Preload on hover for instant transitions
+                if (!isMapPreloaded) {
+                  preloadMapComponents()
+                }
+              }}
+            >
               <Map className="h-4 w-4" />
               <span className="hidden sm:inline">Map</span>
             </Button>
