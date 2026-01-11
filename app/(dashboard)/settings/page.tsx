@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { ModelSelector } from "@/components/chat/model-selector"
+import { ThemeToggle, SimpleThemeToggle } from "@/components/theme-toggle"
 import { useExploreStore } from "@/lib/store"
 import { createClient } from "@/lib/supabase/client"
 import { useQueryClient } from "@tanstack/react-query"
@@ -35,6 +36,27 @@ export default function SettingsPage() {
 
       <div className="container mx-auto px-4 py-8 max-w-2xl">
         <div className="space-y-6">
+          {/* Appearance */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Appearance</CardTitle>
+              <CardDescription>
+                Customize the look and feel of the application
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <label className="text-sm font-medium">Theme</label>
+                  <p className="text-sm text-muted-foreground">
+                    Choose between light, dark, or system theme
+                  </p>
+                </div>
+                <SimpleThemeToggle />
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Model Preferences */}
           <Card>
             <CardHeader>

@@ -13,6 +13,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
+import { ThemeToggle, SimpleThemeToggle } from "@/components/theme-toggle"
 import { createClient } from "@/lib/supabase/client"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
@@ -134,6 +135,9 @@ export function Topbar() {
                     </Button>
 
                     <div className="flex items-center gap-1 md:gap-2">
+                        {/* Theme toggle */}
+                        <ThemeToggle />
+
                         <button className="p-2 rounded-full hover:bg-accent text-muted-foreground transition-colors relative">
                             <Bell className="w-4 h-4 md:w-5 md:h-5" />
                             <div className="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full border-2 border-background" />
@@ -229,7 +233,14 @@ function MobileSidebar({ onClose }: { onClose: () => void }) {
                 ))}
             </nav>
 
-            <div className="border-t pt-4">
+            <div className="border-t pt-4 space-y-2">
+                <div className="px-3 py-2">
+                    <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-muted-foreground">Theme</span>
+                        <SimpleThemeToggle />
+                    </div>
+                </div>
+
                 <button
                     onClick={handleLogout}
                     disabled={isLoggingOut}
