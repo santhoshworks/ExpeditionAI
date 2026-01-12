@@ -4,7 +4,7 @@ import { useEffect } from "react"
 import { useExploreStore } from "@/lib/store"
 
 export function useTextSelection() {
-  const { setSelectedText, showExploreButton } = useExploreStore()
+  const { setSelectedText, showExploreButton, learningMode } = useExploreStore()
 
   useEffect(() => {
     let isMouseDown = false
@@ -25,6 +25,11 @@ export function useTextSelection() {
       // Clear any existing timeout
       if (selectionTimeout) {
         clearTimeout(selectionTimeout)
+      }
+
+      // In learning mode, don't show the explore tooltip
+      if (learningMode) {
+        return
       }
 
       // Wait longer to ensure user is done with selection (including potential drag extension)
@@ -94,7 +99,7 @@ export function useTextSelection() {
       document.removeEventListener("mouseup", handleMouseUp)
       document.removeEventListener("touchend", handleTouchEnd)
     }
-  }, [setSelectedText])
+  }, [setSelectedText, learningMode])
 
   return { showExploreButton }
 }

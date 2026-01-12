@@ -133,6 +133,7 @@ export function useCreateTrail() {
       parentTrailId?: string
       title: string
       sourceText?: string
+      flagType?: FlagType
     }) => {
       const supabase = createClient()
 
@@ -159,6 +160,7 @@ export function useCreateTrail() {
           source_text: data.sourceText || null,
           is_base_camp: !data.parentTrailId,
           position: (count || 0) + 1,
+          flag_type: data.flagType || null,
         } as any)
         .select()
         .single()

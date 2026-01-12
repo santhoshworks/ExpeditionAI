@@ -13,7 +13,7 @@ export async function POST(
     try {
         const expeditionId = params.id
         const { model } = await req.json()
-        const selectedModel = model || "anthropic/claude-3.5-sonnet"
+        const selectedModel = model || "google/gemini-2.0-flash-001" // Use reliable paid model
 
         const supabase = await createClient()
         const {

@@ -13,6 +13,7 @@ interface ExploreState {
   showExploreButton: boolean
   sidebarCollapsed: boolean
   mapExpanded: boolean
+  learningMode: boolean // When true, disables explore tooltip and dims surrounding UI
 
   // Auto-message for new trails
   autoMessageData: {
@@ -38,6 +39,7 @@ interface ExploreState {
   setAutoMessageData: (data: { trailId: string; selectedText: string } | null) => void
   toggleSidebar: () => void
   toggleMapExpanded: () => void
+  toggleLearningMode: () => void
   setSelectedModel: (model: string) => void
   setUserCredits: (credits: number, tier: UserTier, trailsToday?: number) => void
   deductCreditsLocally: (amount: number) => void
@@ -55,6 +57,7 @@ export const useExploreStore = create<ExploreState>()(
       showExploreButton: false,
       sidebarCollapsed: false,
       mapExpanded: false,
+      learningMode: false,
       autoMessageData: null,
       selectedModel: "deepseek/deepseek-chat",
       userTier: "free",
@@ -82,6 +85,13 @@ export const useExploreStore = create<ExploreState>()(
       toggleMapExpanded: () =>
         set((state) => ({
           mapExpanded: !state.mapExpanded,
+        })),
+
+      toggleLearningMode: () =>
+        set((state) => ({
+          learningMode: !state.learningMode,
+          // Clear any selected text when entering learning mode
+          ...(state.learningMode ? {} : { selectedText: null, selectedTextPosition: null, showExploreButton: false }),
         })),
 
       setSelectedModel: (model) => set({ selectedModel: model }),
@@ -112,6 +122,7 @@ export const useExploreStore = create<ExploreState>()(
       partialize: (state) => ({
         selectedModel: state.selectedModel,
         sidebarCollapsed: state.sidebarCollapsed,
+        learningMode: state.learningMode,
       }),
     }
   )

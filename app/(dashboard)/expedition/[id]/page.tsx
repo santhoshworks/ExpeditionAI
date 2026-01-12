@@ -1,20 +1,22 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useParams, useSearchParams } from "next/navigation"
 import { useExpedition, useTrails, useUserCredits } from "@/lib/queries"
 import { useExploreStore } from "@/lib/store"
-import { FlagType } from "@/types/flags"
 import { getDisplayFlagType } from "@/lib/flag-migration"
 import { ChatInterface } from "@/components/chat/chat-interface"
 import { ModelSelector } from "@/components/chat/model-selector"
 import { ExploreButton } from "@/components/chat/explore-button"
+import { LearningModeToggle } from "@/components/chat/learning-mode-toggle"
+import { CinemaModeOverlay } from "@/components/chat/cinema-mode-overlay"
 import { MiniTree } from "@/components/map/mini-tree"
 import { MultiFlagButton } from "@/components/trail/multi-flag-button"
+import { GenerateTopicsModal } from "@/components/trail/generate-topics-modal"
 import { useTextSelection } from "@/hooks/use-text-selection"
 import { useMapPreloader, preloadMapComponents } from "@/hooks/use-map-preloader"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Map, BookOpen } from "lucide-react"
+import { ArrowLeft, Map, BookOpen, Wand2 } from "lucide-react"
 import Link from "next/link"
 
 export default function ExpeditionPage() {
@@ -22,6 +24,8 @@ export default function ExpeditionPage() {
   const searchParams = useSearchParams()
   const expeditionId = params.id as string
   const trailIdParam = searchParams.get("trailId")
+
+  const [generateModalOpen, setGenerateModalOpen] = useState(false)
 
   const { setCurrentExpedition, currentTrailId, setCurrentTrail, userTier, userCredits } = useExploreStore()
   const { data: expedition, isLoading: expeditionLoading } = useExpedition(expeditionId)
@@ -90,6 +94,9 @@ export default function ExpeditionPage() {
 
   return (
     <div className="h-full bg-background flex flex-col">
+      {/* Cinema mode overlay - dims everything except chat */}
+      <CinemaModeOverlay />
+
       {/* Expedition Actions / Sub-header */}
       <div className="border-b bg-card/30 px-4 md:px-6 py-2 flex items-center justify-between">
         <div className="flex items-center gap-2 md:gap-4 min-w-0 flex-1">
@@ -165,13 +172,29 @@ export default function ExpeditionPage() {
               onTrailSelect={setCurrentTrail}
             />
           </div>
+          {/* Generate Topics Button */}
+          <div className="p-3 border-t bg-accent/20">
+            <Button
+              variant="outline"
+              className="w-full gap-2"
+              onClick={() => setGenerateModalOpen(true)}
+            >
+              <Wand2 className="h-4 w-4" />
+              Generate Topics
+            </Button>
+          </div>
         </aside>
 
         {/* Main Chat Area */}
-        <main className="flex-1 flex flex-col relative min-h-0">
-          {/* Mobile Model Selector */}
-          <div className="md:hidden border-b bg-card/30 p-2 flex-shrink-0">
-            <ModelSelector userTier={userTier} userCredits={userCredits} />
+        <main className="flex-1 flex flex-col min-h-0">
+          {/* Mode Toggle & Mobile Model Selector */}
+          <div className="border-b bg-card/30 p-2 flex-shrink-0 flex items-center justify-between gap-2 relative z-[101]">
+            <div className="md:hidden flex-1">
+              <ModelSelector userTier={userTier} userCredits={userCredits} />
+            </div>
+            <div className="flex items-center justify-end md:w-full">
+              <LearningModeToggle />
+            </div>
           </div>
 
           {currentTrailId ? (
@@ -179,6 +202,8 @@ export default function ExpeditionPage() {
               <ChatInterface
                 trailId={currentTrailId}
                 expeditionId={expeditionId}
+                trailTitle={currentTrail?.title}
+                trailSourceText={currentTrail?.source_text}
               />
               <ExploreButton
                 expeditionId={expeditionId}
@@ -202,6 +227,15 @@ export default function ExpeditionPage() {
           )}
         </main>
       </div>
+
+      {/* Generate Topics Modal */}
+      <GenerateTopicsModal
+        open={generateModalOpen}
+        onOpenChange={setGenerateModalOpen}
+        expeditionId={expeditionId}
+        expeditionTitle={expedition.title}
+        trails={trails || []}
+      />
     </div>
   )
 }

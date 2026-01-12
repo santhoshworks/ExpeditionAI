@@ -18,7 +18,7 @@ export interface ModelOption {
 
 // All available models with tier restrictions
 export const MODELS: ModelOption[] = [
-  // Free Tier Models
+  // Free Tier Models (Remove unreliable free models)
   {
     id: 'deepseek/deepseek-chat',
     name: 'DeepSeek V3',
@@ -29,28 +29,8 @@ export const MODELS: ModelOption[] = [
     badge: 'Free',
     description: 'Best free model for learning',
   },
-  {
-    id: 'google/gemini-2.0-flash-exp:free',
-    name: 'Gemini 2.0 Flash',
-    provider: 'Google',
-    costPerTrail: 0,
-    speed: 'Very Fast',
-    tier: 'free',
-    badge: 'Free',
-    description: 'Fastest responses, great quality',
-  },
-  {
-    id: 'meta-llama/llama-3.3-70b-instruct',
-    name: 'Llama 3.3 70B',
-    provider: 'Meta',
-    costPerTrail: 0,
-    speed: 'Medium',
-    tier: 'free',
-    badge: 'Free',
-    description: 'Detailed explanations, complex topics',
-  },
 
-  // Basic Tier Models
+  // Basic Tier Models (Budget-friendly for beta)
   {
     id: 'google/gemini-2.0-flash-001',
     name: 'Gemini 2.0 Flash',
@@ -76,22 +56,22 @@ export const MODELS: ModelOption[] = [
     id: 'openai/gpt-4o-mini',
     name: 'GPT-4o Mini',
     provider: 'OpenAI',
-    costPerTrail: 1,
+    costPerTrail: 0.8,
     speed: 'Fast',
     tier: 'basic',
     description: 'Strong reasoning & explanations',
   },
-
-  // Pro Tier Models
   {
     id: 'anthropic/claude-3.5-haiku',
     name: 'Claude 3.5 Haiku',
     provider: 'Anthropic',
-    costPerTrail: 2,
+    costPerTrail: 1.2,
     speed: 'Fast',
-    tier: 'pro',
+    tier: 'basic',
     description: 'Creative, engaging learning style',
   },
+
+  // Pro Tier Models
   {
     id: 'google/gemini-pro-1.5',
     name: 'Gemini 1.5 Pro',
@@ -110,6 +90,15 @@ export const MODELS: ModelOption[] = [
     tier: 'pro',
     badge: 'Premium',
     description: 'Highest quality responses',
+  },
+  {
+    id: 'anthropic/claude-3.5-sonnet',
+    name: 'Claude 3.5 Sonnet',
+    provider: 'Anthropic',
+    costPerTrail: 4,
+    speed: 'Medium',
+    tier: 'pro',
+    description: 'Best for complex analysis',
   },
 ] as const
 

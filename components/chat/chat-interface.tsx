@@ -30,9 +30,11 @@ interface ChatInterfaceProps {
   trailId: string
   expeditionId: string
   model?: string
+  trailTitle?: string
+  trailSourceText?: string | null
 }
 
-export function ChatInterface({ trailId, expeditionId, model }: ChatInterfaceProps) {
+export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailSourceText }: ChatInterfaceProps) {
   const { selectedModel, autoMessageData, setAutoMessageData } = useExploreStore()
   const { data: existingMessages, refetch } = useMessages(trailId)
   const { generateIllustration, isGenerating: isGeneratingIllustration } = useIllustrations()
@@ -239,7 +241,7 @@ export function ChatInterface({ trailId, expeditionId, model }: ChatInterfacePro
     )
   }, [])
 
-  // Handle auto-message for new trails
+  // Handle auto-message for new trails (from explore button)
   useEffect(() => {
     if (autoMessageData && autoMessageData.trailId === trailId && messages.length === 0 && !isLoading) {
       const { selectedText } = autoMessageData
@@ -247,10 +249,35 @@ export function ChatInterface({ trailId, expeditionId, model }: ChatInterfacePro
       setAutoMessageData(null)
 
       // Trigger the first message
-      const autoMessage = `Explain more about this ${selectedText}`
+      const autoMessage = `Explain more about "${selectedText}"`
       handleSend(autoMessage)
     }
   }, [trailId, autoMessageData, messages.length, isLoading, setAutoMessageData, handleSend])
+
+  // Handle auto-message for trails with sourceText (generated topics)
+  // This triggers when visiting a trail that has sourceText but no messages yet
+  const hasTriggeredAutoMessage = useRef<string | null>(null)
+
+  useEffect(() => {
+    // Only trigger if:
+    // 1. Trail has sourceText (it's a generated topic)
+    // 2. No messages exist yet
+    // 3. Not currently loading
+    // 4. Haven't already triggered for this trail
+    // 5. No autoMessageData is pending (to avoid double-triggering)
+    if (
+      trailSourceText &&
+      trailTitle &&
+      messages.length === 0 &&
+      !isLoading &&
+      hasTriggeredAutoMessage.current !== trailId &&
+      !autoMessageData
+    ) {
+      hasTriggeredAutoMessage.current = trailId
+      const autoMessage = `Explain more about "${trailTitle}"`
+      handleSend(autoMessage)
+    }
+  }, [trailId, trailTitle, trailSourceText, messages.length, isLoading, autoMessageData, handleSend])
 
   return (
     <div className="flex flex-col h-full mobile-chat-container">
