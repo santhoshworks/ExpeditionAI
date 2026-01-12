@@ -35,8 +35,9 @@ export async function POST(request: NextRequest) {
         }
 
         // Get existing illustration query
-        const { data: illustration, error: illustrationError } = await supabase
-            .from('trail_illustrations')
+        // Type assertion needed as trail_illustrations table types aren't generated
+        const { data: illustration, error: illustrationError } = await (supabase
+            .from('trail_illustrations') as any)
             .select('illustration_query, trails!inner(expedition_id, expeditions!inner(user_id))')
             .eq('trail_id', trailId)
             .single()
@@ -48,15 +49,22 @@ export async function POST(request: NextRequest) {
             )
         }
 
+        // Type assertion for the nested data from joined query
+        const illustrationData = illustration as {
+            illustration_query: string
+            trails: {
+                expedition_id: string
+                expeditions: { user_id: string }
+            }
+        }
+
         // Verify ownership
-        const trailData = illustration.trails as any
-        const expeditionData = trailData.expeditions as any
-        if (expeditionData.user_id !== user.id) {
+        if (illustrationData.trails.expeditions.user_id !== user.id) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
         }
 
         // Extract the original topic from the stored query for regeneration
-        const originalQuery = illustration.illustration_query
+        const originalQuery = illustrationData.illustration_query
 
         // Try to extract topic from the query, or use the query itself
         const topicMatch = originalQuery.match(/representing: (.+?)\./) ||
@@ -72,8 +80,8 @@ export async function POST(request: NextRequest) {
         const result = await generateIllustrationWithOpenRouter(topic, userApiKey || undefined)
 
         // Update the generated_at timestamp and potentially new query
-        const { error: updateError } = await supabase
-            .from('trail_illustrations')
+        const { error: updateError } = await (supabase
+            .from('trail_illustrations') as any)
             .update({
                 generated_at: new Date().toISOString(),
                 illustration_query: result.prompt // Update with new AI-generated prompt

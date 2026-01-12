@@ -25,8 +25,9 @@ export function PerformanceMonitor({ enabled = false }: PerformanceMonitorProps)
 
             if (renderEntry) {
                 setMetrics(prev => ({
-                    ...prev,
                     renderTime: renderEntry.duration,
+                    nodeCount: prev?.nodeCount ?? 0,
+                    memoryUsage: prev?.memoryUsage,
                 }))
             }
         })
@@ -37,7 +38,8 @@ export function PerformanceMonitor({ enabled = false }: PerformanceMonitorProps)
         if ('memory' in performance) {
             const memoryInfo = (performance as any).memory
             setMetrics(prev => ({
-                ...prev,
+                renderTime: prev?.renderTime ?? 0,
+                nodeCount: prev?.nodeCount ?? 0,
                 memoryUsage: memoryInfo.usedJSHeapSize / 1024 / 1024, // MB
             }))
         }

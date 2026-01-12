@@ -24,8 +24,9 @@ export async function GET(
         }
 
         // Get illustration data with ownership verification
-        const { data: illustration, error: illustrationError } = await supabase
-            .from('trail_illustrations')
+        // Type assertion needed as trail_illustrations table types aren't generated
+        const { data: illustration, error: illustrationError } = await (supabase
+            .from('trail_illustrations') as any)
             .select(`
         id,
         illustration_query,
@@ -46,17 +47,27 @@ export async function GET(
             )
         }
 
-        // Verify ownership
-        const trailData = illustration.trails as any
-        const expeditionData = trailData.expeditions as any
+        // Verify ownership - cast to expected shape from joined query
+        const illustrationData = illustration as {
+            id: string
+            illustration_query: string
+            generated_at: string
+            trails: {
+                id: string
+                title: string
+                expeditions: { user_id: string }
+            }
+        }
+        const trailData = illustrationData.trails
+        const expeditionData = trailData.expeditions
         if (expeditionData.user_id !== user.id) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
         }
 
         return NextResponse.json({
-            id: illustration.id,
-            query: illustration.illustration_query,
-            generatedAt: illustration.generated_at,
+            id: illustrationData.id,
+            query: illustrationData.illustration_query,
+            generatedAt: illustrationData.generated_at,
             trailTitle: trailData.title,
         })
 

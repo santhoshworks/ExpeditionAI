@@ -13,6 +13,7 @@ import {
   Node,
   Edge,
   BackgroundVariant,
+  PanOnScrollMode,
 } from "@xyflow/react"
 import "@xyflow/react/dist/style.css"
 import "./map-optimizations.css"
@@ -178,7 +179,7 @@ export function ExpeditionMap({
         zoomOnPinch={!mini}
         zoomOnDoubleClick={!mini}
         // Mobile-optimized interaction
-        panOnScrollMode={isMobile ? "free" : "vertical"}
+        panOnScrollMode={isMobile ? PanOnScrollMode.Free : PanOnScrollMode.Vertical}
         panOnScrollSpeed={0.5}
       >
         {!mini && (

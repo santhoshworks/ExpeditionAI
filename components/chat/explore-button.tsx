@@ -36,34 +36,54 @@ export function ExploreButton({ expeditionId, parentTrailId }: ExploreButtonProp
     return text
   }
 
-  // Fetch definition when text is selected
+  // Fetch definition when text is selected (with debouncing and streaming)
   useEffect(() => {
-    if (selectedText && selectedText.length > 0 && selectedText.length < 500) {
-      const fetchDefinition = async () => {
-        setIsDefining(true)
-        setDefinition(null)
-        try {
-          const response = await fetch("/api/define", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              text: selectedText,
-              context: expedition?.title // Pass expedition title as context
-            }),
-          })
-          if (response.ok) {
-            const data = await response.json()
-            setDefinition(data.definition)
-          }
-        } catch (error) {
-          console.error("Failed to fetch definition:", error)
-        } finally {
-          setIsDefining(false)
-        }
-      }
-      fetchDefinition()
-    } else {
+    if (!selectedText || selectedText.length === 0 || selectedText.length >= 500) {
       setDefinition(null)
+      return
+    }
+
+    // Debounce the API call by 300ms
+    const debounceTimer = setTimeout(async () => {
+      const abortController = new AbortController()
+      setIsDefining(true)
+      setDefinition(null)
+
+      try {
+        const response = await fetch("/api/define", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            text: selectedText,
+            context: expedition?.title
+          }),
+          signal: abortController.signal,
+        })
+
+        if (response.ok && response.body) {
+          // Handle streaming response
+          const reader = response.body.getReader()
+          const decoder = new TextDecoder()
+          let streamedDefinition = ""
+
+          while (true) {
+            const { done, value } = await reader.read()
+            if (done) break
+            streamedDefinition += decoder.decode(value, { stream: true })
+            setDefinition(streamedDefinition)
+          }
+        }
+      } catch (error) {
+        if ((error as Error).name !== 'AbortError') {
+          console.error("Failed to fetch definition:", error)
+        }
+      } finally {
+        setIsDefining(false)
+      }
+    }, 300)
+
+    return () => {
+      clearTimeout(debounceTimer)
     }
   }, [selectedText, expedition?.title])
 

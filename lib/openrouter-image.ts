@@ -216,11 +216,13 @@ export async function getUserOpenRouterKey(userId: string): Promise<string | nul
             .eq('id', userId)
             .single()
 
-        if (error || !data?.openrouter_api_key) {
+        // Type assertion for profile data
+        const profileData = data as { openrouter_api_key: string | null } | null
+        if (error || !profileData?.openrouter_api_key) {
             return null
         }
 
-        return data.openrouter_api_key
+        return profileData.openrouter_api_key
     } catch (error) {
         console.error('Failed to get user OpenRouter key:', error)
         return null

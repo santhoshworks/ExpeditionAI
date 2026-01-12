@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } f
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { useExpeditions, useCreateExpedition, useDeleteExpedition } from "@/lib/queries"
+import { AnalyticsCards } from "@/components/analytics"
 import { formatDate } from "@/lib/utils"
 import {
   Plus,
@@ -140,6 +141,9 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Learning Analytics */}
+      <AnalyticsCards />
 
       {isLoading ? (
         viewMode === "table" ? (

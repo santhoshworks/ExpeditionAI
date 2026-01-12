@@ -124,3 +124,58 @@ export interface LearningWishlistItem {
   created_at: string;
   updated_at: string;
 }
+
+// Learning Analytics types
+export interface UserLearningStreak {
+  id: string;
+  user_id: string;
+  current_streak: number;
+  longest_streak: number;
+  last_activity_date: string | null;
+  streak_start_date: string | null;
+  total_active_days: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DailyLearningActivity {
+  id: string;
+  user_id: string;
+  activity_date: string;
+  message_count: number;
+  trail_count: number;
+  expedition_count: number;
+  total_tokens: number;
+  estimated_minutes: number;
+  topics_explored: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface LearningAnalyticsSummary {
+  streaks: {
+    current: number;
+    longest: number;
+    total_active_days: number;
+    streak_start_date: string | null;
+  };
+  totals: {
+    messages: number;
+    trails: number;
+    expeditions: number;
+    tokens: number;
+    minutes: number;
+    hours: number;
+  };
+  topics: {
+    unique_count: number;
+    list: string[];
+  };
+  recent_activity: Array<{
+    date: string;
+    messages: number;
+    trails: number;
+    minutes: number;
+  }>;
+  activity_by_hour: Record<string, number>;
+}

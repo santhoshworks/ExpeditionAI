@@ -45,9 +45,13 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Trail not found' }, { status: 404 })
         }
 
-        // Type assertion for the nested expedition data
-        const expeditionData = trail.expeditions as any
-        if (expeditionData.user_id !== user.id) {
+        // Type assertion for the nested expedition data from joined query
+        const trailData = trail as {
+            id: string
+            expedition_id: string
+            expeditions: { user_id: string }
+        }
+        if (trailData.expeditions.user_id !== user.id) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
         }
 
@@ -58,8 +62,9 @@ export async function POST(request: NextRequest) {
         const result = await generateIllustrationWithOpenRouter(topic, userApiKey || undefined)
 
         // Store the query and description in database
-        const { data: illustration, error: insertError } = await supabase
-            .from('trail_illustrations')
+        // Type assertion needed as trail_illustrations table types aren't generated
+        const { data: illustration, error: insertError } = await (supabase
+            .from('trail_illustrations') as any)
             .upsert({
                 trail_id: trailId,
                 illustration_query: result.prompt,

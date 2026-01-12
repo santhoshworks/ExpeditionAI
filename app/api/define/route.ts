@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import { createOpenRouter } from "@openrouter/ai-sdk-provider"
-import { generateText } from "ai"
+import { streamText } from "ai"
 import { z } from "zod"
 
 const openrouter = createOpenRouter({
@@ -26,15 +26,15 @@ export async function POST(req: Request) {
         const body = await req.json()
         const { text, context } = defineSchema.parse(body)
 
-        const { text: definition } = await generateText({
+        const result = streamText({
             model: openrouter("openai/gpt-4o-mini"),
-            prompt: `You are a specialist in the subject of "${context || 'general knowledge'}". 
+            prompt: `You are a specialist in the subject of "${context || 'general knowledge'}".
             Provide a very concise (1-2 sentences) definition or explanation of the term: "${text}".
             Your explanation must be highly relevant to the context of "${context || 'general knowledge'}".
             Be professional, accurate, and extremely brief.`,
         })
 
-        return Response.json({ definition: definition.trim() })
+        return result.toTextStreamResponse()
     } catch (error) {
         console.error("Define API error:", error)
         return new Response(

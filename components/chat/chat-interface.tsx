@@ -86,14 +86,21 @@ export function ChatInterface({ trailId, expeditionId, model }: ChatInterfacePro
     setMessages(prev => [...prev, { id: assistantId, role: "assistant", content: "" }])
 
     try {
+      // Limit message history to last 20 messages to reduce API latency
+      const MAX_HISTORY_MESSAGES = 20
+      const allMessages = [...messages, userMessage]
+      const limitedMessages = allMessages.length > MAX_HISTORY_MESSAGES
+        ? allMessages.slice(-MAX_HISTORY_MESSAGES)
+        : allMessages
+
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           trailId,
           model: selectedModelValue,
-          messages: [...messages, userMessage].map(m => ({
-            role: m.role === "illustration" ? "system" : m.role, // Convert illustration to system for API
+          messages: limitedMessages.map(m => ({
+            role: m.role === "illustration" ? "system" : m.role,
             content: m.role === "illustration" ? `[Illustration: ${m.content}]` : m.content,
           })),
         }),
@@ -125,8 +132,8 @@ export function ChatInterface({ trailId, expeditionId, model }: ChatInterfacePro
         }
       }
 
-      // Refetch messages from DB to get the saved versions
-      await refetch()
+      // No need to refetch - we already have the message content from streaming
+      // The message is saved server-side, and we have the complete response in local state
     } catch (err) {
       setError(err instanceof Error ? err : new Error("Failed to send message"))
       // Remove the empty assistant message on error
@@ -134,7 +141,7 @@ export function ChatInterface({ trailId, expeditionId, model }: ChatInterfacePro
     } finally {
       setIsLoading(false)
     }
-  }, [messages, trailId, selectedModelValue, refetch])
+  }, [messages, trailId, selectedModelValue])
 
   const handleGenerateIllustration = useCallback(async (topic: string) => {
     // Determine the actual topic based on the input

@@ -196,6 +196,22 @@ export async function POST(req: Request) {
               console.error("Failed to deduct credits:", deductResult.error)
             }
           }
+
+          // Record learning activity for analytics (non-blocking)
+          // Note: Type assertion needed until Supabase types are regenerated after migration
+          try {
+            await (supabaseClient.rpc as any)('record_daily_activity', {
+              p_user_id: user.id,
+              p_messages: 2, // user + assistant message
+              p_trails: 0,
+              p_expeditions: 0,
+              p_tokens: usage?.totalTokens || 0,
+              p_topic: null
+            })
+          } catch (activityError) {
+            console.error("Failed to record activity:", activityError)
+            // Non-blocking - don't fail the request
+          }
         } catch (error) {
           console.error("Failed to save assistant message:", error)
         }
