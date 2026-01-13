@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server"
 import { createOpenRouter } from "@openrouter/ai-sdk-provider"
 import { generateText } from "ai"
 import { z } from "zod"
+import { getFeatureModel } from "@/lib/constants"
 
 const openrouter = createOpenRouter({
     apiKey: process.env.OPENROUTER_API_KEY!,
@@ -32,7 +33,7 @@ export async function POST(req: Request) {
             : ''
 
         const result = await generateText({
-            model: openrouter("google/gemini-flash-1.5-8b"), // Use reliable paid model
+            model: openrouter(getFeatureModel('TOPIC_GENERATION')),
             prompt: `Generate ${count} learning topics for "${expeditionTitle}". ${existingContext}
 
 Return JSON array only: [{"topic":"Name","description":"One sentence"}]`,

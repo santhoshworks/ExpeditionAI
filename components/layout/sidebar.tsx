@@ -13,16 +13,20 @@ import {
     ChevronLeft,
     ChevronRight,
     Menu,
-    X
+    X,
+    BookOpen,
+    ArrowLeft
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
+import { useExpeditions } from "@/lib/queries"
 
 const sidebarItems = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { name: "Wishlist", href: "/wishlist", icon: BookOpen },
     { name: "Settings", href: "/settings", icon: Settings },
 ]
 
@@ -32,6 +36,12 @@ export function Sidebar() {
     const [mobileOpen, setMobileOpen] = useState(false)
     const router = useRouter()
     const queryClient = useQueryClient()
+    const { data: expeditions } = useExpeditions()
+
+    // Check if we're on an expedition page
+    const expeditionId = pathname.split("/expedition/")[1]?.split("/")[0]
+    const currentExpedition = expeditions?.find(e => e.id === expeditionId)
+    const isExpeditionPage = pathname.includes("/expedition/")
 
     const handleLogout = async () => {
         const supabase = createClient()
@@ -74,7 +84,7 @@ export function Sidebar() {
                     // Desktop styles
                     "hidden md:flex",
                     collapsed ? "w-16" : "w-64",
-                    // Mobile styles
+                    // Mobile styles - overlay
                     "md:relative fixed left-0 top-0",
                     mobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
                 )}
@@ -101,6 +111,30 @@ export function Sidebar() {
                         </span>
                     )}
                 </div>
+
+                {/* Expedition Context - Show when on expedition pages */}
+                {isExpeditionPage && currentExpedition && !collapsed && (
+                    <div className="px-4 pb-4 border-b border-border/50">
+                        <div className="flex items-center gap-2 mb-2">
+                            <Link href="/dashboard">
+                                <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                                    <ArrowLeft className="h-3 w-3" />
+                                </Button>
+                            </Link>
+                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                                Current Expedition
+                            </span>
+                        </div>
+                        <h2 className="text-sm font-semibold text-foreground truncate">
+                            {currentExpedition.title}
+                        </h2>
+                        {currentExpedition.description && (
+                            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                                {currentExpedition.description}
+                            </p>
+                        )}
+                    </div>
+                )}
 
                 <div className="flex-1 px-3 py-4 space-y-1">
                     {sidebarItems.map((item) => (

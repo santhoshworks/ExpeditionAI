@@ -7,6 +7,7 @@ import type { Database } from "@/types/supabase"
 import { FlagType } from "@/types/flags"
 import { useExploreStore } from "@/lib/store"
 import { useEffect } from "react"
+import { DEFAULT_MODELS } from "@/lib/constants"
 
 // Expeditions
 export function useExpeditions() {
@@ -278,7 +279,7 @@ export function useGenerateJournal() {
   return useMutation({
     mutationFn: async ({
       expeditionId,
-      model = "deepseek/deepseek-chat",
+      model = DEFAULT_MODELS.free,
     }: {
       expeditionId: string
       model?: string

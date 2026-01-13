@@ -1,6 +1,7 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 import type { UserTier } from "./constants"
+import { DEFAULT_MODELS } from "./constants"
 
 interface ExploreState {
   // Current expedition context
@@ -59,7 +60,7 @@ export const useExploreStore = create<ExploreState>()(
       mapExpanded: false,
       learningMode: false,
       autoMessageData: null,
-      selectedModel: "deepseek/deepseek-chat",
+      selectedModel: DEFAULT_MODELS.free,
       userTier: "free",
       userCredits: 0,
       trailsToday: 0,

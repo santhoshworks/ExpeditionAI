@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server"
 import { createOpenRouter } from "@openrouter/ai-sdk-provider"
 import { streamText } from "ai"
 import { z } from "zod"
+import { getFeatureModel } from "@/lib/constants"
 
 const openrouter = createOpenRouter({
     apiKey: process.env.OPENROUTER_API_KEY!,
@@ -27,7 +28,7 @@ export async function POST(req: Request) {
         const { text, context } = defineSchema.parse(body)
 
         const result = streamText({
-            model: openrouter("openai/gpt-4o-mini"),
+            model: openrouter(getFeatureModel('DEFINE_FEATURE')),
             prompt: `You are a specialist in the subject of "${context || 'general knowledge'}".
             Provide a very concise (1-2 sentences) definition or explanation of the term: "${text}".
             Your explanation must be highly relevant to the context of "${context || 'general knowledge'}".

@@ -188,7 +188,7 @@ export function GenerateTopicsModal({
                                 Generate Topics to Learn
                             </DialogTitle>
                             <DialogDescription>
-                                AI will suggest new topics based on your current learning journey in "{expeditionTitle}".
+                                AI will suggest new topics based on your current learning journey in &ldquo;{expeditionTitle}&rdquo;.
                             </DialogDescription>
                         </DialogHeader>
 
@@ -267,7 +267,7 @@ export function GenerateTopicsModal({
                                 Select Topics to Add
                             </DialogTitle>
                             <DialogDescription>
-                                Choose which topics you'd like to add to your expedition. All topics are selected by default.
+                                Choose which topics you&apos;d like to add to your expedition. All topics are selected by default.
                             </DialogDescription>
                         </DialogHeader>
 

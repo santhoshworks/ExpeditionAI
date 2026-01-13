@@ -1,17 +1,17 @@
 # OpenRouter-Powered Trail Illustrations
 
-This feature generates AI-powered illustrations for your trails using OpenRouter's text models to create detailed visual descriptions and enhanced SVG illustrations. No additional API accounts needed beyond your existing OpenRouter setup!
+This feature generates AI-powered illustrations for your trails using OpenRouter's reliable models to create detailed visual descriptions and enhanced SVG illustrations.
 
 ## How It Works
 
-1. **AI-Generated Descriptions**: Uses OpenRouter's free models (like Gemini 2.0 Flash) to create detailed visual descriptions
+1. **AI-Generated Descriptions**: Uses OpenRouter's Gemini Flash 8B model for reliable prompt generation
 2. **Smart SVG Generation**: Converts AI descriptions into enhanced SVG illustrations with dynamic colors and shapes
 3. **Query Storage**: Stores the AI-generated prompts in your database for regeneration
-4. **Cost Effective**: Uses free OpenRouter models for prompt generation, only costs your app credits (2 credits per generation)
+4. **Budget Friendly**: Uses cost-effective models (0.25 credits per generation)
 
 ## Features
 
-- ✅ **No Extra API Keys**: Uses your existing OpenRouter integration
+- ✅ **Reliable Models**: Uses paid models to avoid rate limiting
 - ✅ **AI-Enhanced Visuals**: Creates detailed descriptions then generates matching SVG illustrations
 - ✅ **Smart Color Detection**: Extracts colors mentioned in AI descriptions
 - ✅ **Shape Recognition**: Adds relevant shapes based on AI analysis
@@ -158,8 +158,8 @@ Users can optionally provide their own OpenRouter API keys in their profile. The
 
 ## Credit System Integration
 
-- **Cost**: 2 credits per generation/regeneration
-- **Model Used**: Free OpenRouter models (Gemini 2.0 Flash)
+- **Cost**: 0.25 credits per generation/regeneration
+- **Model Used**: Gemini Flash 8B (reliable paid model)
 - **Validation**: Checks credits before generation
 - **Deduction**: Only charged on successful generation
 
@@ -195,7 +195,7 @@ If AI generation fails:
 
 ### Performance Optimizations
 
-- Uses free OpenRouter models to minimize API costs
+- Uses reliable paid models to avoid rate limiting
 - Generates SVG client-side for instant display
 - Caches AI descriptions for regeneration
 - Minimal database storage (text only)

@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { createOpenRouter } from "@openrouter/ai-sdk-provider"
 import { generateText } from "ai"
+import { getFeatureModel } from "@/lib/constants"
 
 const openrouter = createOpenRouter({
     apiKey: process.env.OPENROUTER_API_KEY!,
@@ -13,7 +14,7 @@ export async function POST(
     try {
         const expeditionId = params.id
         const { model } = await req.json()
-        const selectedModel = model || "google/gemini-2.0-flash-001" // Use reliable paid model
+        const selectedModel = model || getFeatureModel('JOURNAL_GENERATION')
 
         const supabase = await createClient()
         const {

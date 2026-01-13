@@ -43,14 +43,14 @@ export const MODELS: ModelOption[] = [
     description: 'Recommended for most learning',
   },
   {
-    id: 'google/gemini-flash-1.5-8b',
-    name: 'Gemini Flash 8B',
+    id: 'google/gemini-2.0-flash-lite-001',
+    name: 'Gemini 2.0 Flash Lite',
     provider: 'Google',
     costPerTrail: 0.25,
     speed: 'Very Fast',
     tier: 'basic',
     badge: 'Fast',
-    description: 'Ultra-fast for quick questions',
+    description: 'Ultra-fast and cost-efficient',
   },
   {
     id: 'openai/gpt-4o-mini',
@@ -72,6 +72,15 @@ export const MODELS: ModelOption[] = [
   },
 
   // Pro Tier Models
+  {
+    id: 'google/gemini-2.5-flash',
+    name: 'Gemini 2.5 Flash',
+    provider: 'Google',
+    costPerTrail: 2,
+    speed: 'Fast',
+    tier: 'pro',
+    description: 'Latest model with advanced reasoning',
+  },
   {
     id: 'google/gemini-pro-1.5',
     name: 'Gemini 1.5 Pro',
@@ -125,22 +134,22 @@ export const TIER_CONFIGS: Record<UserTier, TierConfig> = {
     price: 0,
     credits: 0,
     bonusCredits: 0,
-    trailsPerDay: 10,
+    trailsPerDay: 15, // Increased for beta testing
     features: [
-      'DeepSeek V3, Gemini Flash, Llama 3.3 (free models)',
-      '10 trails per day',
+      'DeepSeek V3 (free model)',
+      '15 trails per day',
       'Basic features',
     ],
   },
   basic: {
     name: 'Basic',
     price: 5,
-    credits: 100,
+    credits: 200, // Increased credits for beta
     bonusCredits: 0,
     trailsPerDay: null,
     features: [
-      '100 credits (~200 trails with Gemini Flash)',
-      'Gemini 2.0 Flash, GPT-4o Mini',
+      '200 credits (~400 trails with Gemini Flash 8B)',
+      'Gemini 2.0 Flash, GPT-4o Mini, Claude Haiku',
       'Fast response times',
       'No daily limits',
     ],
@@ -148,12 +157,12 @@ export const TIER_CONFIGS: Record<UserTier, TierConfig> = {
   pro: {
     name: 'Pro',
     price: 15,
-    credits: 500,
-    bonusCredits: 50,
+    credits: 600, // Increased credits for beta
+    bonusCredits: 100, // Bonus credits for early adopters
     trailsPerDay: null,
     features: [
-      '500 credits (~100 trails with GPT-4o)',
-      'All models including GPT-4o, Claude Haiku',
+      '600 credits + 100 bonus (~140 trails with GPT-4o)',
+      'All models including GPT-4o, Claude Sonnet',
       'Priority speed',
       'Advanced features (mind maps, video summaries)',
     ],
@@ -196,3 +205,51 @@ export const POPULAR_MODELS = MODELS.map(m => ({
 }))
 
 export const DEFAULT_MODEL = DEFAULT_MODELS.free
+
+// Feature-specific model assignments
+export const FEATURE_MODELS = {
+  // Chat feature - uses user-selected model with tier validation
+  CHAT: {
+    // Handled dynamically based on user selection and tier
+    fallback: DEFAULT_MODELS,
+  },
+
+  // Topic generation for expeditions
+  TOPIC_GENERATION: 'google/gemini-2.0-flash-lite-001',
+
+  // Journal/summary generation
+  JOURNAL_GENERATION: 'google/gemini-2.0-flash-001',
+
+  // Illustration prompt generation
+  ILLUSTRATION_GENERATION: 'google/gemini-2.0-flash-lite-001',
+
+  // Define feature - vocabulary definitions
+  DEFINE_FEATURE: 'google/gemini-2.0-flash-lite-001',
+} as const
+
+// Helper function to get model for a specific feature
+export function getFeatureModel(feature: keyof typeof FEATURE_MODELS): string {
+  const model = FEATURE_MODELS[feature]
+
+  if (typeof model === 'string') {
+    return model
+  }
+
+  // For chat feature, return basic tier default
+  if (feature === 'CHAT') {
+    return DEFAULT_MODELS.basic
+  }
+
+  throw new Error(`Invalid feature: ${feature}`)
+}
+
+// Model validation helper
+export function validateFeatureModel(feature: keyof typeof FEATURE_MODELS): boolean {
+  try {
+    const modelId = getFeatureModel(feature)
+    const model = getModelById(modelId)
+    return !!model
+  } catch {
+    return false
+  }
+}

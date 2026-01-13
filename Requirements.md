@@ -662,7 +662,7 @@ export const useExploreStore = create<ExploreState>()(
       showExploreButton: false,
       sidebarCollapsed: false,
       mapExpanded: false,
-      selectedModel: "anthropic/claude-3.5-sonnet",
+      selectedModel: DEFAULT_MODELS.pro, // Use pro tier default for requirements doc
 
       // Actions
       setCurrentExpedition: (id) => set({ currentExpeditionId: id }),

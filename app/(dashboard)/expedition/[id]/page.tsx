@@ -13,10 +13,11 @@ import { CinemaModeOverlay } from "@/components/chat/cinema-mode-overlay"
 import { MiniTree } from "@/components/map/mini-tree"
 import { MultiFlagButton } from "@/components/trail/multi-flag-button"
 import { GenerateTopicsModal } from "@/components/trail/generate-topics-modal"
+import { MobileTrailSelector } from "@/components/trail/mobile-trail-selector"
 import { useTextSelection } from "@/hooks/use-text-selection"
 import { useMapPreloader, preloadMapComponents } from "@/hooks/use-map-preloader"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Map, BookOpen, Wand2 } from "lucide-react"
+import { Map as MapIcon, BookOpen, Wand2 } from "lucide-react"
 import Link from "next/link"
 
 export default function ExpeditionPage() {
@@ -97,73 +98,20 @@ export default function ExpeditionPage() {
       {/* Cinema mode overlay - dims everything except chat */}
       <CinemaModeOverlay />
 
-      {/* Expedition Actions / Sub-header */}
-      <div className="border-b bg-card/30 px-4 md:px-6 py-2 flex items-center justify-between">
-        <div className="flex items-center gap-2 md:gap-4 min-w-0 flex-1">
-          <Link href="/dashboard">
-            <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-          </Link>
-          {currentTrail && (
-            <div className="flex items-center gap-2 md:gap-3 border-l pl-2 md:pl-4 min-w-0 flex-1">
-              <span className="text-xs font-medium text-muted-foreground uppercase tracking-widest hidden sm:inline">Current Trail</span>
-              <span className="text-sm font-bold truncate">{currentTrail.title}</span>
-              <MultiFlagButton
-                trailId={currentTrail.id}
-                currentFlag={getDisplayFlagType(currentTrail)}
-              />
-            </div>
-          )}
-        </div>
-
-        <div className="flex items-center gap-1 md:gap-2 flex-shrink-0">
-          <div className="hidden md:block">
-            <ModelSelector userTier={userTier} userCredits={userCredits} />
-          </div>
-          <div className="h-4 w-[1px] bg-border mx-1 hidden md:block" />
-          <Link href={`/expedition/${expeditionId}/map`}>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 gap-1 md:gap-2 px-2 md:px-3"
-              onMouseEnter={() => {
-                // Preload on hover for instant transitions
-                if (!isMapPreloaded) {
-                  preloadMapComponents()
-                }
-              }}
-            >
-              <Map className="h-4 w-4" />
-              <span className="hidden sm:inline">Map</span>
-            </Button>
-          </Link>
-          <Link href={`/expedition/${expeditionId}/journal`}>
-            <Button variant="ghost" size="sm" className="h-8 gap-1 md:gap-2 px-2 md:px-3">
-              <BookOpen className="h-4 w-4" />
-              <span className="hidden sm:inline">Journal</span>
-            </Button>
-          </Link>
-        </div>
-      </div>
-
-      {/* Main Content */}
+      {/* Main Content - Full width for better chat visibility */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Sidebar - Trail Tree - Hidden on mobile, shown as overlay when needed */}
-        <aside className="hidden md:flex w-80 border-r bg-card/50 backdrop-blur-sm flex-col shadow-sm">
-          <div className="px-4 py-3 border-b bg-accent/30">
+        {/* Trail Navigation - Simplified without expedition title */}
+        <aside className="hidden lg:flex w-64 border-r bg-card/30 backdrop-blur-sm flex-col shadow-sm transition-all duration-300">
+          <div className="px-3 py-2 border-b bg-accent/20">
             <div className="flex items-center justify-between">
-              <h2 className="font-semibold text-base flex items-center gap-2">
-                <Map className="h-4 w-4 text-primary" />
+              <h3 className="font-medium text-sm flex items-center gap-2">
+                <MapIcon className="h-4 w-4 text-primary" />
                 Trails
-              </h2>
-              <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full font-medium">
+              </h3>
+              <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full font-medium">
                 {trails?.length || 0}
               </span>
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Navigate your exploration paths
-            </p>
           </div>
           <div className="flex-1 overflow-y-auto">
             <MiniTree
@@ -173,28 +121,80 @@ export default function ExpeditionPage() {
             />
           </div>
           {/* Generate Topics Button */}
-          <div className="p-3 border-t bg-accent/20">
+          <div className="p-2 border-t bg-accent/10">
             <Button
               variant="outline"
-              className="w-full gap-2"
+              className="w-full gap-2 text-xs h-8"
               onClick={() => setGenerateModalOpen(true)}
             >
-              <Wand2 className="h-4 w-4" />
+              <Wand2 className="h-3 w-3" />
               Generate Topics
             </Button>
           </div>
         </aside>
 
-        {/* Main Chat Area */}
+        {/* Main Chat Area - Maximized for better visibility */}
         <main className="flex-1 flex flex-col min-h-0">
-          {/* Mode Toggle & Mobile Model Selector */}
-          <div className="border-b bg-card/30 p-2 flex-shrink-0 flex items-center justify-between gap-2 relative z-[101]">
-            <div className="md:hidden flex-1">
-              <ModelSelector userTier={userTier} userCredits={userCredits} />
+          {/* Chat Header - Minimal design focused on current trail */}
+          <div className="border-b bg-card/30 px-4 py-2 flex-shrink-0 flex items-center justify-between gap-4">
+            {/* Current Trail Info - Only show trail name, not expedition */}
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              {currentTrail && (
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="text-sm font-medium truncate">{currentTrail.title}</span>
+                  <MultiFlagButton
+                    trailId={currentTrail.id}
+                    currentFlag={getDisplayFlagType(currentTrail)}
+                  />
+                </div>
+              )}
             </div>
-            <div className="flex items-center justify-end md:w-full">
+
+            {/* Controls */}
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <div className="hidden md:block">
+                <ModelSelector userTier={userTier} userCredits={userCredits} />
+              </div>
               <LearningModeToggle />
+
+              {/* Mobile trail selector */}
+              <MobileTrailSelector
+                trails={trails || []}
+                currentTrailId={currentTrailId || undefined}
+                onTrailSelect={setCurrentTrail}
+                onGenerateTopics={() => setGenerateModalOpen(true)}
+              />
+
+              {/* Quick actions */}
+              <div className="hidden sm:flex items-center gap-1">
+                <Link href={`/expedition/${expeditionId}/map`}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 gap-2 px-3"
+                    onMouseEnter={() => {
+                      if (!isMapPreloaded) {
+                        preloadMapComponents()
+                      }
+                    }}
+                  >
+                    <MapIcon className="h-4 w-4" />
+                    Map
+                  </Button>
+                </Link>
+                <Link href={`/expedition/${expeditionId}/journal`}>
+                  <Button variant="ghost" size="sm" className="h-8 gap-2 px-3">
+                    <BookOpen className="h-4 w-4" />
+                    Journal
+                  </Button>
+                </Link>
+              </div>
             </div>
+          </div>
+
+          {/* Mobile Model Selector */}
+          <div className="md:hidden border-b bg-card/30 p-2 flex-shrink-0">
+            <ModelSelector userTier={userTier} userCredits={userCredits} />
           </div>
 
           {currentTrailId ? (
@@ -214,14 +214,12 @@ export default function ExpeditionPage() {
             <div className="flex-1 flex items-center justify-center text-muted-foreground p-4">
               <div className="text-center">
                 <p className="mb-4">Select a trail to start chatting</p>
-                <Button
-                  variant="outline"
-                  onClick={() => {/* TODO: Show mobile trail selector */ }}
-                  className="md:hidden"
-                >
-                  <Map className="h-4 w-4 mr-2" />
-                  Browse Trails
-                </Button>
+                <MobileTrailSelector
+                  trails={trails || []}
+                  currentTrailId={currentTrailId || undefined}
+                  onTrailSelect={setCurrentTrail}
+                  onGenerateTopics={() => setGenerateModalOpen(true)}
+                />
               </div>
             </div>
           )}

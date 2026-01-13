@@ -1,6 +1,7 @@
 // OpenRouter-based image generation using text models to create detailed prompts
 import { createOpenRouter } from '@openrouter/ai-sdk-provider'
 import { generateText } from 'ai'
+import { getFeatureModel } from '@/lib/constants'
 
 const openrouter = createOpenRouter({
   apiKey: process.env.OPENROUTER_API_KEY!,
@@ -28,7 +29,7 @@ export async function generateIllustrationWithOpenRouter(
 
     // Generate a detailed visual description using AI
     const { text: visualDescription } = await generateText({
-      model: client('google/gemini-flash-1.5-8b'), // Use reliable paid model
+      model: client(getFeatureModel('ILLUSTRATION_GENERATION')),
       prompt: `Create a detailed visual description for an educational illustration about: "${topic}"
 
 Please provide:
@@ -48,7 +49,7 @@ Format your response as a structured description that could be used to create an
 
     // Generate the actual image prompt for external services
     const { text: imagePrompt } = await generateText({
-      model: client('google/gemini-2.0-flash-exp:free'),
+      model: client(getFeatureModel('ILLUSTRATION_GENERATION')),
       prompt: `Based on this visual description: "${visualDescription}"
 
 Create a concise, optimized prompt for AI image generation that captures the key visual elements. The prompt should be:

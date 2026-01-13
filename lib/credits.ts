@@ -6,20 +6,17 @@ type UserCreditsRow = Database['public']['Tables']['user_credits']['Row']
 
 // Token cost per million for different models (in USD)
 const MODEL_COSTS: Record<string, { input: number; output: number }> = {
-  // Free models (actually free on OpenRouter)
+  // Only DeepSeek remains free
   'deepseek/deepseek-chat': { input: 0, output: 0 },
-  'google/gemini-2.0-flash-exp:free': { input: 0, output: 0 },
-  'meta-llama/llama-3.3-70b-instruct': { input: 0, output: 0 },
 
-  // Basic tier models
-  'google/gemini-2.0-flash-001': { input: 0.1, output: 0.4 },
-  'google/gemini-flash-1.5-8b': { input: 0.05, output: 0.2 },
+  // All other models have costs
+  'google/gemini-2.0-flash-001': { input: 0.075, output: 0.3 },
+  'google/gemini-2.0-flash-lite-001': { input: 0.0375, output: 0.15 },
   'openai/gpt-4o-mini': { input: 0.15, output: 0.6 },
-
-  // Pro tier models
-  'anthropic/claude-3.5-haiku': { input: 0.8, output: 4 },
-  'google/gemini-pro-1.5': { input: 1.25, output: 5 },
-  'openai/gpt-4o': { input: 2.5, output: 10 },
+  'anthropic/claude-3.5-haiku': { input: 0.25, output: 1.25 },
+  'google/gemini-pro-1.5': { input: 1.25, output: 5.0 },
+  'openai/gpt-4o': { input: 2.5, output: 10.0 },
+  'anthropic/claude-3.5-sonnet': { input: 3.0, output: 15.0 },
 }
 
 // 1 credit = $0.01
@@ -130,8 +127,8 @@ export async function canCreateTrail(userId: string): Promise<{ allowed: boolean
     return { allowed: true }
   }
 
-  // Check daily limit for free tier (10 trails/day)
-  if (userCredits.trailsToday >= 10) {
+  // Check daily limit for free tier (15 trails/day)
+  if (userCredits.trailsToday >= 15) {
     return {
       allowed: false,
       reason: 'Daily trail limit reached. Upgrade to Basic for unlimited trails.'
