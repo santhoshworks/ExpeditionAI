@@ -22,6 +22,9 @@ interface ExploreState {
     selectedText: string
   } | null
 
+  // Trails with pending responses (loading in background)
+  trailsWithNewResponse: Set<string>
+
   // Model selection
   selectedModel: string
 
@@ -38,6 +41,8 @@ interface ExploreState {
     position?: { x: number; y: number }
   ) => void
   setAutoMessageData: (data: { trailId: string; selectedText: string } | null) => void
+  addTrailWithNewResponse: (trailId: string) => void
+  clearTrailNewResponse: (trailId: string) => void
   toggleSidebar: () => void
   toggleMapExpanded: () => void
   toggleLearningMode: () => void
@@ -60,6 +65,7 @@ export const useExploreStore = create<ExploreState>()(
       mapExpanded: false,
       learningMode: false,
       autoMessageData: null,
+      trailsWithNewResponse: new Set<string>(),
       selectedModel: DEFAULT_MODELS.free,
       userTier: "free",
       userCredits: 0,
@@ -77,6 +83,18 @@ export const useExploreStore = create<ExploreState>()(
         }),
 
       setAutoMessageData: (data) => set({ autoMessageData: data }),
+
+      addTrailWithNewResponse: (trailId) =>
+        set((state) => ({
+          trailsWithNewResponse: new Set(state.trailsWithNewResponse).add(trailId),
+        })),
+
+      clearTrailNewResponse: (trailId) =>
+        set((state) => {
+          const newSet = new Set(state.trailsWithNewResponse)
+          newSet.delete(trailId)
+          return { trailsWithNewResponse: newSet }
+        }),
 
       toggleSidebar: () =>
         set((state) => ({

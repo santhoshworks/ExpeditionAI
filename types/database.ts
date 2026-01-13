@@ -90,23 +90,6 @@ export interface Journal {
   created_at: string;
 }
 
-// For React Flow (@xyflow/react)
-export interface FlowNode {
-  id: string;
-  type: "trailNode";
-  position: { x: number; y: number };
-  data: {
-    trail: TrailWithCounts;
-    isActive: boolean;
-  };
-}
-
-export interface FlowEdge {
-  id: string;
-  source: string;
-  target: string;
-  type?: string;
-}
 
 export interface LearningWishlistItem {
   id: string;

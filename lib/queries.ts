@@ -24,6 +24,8 @@ export function useExpeditions() {
       if (error) throw error
       return data as ExpeditionWithStats[]
     },
+    staleTime: 60000, // Consider data fresh for 1 minute
+    gcTime: 300000, // Keep in cache for 5 minutes
   })
 }
 
@@ -42,6 +44,8 @@ export function useExpedition(id: string) {
       return data as Expedition
     },
     enabled: !!id,
+    staleTime: 60000, // Consider data fresh for 1 minute
+    gcTime: 300000, // Keep in cache for 5 minutes
   })
 }
 
@@ -56,11 +60,14 @@ export function useTrails(expeditionId: string) {
         .select("*")
         .eq("expedition_id", expeditionId)
         .order("created_at")
+        .limit(100) // Limit trails per expedition for performance
 
       if (error) throw error
       return data as TrailWithCounts[]
     },
     enabled: !!expeditionId,
+    staleTime: 30000, // Consider data fresh for 30 seconds
+    gcTime: 300000, // Keep in cache for 5 minutes
   })
 }
 
@@ -75,11 +82,14 @@ export function useMessages(trailId: string) {
         .select("*")
         .eq("trail_id", trailId)
         .order("created_at")
+        .limit(100) // Limit messages for performance
 
       if (error) throw error
       return data as Message[]
     },
     enabled: !!trailId,
+    staleTime: 30000, // Consider data fresh for 30 seconds
+    gcTime: 300000, // Keep in cache for 5 minutes
   })
 }
 
@@ -270,6 +280,8 @@ export function useJournal(expeditionId: string) {
       return data as Journal | null
     },
     enabled: !!expeditionId,
+    staleTime: 60000, // Consider data fresh for 1 minute
+    gcTime: 300000, // Keep in cache for 5 minutes
   })
 }
 
@@ -377,10 +389,13 @@ export function useLearningWishlist() {
         .select("*")
         .order("priority", { ascending: true })
         .order("created_at", { ascending: false })
+        .limit(100) // Limit wishlist items for performance
 
       if (error) throw error
       return data as LearningWishlistItem[]
     },
+    staleTime: 60000, // Consider data fresh for 1 minute
+    gcTime: 300000, // Keep in cache for 5 minutes
   })
 }
 

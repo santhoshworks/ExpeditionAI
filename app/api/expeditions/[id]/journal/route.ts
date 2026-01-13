@@ -61,17 +61,22 @@ export async function POST(
         let learningContext = `Expedition Title: ${expeditionData.title}\n\n`
 
         const trailIds: string[] = []
+        const MAX_MESSAGES_PER_TRAIL = 20 // Limit messages per trail to avoid huge payloads
+        const MAX_CONTENT_LENGTH = 50000 // Limit total content length
 
         trails.forEach((trail: any) => {
+            if (learningContext.length >= MAX_CONTENT_LENGTH) return // Stop if we've hit the limit
+
             trailIds.push(trail.id)
             learningContext += `### Trail: ${trail.title}\n`
-            const messages = trail.messages || []
+            const messages = (trail.messages || []).slice(0, MAX_MESSAGES_PER_TRAIL)
             // Sort messages by created_at
             messages.sort((a: any, b: any) =>
                 new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
             )
 
             messages.forEach((msg: any) => {
+                if (learningContext.length >= MAX_CONTENT_LENGTH) return
                 learningContext += `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}\n\n`
             })
         })

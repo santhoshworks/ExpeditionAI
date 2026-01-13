@@ -64,7 +64,7 @@ export default function WishlistPage() {
                     <h1 className="text-3xl font-bold">Learning Wishlist</h1>
                 </div>
                 <p className="text-muted-foreground">
-                    Keep track of topics you want to explore and turn them into expeditions when you're ready.
+                    Keep track of topics you want to explore and turn them into expeditions when you&apos;re ready.
                 </p>
             </div>
 

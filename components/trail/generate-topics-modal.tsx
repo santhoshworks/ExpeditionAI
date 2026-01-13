@@ -147,7 +147,7 @@ export function GenerateTopicsModal({
         // Find the base camp to use as parent
         const baseCamp = trails.find(t => t.is_base_camp)
 
-        let lastCreatedTrailId: string | null = null
+        let firstCreatedTrailId: string | null = null
 
         for (let i = 0; i < selectedTopics.length; i++) {
             setCreatingIndex(i)
@@ -161,16 +161,19 @@ export function GenerateTopicsModal({
                     sourceText: topic.description,
                     flagType: FlagType.NOT_EXPLORED,
                 })
-                lastCreatedTrailId = newTrail.id
+                // Only capture the first created trail
+                if (firstCreatedTrailId === null) {
+                    firstCreatedTrailId = newTrail.id
+                }
             } catch (err) {
                 console.error(`Failed to create trail for topic: ${topic.topic}`, err)
             }
         }
 
-        // Navigate to the last created trail
+        // Navigate to the first created trail
         // Auto-message will be triggered by ChatInterface when it detects sourceText
-        if (lastCreatedTrailId) {
-            setCurrentTrail(lastCreatedTrailId)
+        if (firstCreatedTrailId) {
+            setCurrentTrail(firstCreatedTrailId)
         }
 
         handleClose()

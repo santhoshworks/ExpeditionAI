@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef, useCallback } from "react"
+import { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { ChatInputWithOptions } from "./chat-input-with-options"
 import { ChatInput } from "./chat-input"
@@ -35,10 +35,11 @@ interface ChatInterfaceProps {
 }
 
 export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailSourceText }: ChatInterfaceProps) {
-  const { selectedModel, autoMessageData, setAutoMessageData } = useExploreStore()
-  const { data: existingMessages, refetch } = useMessages(trailId)
+  const { selectedModel, autoMessageData, setAutoMessageData, addTrailWithNewResponse, clearTrailNewResponse } = useExploreStore()
+  const { data: existingMessages, refetch, isLoading: isLoadingMessages, isFetched } = useMessages(trailId)
   const { generateIllustration, isGenerating: isGeneratingIllustration } = useIllustrations()
   const scrollRef = useRef<HTMLDivElement>(null)
+  const currentTrailIdRef = useRef(trailId)
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<Error | undefined>(undefined)
@@ -48,20 +49,30 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
 
   const selectedModelValue = model || selectedModel
 
-  // Update messages when existing messages change (e.g., when switching trails)
+  // Memoize formatted messages to avoid re-parsing JSON on every render
+  const formattedExistingMessages = useMemo(() => {
+    if (!existingMessages || existingMessages.length === 0) return []
+    return existingMessages.map((m: DBMessage) => ({
+      id: m.id,
+      role: m.role as "user" | "assistant" | "system" | "illustration",
+      content: m.content,
+      metadata: m.metadata ? JSON.parse(m.metadata) : undefined,
+    }))
+  }, [existingMessages])
+
+  // Update current trail ref and reset UI state when switching trails
   useEffect(() => {
-    if (existingMessages && existingMessages.length > 0) {
-      const formattedMessages: ChatMessage[] = existingMessages.map((m: DBMessage) => ({
-        id: m.id,
-        role: m.role as "user" | "assistant" | "system" | "illustration",
-        content: m.content,
-        metadata: m.metadata ? JSON.parse(m.metadata) : undefined,
-      }))
-      setMessages(formattedMessages)
+    currentTrailIdRef.current = trailId
+    // Clear the "new response" indicator when visiting this trail
+    clearTrailNewResponse(trailId)
+    setIsLoading(false)
+    setError(undefined)
+    if (formattedExistingMessages.length > 0) {
+      setMessages(formattedExistingMessages)
     } else {
       setMessages([])
     }
-  }, [trailId, existingMessages])
+  }, [trailId, formattedExistingMessages, clearTrailNewResponse])
 
   // Scroll to bottom when new messages arrive
   useEffect(() => {
@@ -77,6 +88,9 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
       role: "user",
       content,
     }
+
+    // Capture the trail ID at the time of sending
+    const requestTrailId = trailId
 
     // Add user message immediately
     setMessages(prev => [...prev, userMessage])
@@ -99,7 +113,7 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          trailId,
+          trailId: requestTrailId,
           model: selectedModelValue,
           messages: limitedMessages.map(m => ({
             role: m.role === "illustration" ? "system" : m.role,
@@ -125,25 +139,34 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
           const chunk = decoder.decode(value, { stream: true })
           assistantContent += chunk
 
-          // Update assistant message with streaming content
-          setMessages(prev =>
-            prev.map(m =>
-              m.id === assistantId ? { ...m, content: assistantContent } : m
+          // Only update UI if still on the same trail
+          if (currentTrailIdRef.current === requestTrailId) {
+            setMessages(prev =>
+              prev.map(m =>
+                m.id === assistantId ? { ...m, content: assistantContent } : m
+              )
             )
-          )
+          }
         }
       }
 
-      // No need to refetch - we already have the message content from streaming
-      // The message is saved server-side, and we have the complete response in local state
+      // If user switched to a different trail, mark the original trail as having a new response
+      if (currentTrailIdRef.current !== requestTrailId) {
+        addTrailWithNewResponse(requestTrailId)
+      }
     } catch (err) {
       setError(err instanceof Error ? err : new Error("Failed to send message"))
-      // Remove the empty assistant message on error
-      setMessages(prev => prev.filter(m => m.id !== assistantId))
+      // Remove the empty assistant message on error (only if still on same trail)
+      if (currentTrailIdRef.current === requestTrailId) {
+        setMessages(prev => prev.filter(m => m.id !== assistantId))
+      }
     } finally {
-      setIsLoading(false)
+      // Only update loading state if still on the same trail
+      if (currentTrailIdRef.current === requestTrailId) {
+        setIsLoading(false)
+      }
     }
-  }, [messages, trailId, selectedModelValue])
+  }, [messages, trailId, selectedModelValue, addTrailWithNewResponse])
 
   const handleGenerateIllustration = useCallback(async (topic: string) => {
     // Determine the actual topic based on the input
@@ -261,13 +284,15 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
   useEffect(() => {
     // Only trigger if:
     // 1. Trail has sourceText (it's a generated topic)
-    // 2. No messages exist yet
-    // 3. Not currently loading
+    // 2. Messages query has completed (isFetched) and no messages exist
+    // 3. Not currently loading a chat response
     // 4. Haven't already triggered for this trail
     // 5. No autoMessageData is pending (to avoid double-triggering)
     if (
       trailSourceText &&
       trailTitle &&
+      isFetched &&
+      !isLoadingMessages &&
       messages.length === 0 &&
       !isLoading &&
       hasTriggeredAutoMessage.current !== trailId &&
@@ -277,7 +302,7 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
       const autoMessage = `Explain more about "${trailTitle}"`
       handleSend(autoMessage)
     }
-  }, [trailId, trailTitle, trailSourceText, messages.length, isLoading, autoMessageData, handleSend])
+  }, [trailId, trailTitle, trailSourceText, isFetched, isLoadingMessages, messages.length, isLoading, autoMessageData, handleSend])
 
   return (
     <div className="flex flex-col h-full mobile-chat-container">

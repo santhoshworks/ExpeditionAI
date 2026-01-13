@@ -10,14 +10,13 @@ import { ModelSelector } from "@/components/chat/model-selector"
 import { ExploreButton } from "@/components/chat/explore-button"
 import { LearningModeToggle } from "@/components/chat/learning-mode-toggle"
 import { CinemaModeOverlay } from "@/components/chat/cinema-mode-overlay"
-import { MiniTree } from "@/components/map/mini-tree"
 import { MultiFlagButton } from "@/components/trail/multi-flag-button"
 import { GenerateTopicsModal } from "@/components/trail/generate-topics-modal"
 import { MobileTrailSelector } from "@/components/trail/mobile-trail-selector"
+import { TrailTree } from "@/components/trail/trail-tree"
 import { useTextSelection } from "@/hooks/use-text-selection"
-import { useMapPreloader, preloadMapComponents } from "@/hooks/use-map-preloader"
 import { Button } from "@/components/ui/button"
-import { Map as MapIcon, BookOpen, Wand2 } from "lucide-react"
+import { BookOpen, Wand2, GitBranch } from "lucide-react"
 import Link from "next/link"
 
 export default function ExpeditionPage() {
@@ -37,9 +36,6 @@ export default function ExpeditionPage() {
 
   // Enable text selection for explore feature
   useTextSelection()
-
-  // Preload map components for faster transitions
-  const isMapPreloaded = useMapPreloader(2000)
 
   useEffect(() => {
     if (expeditionId) {
@@ -105,7 +101,7 @@ export default function ExpeditionPage() {
           <div className="px-3 py-2 border-b bg-accent/20">
             <div className="flex items-center justify-between">
               <h3 className="font-medium text-sm flex items-center gap-2">
-                <MapIcon className="h-4 w-4 text-primary" />
+                <GitBranch className="h-4 w-4 text-primary" />
                 Trails
               </h3>
               <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full font-medium">
@@ -114,7 +110,7 @@ export default function ExpeditionPage() {
             </div>
           </div>
           <div className="flex-1 overflow-y-auto">
-            <MiniTree
+            <TrailTree
               trails={trails || []}
               currentTrailId={currentTrailId || undefined}
               onTrailSelect={setCurrentTrail}
@@ -167,21 +163,6 @@ export default function ExpeditionPage() {
 
               {/* Quick actions */}
               <div className="hidden sm:flex items-center gap-1">
-                <Link href={`/expedition/${expeditionId}/map`}>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 gap-2 px-3"
-                    onMouseEnter={() => {
-                      if (!isMapPreloaded) {
-                        preloadMapComponents()
-                      }
-                    }}
-                  >
-                    <MapIcon className="h-4 w-4" />
-                    Map
-                  </Button>
-                </Link>
                 <Link href={`/expedition/${expeditionId}/journal`}>
                   <Button variant="ghost" size="sm" className="h-8 gap-2 px-3">
                     <BookOpen className="h-4 w-4" />

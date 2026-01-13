@@ -7,14 +7,16 @@ import { getDisplayFlagType } from "@/lib/flag-migration"
 import { cn } from "@/lib/utils"
 import { MessageSquare, ChevronRight, ChevronDown, Compass, MapPin, Tent } from "lucide-react"
 import { MultiFlagButton } from "@/components/trail/multi-flag-button"
+import { useExploreStore } from "@/lib/store"
 
-interface MiniTreeProps {
+interface TrailTreeProps {
   trails: TrailWithCounts[]
   currentTrailId?: string
-  onTrailSelect?: (trailId: string) => void
+  onTrailSelect: (trailId: string) => void
 }
 
-export function MiniTree({ trails, currentTrailId, onTrailSelect }: MiniTreeProps) {
+export function TrailTree({ trails, currentTrailId, onTrailSelect }: TrailTreeProps) {
+  const trailsWithNewResponse = useExploreStore((state) => state.trailsWithNewResponse)
   // Initialize with all trails that have children expanded
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(() => {
     const trailsWithChildren = new Set<string>()
@@ -74,10 +76,11 @@ export function MiniTree({ trails, currentTrailId, onTrailSelect }: MiniTreeProp
   }
 
   const renderTrail = (trail: TrailWithCounts, depth: number = 0): React.ReactNode => {
-    const children = trails.filter((t) => t.parent_trail_id === trail.id)
+    const children = trails.filter((t) => t.parent_trail_id === trail.id && !t.is_base_camp)
     const isActive = trail.id === currentTrailId
     const hasChildren = children.length > 0
     const isExpanded = expandedNodes.has(trail.id)
+    const hasNewResponse = trailsWithNewResponse.has(trail.id)
 
     // Calculate indent
     const indent = depth * 16
@@ -94,6 +97,7 @@ export function MiniTree({ trails, currentTrailId, onTrailSelect }: MiniTreeProp
         >
           {/* Expand/Collapse Button */}
           <button
+            type="button"
             onClick={(e) => {
               e.stopPropagation()
               if (hasChildren) {
@@ -127,17 +131,22 @@ export function MiniTree({ trails, currentTrailId, onTrailSelect }: MiniTreeProp
 
           {/* Trail Title and Info */}
           <div
-            onClick={() => onTrailSelect?.(trail.id)}
+            onClick={() => onTrailSelect(trail.id)}
             className="flex-1 flex items-center justify-between min-w-0 gap-2"
           >
-            <span
-              className={cn(
-                "truncate font-medium",
-                isActive ? "text-primary" : "text-foreground",
-                trail.is_base_camp && "font-semibold"
+            <span className="flex items-center gap-1.5 min-w-0">
+              <span
+                className={cn(
+                  "truncate font-medium",
+                  isActive ? "text-primary" : "text-foreground",
+                  trail.is_base_camp && "font-semibold"
+                )}
+              >
+                {trail.title}
+              </span>
+              {hasNewResponse && (
+                <span className="flex-shrink-0 w-2 h-2 rounded-full bg-blue-500 animate-pulse" title="New response ready" />
               )}
-            >
-              {trail.title}
             </span>
 
             <div className="flex items-center gap-1 flex-shrink-0 text-xs">

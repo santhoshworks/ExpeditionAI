@@ -10,12 +10,12 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
-import { MiniTree } from "@/components/map/mini-tree"
-import { Map as MapIcon, Wand2 } from "lucide-react"
-import type { Trail } from "@/types/database"
+import { TrailTree } from "@/components/trail/trail-tree"
+import { GitBranch, Wand2 } from "lucide-react"
+import type { TrailWithCounts } from "@/types/database"
 
 interface MobileTrailSelectorProps {
-    trails: Trail[]
+    trails: TrailWithCounts[]
     currentTrailId?: string
     onTrailSelect: (trailId: string) => void
     onGenerateTopics?: () => void
@@ -38,14 +38,14 @@ export function MobileTrailSelector({
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 <Button variant="ghost" size="sm" className="lg:hidden h-8 gap-2 px-3">
-                    <MapIcon className="h-4 w-4" />
+                    <GitBranch className="h-4 w-4" />
                     Trails
                 </Button>
             </DialogTrigger>
             <DialogContent className="max-w-sm h-[80vh] p-0 flex flex-col">
                 <DialogHeader className="px-4 py-3 border-b bg-accent/30 flex-shrink-0">
                     <DialogTitle className="text-base flex items-center gap-2">
-                        <MapIcon className="h-4 w-4 text-primary" />
+                        <GitBranch className="h-4 w-4 text-primary" />
                         Trails
                     </DialogTitle>
                     <DialogDescription className="text-xs">
@@ -54,7 +54,7 @@ export function MobileTrailSelector({
                 </DialogHeader>
 
                 <div className="flex-1 overflow-y-auto min-h-0">
-                    <MiniTree
+                    <TrailTree
                         trails={trails}
                         currentTrailId={currentTrailId}
                         onTrailSelect={handleTrailSelect}

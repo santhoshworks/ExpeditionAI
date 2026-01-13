@@ -14,7 +14,6 @@ import { AnalyticsCards } from "@/components/analytics"
 import { formatDate } from "@/lib/utils"
 import {
   Plus,
-  Map as MapIcon,
   Trash2,
   ArrowRight,
   MessageSquare,
@@ -24,11 +23,9 @@ import {
   LayoutGrid,
   LayoutList,
   Compass,
-  BookOpen,
-  MoreHorizontal
+  BookOpen
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useMapPreloader, preloadMapComponents } from "@/hooks/use-map-preloader"
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -42,9 +39,6 @@ export default function DashboardPage() {
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [viewMode, setViewMode] = useState<"grid" | "table">("table")
-
-  // Preload map components for faster transitions
-  const isMapPreloaded = useMapPreloader(1500)
 
   const handleCreate = async () => {
     if (!title.trim()) return
@@ -283,20 +277,6 @@ export default function DashboardPage() {
                           </Button>
 
                           <Link
-                            href={`/expedition/${expedition.id}/map`}
-                            onClick={(e) => e.stopPropagation()}
-                            onMouseEnter={() => {
-                              if (!isMapPreloaded) {
-                                preloadMapComponents()
-                              }
-                            }}
-                          >
-                            <Button variant="outline" size="sm" className="h-8 w-8 p-0 rounded-full hover:bg-primary/5 hover:text-primary">
-                              <MapIcon className="h-3 w-3" />
-                            </Button>
-                          </Link>
-
-                          <Link
                             href={`/expedition/${expedition.id}/journal`}
                             onClick={(e) => e.stopPropagation()}
                           >
@@ -403,17 +383,12 @@ export default function DashboardPage() {
                         <ArrowRight className="w-3 h-3 ml-1 md:ml-2 group-hover/btn:translate-x-1 transition-transform" />
                       </Button>
                       <Link
-                        href={`/expedition/${expedition.id}/map`}
+                        href={`/expedition/${expedition.id}/journal`}
                         className="flex-shrink-0"
                         onClick={(e) => e.stopPropagation()}
-                        onMouseEnter={() => {
-                          if (!isMapPreloaded) {
-                            preloadMapComponents()
-                          }
-                        }}
                       >
                         <Button variant="outline" size="icon" className="h-8 w-8 md:h-9 md:w-9 rounded-full hover:bg-primary/5 hover:text-primary transition-colors">
-                          <MapIcon className="h-3 w-3 md:h-4 md:w-4" />
+                          <BookOpen className="h-3 w-3 md:h-4 md:w-4" />
                         </Button>
                       </Link>
                     </div>
