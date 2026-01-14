@@ -15,6 +15,40 @@ const openrouter = createOpenRouter({
   apiKey: process.env.OPENROUTER_API_KEY!,
 })
 
+// System prompt addition for trivia generation
+const TRIVIA_SYSTEM_PROMPT = `
+When answering educational or knowledge-based questions, you should include relevant trivia to enhance learning.
+
+IMPORTANT: Your response MUST be valid JSON with this exact structure:
+{
+  "answer": "Your detailed answer here using markdown formatting...",
+  "trivia": {
+    "whyItMatters": "Brief explanation of why this concept is important (1-2 sentences)",
+    "realWorldUse": "Practical real-world applications or examples (1-2 sentences)",
+    "whenYouNeed": "Scenarios or situations where this knowledge is useful (1-2 sentences)",
+    "didYouKnow": "An interesting fact, historical context, or surprising insight (1-2 sentences)"
+  }
+}
+
+Rules for trivia:
+- Only include trivia for educational, conceptual, or knowledge-based questions
+- Set trivia to null for simple questions (like "what's 2+2?"), code debugging requests, or purely conversational messages
+- Keep each trivia item concise (1-2 sentences max)
+- Make trivia genuinely insightful and relevant to the topic
+- The "answer" field should contain your full response with proper markdown formatting
+
+Example response:
+{
+  "answer": "**Recursion** is a programming technique where a function calls itself to solve a problem...\\n\\n\`\`\`python\\ndef factorial(n):\\n    if n <= 1:\\n        return 1\\n    return n * factorial(n - 1)\\n\`\`\`",
+  "trivia": {
+    "whyItMatters": "Recursion is fundamental to computer science - it's the basis for many algorithms and data structure operations.",
+    "realWorldUse": "File system traversal, DOM manipulation, JSON parsing, and tree/graph algorithms all rely heavily on recursion.",
+    "whenYouNeed": "You'll use recursion when working with hierarchical data, implementing divide-and-conquer algorithms, or during technical interviews.",
+    "didYouKnow": "The concept of recursion predates computers - it was formally studied by mathematician Kurt Gödel in the 1930s as part of his incompleteness theorems."
+  }
+}
+`
+
 // Schema for AI SDK useChat hook format
 const chatSchema = z.object({
   trailId: z.string(),
@@ -156,12 +190,16 @@ export async function POST(req: Request) {
     }
 
     // Stream AI response using the full conversation history (filter out illustration messages for AI)
-    const aiMessages = messages
-      .filter(m => m.role !== "illustration")
-      .map(m => ({
-        role: m.role as "user" | "assistant" | "system",
-        content: m.content
-      }))
+    // Add trivia system prompt at the beginning
+    const aiMessages = [
+      { role: "system" as const, content: TRIVIA_SYSTEM_PROMPT },
+      ...messages
+        .filter(m => m.role !== "illustration")
+        .map(m => ({
+          role: m.role as "user" | "assistant" | "system",
+          content: m.content
+        }))
+    ]
 
     const result = await streamText({
       model: openrouter(selectedModel),

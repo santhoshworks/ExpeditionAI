@@ -6,6 +6,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism"
 import { cn } from "@/lib/utils"
 import { IllustrationMessage } from "./illustration-message"
+import { TriviaIndicator, type TriviaData } from "./trivia-indicator"
 import type { Components } from "react-markdown"
 
 interface MessageProps {
@@ -13,6 +14,7 @@ interface MessageProps {
     id: string
     role: "user" | "assistant" | "system" | "illustration"
     content: string
+    trivia?: TriviaData | null
     metadata?: {
       topic?: string
       imageUrl?: string
@@ -96,6 +98,12 @@ export function Message({ message, onUpdateMessage }: MessageProps) {
     },
   }
 
+  const hasTrivia = !isUser && message.trivia &&
+    message.trivia.whyItMatters &&
+    message.trivia.realWorldUse &&
+    message.trivia.whenYouNeed &&
+    message.trivia.didYouKnow
+
   return (
     <div
       className={cn(
@@ -105,12 +113,14 @@ export function Message({ message, onUpdateMessage }: MessageProps) {
     >
       <div
         className={cn(
-          "max-w-[90%] md:max-w-[85%] rounded-lg px-3 md:px-4 py-2 md:py-3 select-text",
+          "relative max-w-[90%] md:max-w-[85%] rounded-lg px-3 md:px-4 py-2 md:py-3 select-text",
           isUser
             ? "bg-primary text-primary-foreground"
-            : "bg-muted text-foreground"
+            : "bg-muted text-foreground",
+          hasTrivia && "ml-8 md:ml-10"
         )}
       >
+        {hasTrivia && <TriviaIndicator trivia={message.trivia!} />}
         {isUser ? (
           <p className="whitespace-pre-wrap text-sm md:text-base">{message.content}</p>
         ) : (

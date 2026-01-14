@@ -11,11 +11,20 @@ import { useIllustrations } from "@/hooks/use-illustrations"
 import { nanoid } from "nanoid"
 import type { Message as DBMessage } from "@/types/database"
 
+// Trivia data structure
+interface TriviaData {
+  whyItMatters: string
+  realWorldUse: string
+  whenYouNeed: string
+  didYouKnow: string
+}
+
 // Message format for the chat
 interface ChatMessage {
   id: string
   role: "user" | "assistant" | "system" | "illustration"
   content: string
+  trivia?: TriviaData | null
   metadata?: {
     topic?: string
     imageUrl?: string
@@ -24,6 +33,172 @@ interface ChatMessage {
     generatedAt?: string
     trailId?: string
   }
+}
+
+// Helper function to parse trivia response from LLM
+function parseTriviaResponse(rawContent: string): { content: string; trivia: TriviaData | null } {
+  const trimmed = rawContent.trim()
+
+  // First, try to parse as JSON directly
+  try {
+    const parsed = JSON.parse(trimmed)
+    if (parsed.answer && typeof parsed.answer === 'string') {
+      return {
+        content: parsed.answer,
+        trivia: parsed.trivia || null
+      }
+    }
+  } catch (e) {
+    console.log('JSON.parse failed:', e)
+    // JSON parsing failed, try manual extraction
+  }
+
+  // If content doesn't look like JSON, return as-is
+  if (!trimmed.startsWith('{')) {
+    return { content: rawContent, trivia: null }
+  }
+
+  // Manual extraction for malformed JSON
+  // Look for "answer": followed by the value (could be string or other)
+  const answerMatch = trimmed.match(/"answer"\s*:\s*"/)
+  if (!answerMatch) {
+    console.log('No answer field found in JSON-like content')
+    return { content: rawContent, trivia: null }
+  }
+
+  const answerStart = answerMatch.index! + answerMatch[0].length
+
+  // Find the end of the answer string
+  // We need to find a quote that's followed by a comma and "trivia" or a closing brace
+  // This is tricky because the answer content might contain quotes
+  let answerEnd = -1
+
+  // Look for the pattern: ",\n  "trivia" or similar
+  const triviaPattern = trimmed.indexOf('"trivia"', answerStart)
+  if (triviaPattern !== -1) {
+    // Work backwards from trivia to find the closing quote of answer
+    for (let i = triviaPattern - 1; i >= answerStart; i--) {
+      if (trimmed[i] === '"') {
+        // Check if this quote is escaped
+        let backslashes = 0
+        for (let j = i - 1; j >= 0 && trimmed[j] === '\\'; j--) {
+          backslashes++
+        }
+        if (backslashes % 2 === 0) {
+          // Not escaped, this is the end of answer
+          answerEnd = i
+          break
+        }
+      }
+    }
+  } else {
+    // No trivia, look for closing of the JSON object
+    for (let i = trimmed.length - 1; i >= answerStart; i--) {
+      if (trimmed[i] === '}') {
+        // Find the quote before this
+        for (let j = i - 1; j >= answerStart; j--) {
+          if (trimmed[j] === '"') {
+            let backslashes = 0
+            for (let k = j - 1; k >= 0 && trimmed[k] === '\\'; k--) {
+              backslashes++
+            }
+            if (backslashes % 2 === 0) {
+              answerEnd = j
+              break
+            }
+          }
+        }
+        if (answerEnd !== -1) break
+      }
+    }
+  }
+
+  if (answerEnd === -1 || answerEnd <= answerStart) {
+    console.log('Could not find answer end position')
+    return { content: rawContent, trivia: null }
+  }
+
+  const answerContent = trimmed.substring(answerStart, answerEnd)
+    .replace(/\\n/g, '\n')
+    .replace(/\\"/g, '"')
+    .replace(/\\\\/g, '\\')
+    .replace(/\\t/g, '\t')
+
+  // Try to extract trivia
+  let trivia: TriviaData | null = null
+  if (triviaPattern !== -1) {
+    const triviaObjStart = trimmed.indexOf('{', triviaPattern)
+    if (triviaObjStart !== -1) {
+      // Find matching closing brace
+      let braceCount = 1
+      let triviaObjEnd = -1
+      for (let i = triviaObjStart + 1; i < trimmed.length && braceCount > 0; i++) {
+        if (trimmed[i] === '{') braceCount++
+        if (trimmed[i] === '}') braceCount--
+        if (braceCount === 0) {
+          triviaObjEnd = i + 1
+        }
+      }
+
+      if (triviaObjEnd !== -1) {
+        try {
+          const triviaJson = trimmed.substring(triviaObjStart, triviaObjEnd)
+          trivia = JSON.parse(triviaJson)
+        } catch {
+          // Trivia parsing failed
+        }
+      }
+    }
+  }
+
+  return { content: answerContent, trivia }
+}
+
+// Helper to extract displayable content during streaming
+function extractStreamingContent(rawContent: string): string {
+  const trimmed = rawContent.trim()
+
+  // If it doesn't look like JSON, return as-is
+  if (!trimmed.startsWith('{')) {
+    return rawContent
+  }
+
+  // Try to extract answer content from streaming JSON
+  const answerMatch = trimmed.match(/"answer"\s*:\s*"/)
+  if (!answerMatch) {
+    // JSON started but no answer field yet, show loading indicator
+    return "..."
+  }
+
+  const startIdx = answerMatch.index! + answerMatch[0].length
+  let content = trimmed.substring(startIdx)
+
+  // Look for trivia marker to know where answer ends
+  const triviaMarker = content.indexOf('"trivia"')
+
+  if (triviaMarker !== -1) {
+    // Find the quote before trivia
+    for (let i = triviaMarker - 1; i >= 0; i--) {
+      if (content[i] === '"') {
+        // Check if escaped
+        let backslashes = 0
+        for (let j = i - 1; j >= 0 && content[j] === '\\'; j--) {
+          backslashes++
+        }
+        if (backslashes % 2 === 0) {
+          content = content.substring(0, i)
+          break
+        }
+      }
+    }
+  }
+
+  // Unescape the content
+  return content
+    .replace(/\\n/g, '\n')
+    .replace(/\\"/g, '"')
+    .replace(/\\\\/g, '\\')
+    .replace(/\\t/g, '\t')
 }
 
 interface ChatInterfaceProps {
@@ -139,15 +314,39 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
           const chunk = decoder.decode(value, { stream: true })
           assistantContent += chunk
 
+          // During streaming, extract displayable content using helper
+          const displayContent = extractStreamingContent(assistantContent)
+
           // Only update UI if still on the same trail
           if (currentTrailIdRef.current === requestTrailId) {
             setMessages(prev =>
               prev.map(m =>
-                m.id === assistantId ? { ...m, content: assistantContent } : m
+                m.id === assistantId ? { ...m, content: displayContent } : m
               )
             )
           }
         }
+      }
+
+      // After streaming completes, parse the full response to extract trivia
+      const { content: finalContent, trivia } = parseTriviaResponse(assistantContent)
+
+      // Debug logging
+      console.log('=== TRIVIA PARSE DEBUG ===')
+      console.log('Raw content length:', assistantContent.length)
+      console.log('Raw content starts with {:', assistantContent.trim().startsWith('{'))
+      console.log('Parsed content length:', finalContent.length)
+      console.log('Parsed content preview:', finalContent.substring(0, 100))
+      console.log('Has trivia:', !!trivia)
+      console.log('=========================')
+
+      // Update with final parsed content and trivia
+      if (currentTrailIdRef.current === requestTrailId) {
+        setMessages(prev =>
+          prev.map(m =>
+            m.id === assistantId ? { ...m, content: finalContent, trivia } : m
+          )
+        )
       }
 
       // If user switched to a different trail, mark the original trail as having a new response

@@ -4,6 +4,7 @@ import { NextResponse } from "next/server"
 export async function GET(request: Request) {
     const requestUrl = new URL(request.url)
     const code = requestUrl.searchParams.get("code")
+    const redirect = requestUrl.searchParams.get("redirect")
 
     if (code) {
         const supabase = await createClient()
@@ -11,5 +12,6 @@ export async function GET(request: Request) {
     }
 
     // URL to redirect to after sign in process completes
-    return NextResponse.redirect(new URL("/dashboard", request.url))
+    const redirectTo = redirect || "/dashboard"
+    return NextResponse.redirect(new URL(redirectTo, request.url))
 }

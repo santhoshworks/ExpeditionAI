@@ -1,12 +1,14 @@
 "use client"
 
 import { Message } from "./message"
+import type { TriviaData } from "./trivia-indicator"
 
 interface MessageListProps {
   messages: Array<{
     id: string
     role: "user" | "assistant" | "system" | "illustration"
     content: string
+    trivia?: TriviaData | null
     metadata?: {
       topic?: string
       imageUrl?: string
