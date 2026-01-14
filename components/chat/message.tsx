@@ -117,10 +117,9 @@ export function Message({ message, onUpdateMessage }: MessageProps) {
           isUser
             ? "bg-primary text-primary-foreground"
             : "bg-muted text-foreground",
-          hasTrivia && "ml-8 md:ml-10"
+          hasTrivia && "pr-10 md:pr-12"
         )}
       >
-        {hasTrivia && <TriviaIndicator trivia={message.trivia!} />}
         {isUser ? (
           <p className="whitespace-pre-wrap text-sm md:text-base">{message.content}</p>
         ) : (
@@ -133,6 +132,7 @@ export function Message({ message, onUpdateMessage }: MessageProps) {
             </ReactMarkdown>
           </div>
         )}
+        {hasTrivia && <TriviaIndicator trivia={message.trivia!} />}
       </div>
     </div>
   )

@@ -30,7 +30,7 @@ export function TriviaIndicator({ trivia }: TriviaIndicatorProps) {
         <TooltipTrigger asChild>
           <button
             className={cn(
-              "absolute -left-8 md:-left-10 top-2 p-1.5 rounded-full",
+              "absolute -right-8 md:-right-10 top-2 p-1.5 rounded-full",
               "bg-amber-500/10 hover:bg-amber-500/20",
               "transition-all duration-300 ease-in-out",
               "group cursor-pointer",
@@ -48,7 +48,7 @@ export function TriviaIndicator({ trivia }: TriviaIndicatorProps) {
           </button>
         </TooltipTrigger>
         <TooltipContent
-          side="left"
+          side="right"
           align="start"
           className="w-80 p-0 bg-card border shadow-lg"
           sideOffset={8}

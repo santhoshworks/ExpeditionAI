@@ -15,39 +15,30 @@ const openrouter = createOpenRouter({
   apiKey: process.env.OPENROUTER_API_KEY!,
 })
 
-// System prompt addition for trivia generation
-const TRIVIA_SYSTEM_PROMPT = `
-When answering educational or knowledge-based questions, you should include relevant trivia to enhance learning.
+// System prompt for trivia generation (only used when feature is enabled)
+const TRIVIA_SYSTEM_PROMPT = `You are a helpful AI assistant focused on education and learning. Provide clear, detailed explanations with examples when appropriate. Use markdown formatting for better readability.
 
-IMPORTANT: Your response MUST be valid JSON with this exact structure:
-{
-  "answer": "Your detailed answer here using markdown formatting...",
-  "trivia": {
-    "whyItMatters": "Brief explanation of why this concept is important (1-2 sentences)",
-    "realWorldUse": "Practical real-world applications or examples (1-2 sentences)",
-    "whenYouNeed": "Scenarios or situations where this knowledge is useful (1-2 sentences)",
-    "didYouKnow": "An interesting fact, historical context, or surprising insight (1-2 sentences)"
-  }
-}
+IMPORTANT: Trivia is OPTIONAL and should ONLY be included when it genuinely adds exciting, surprising, or valuable context that enhances learning. Most responses should NOT include trivia.
 
-Rules for trivia:
-- Only include trivia for educational, conceptual, or knowledge-based questions
-- Set trivia to null for simple questions (like "what's 2+2?"), code debugging requests, or purely conversational messages
-- Keep each trivia item concise (1-2 sentences max)
-- Make trivia genuinely insightful and relevant to the topic
-- The "answer" field should contain your full response with proper markdown formatting
+When you have truly interesting trivia that would fascinate the user, you can optionally include it at the END of your response using this format:
 
-Example response:
-{
-  "answer": "**Recursion** is a programming technique where a function calls itself to solve a problem...\\n\\n\`\`\`python\\ndef factorial(n):\\n    if n <= 1:\\n        return 1\\n    return n * factorial(n - 1)\\n\`\`\`",
-  "trivia": {
-    "whyItMatters": "Recursion is fundamental to computer science - it's the basis for many algorithms and data structure operations.",
-    "realWorldUse": "File system traversal, DOM manipulation, JSON parsing, and tree/graph algorithms all rely heavily on recursion.",
-    "whenYouNeed": "You'll use recursion when working with hierarchical data, implementing divide-and-conquer algorithms, or during technical interviews.",
-    "didYouKnow": "The concept of recursion predates computers - it was formally studied by mathematician Kurt Gödel in the 1930s as part of his incompleteness theorems."
-  }
-}
-`
+---TRIVIA---
+WHY_IT_MATTERS: Brief explanation of why this concept is important (1-2 sentences)
+REAL_WORLD_USE: Practical real-world applications or examples (1-2 sentences)
+WHEN_YOU_NEED: Scenarios or situations where this knowledge is useful (1-2 sentences)
+DID_YOU_KNOW: An interesting fact, historical context, or surprising insight (1-2 sentences)
+---END_TRIVIA---
+
+Rules for including trivia:
+- ONLY include trivia if you have genuinely exciting, surprising, or fascinating information to share
+- Skip trivia for: simple questions, code debugging, conversational messages, routine explanations
+- Include trivia for: complex concepts with interesting history, surprising real-world applications, or mind-blowing facts
+- When in doubt, DON'T include trivia - quality over quantity
+- Each trivia item must be genuinely interesting, not just restating the obvious
+- Always put your main answer FIRST, then trivia section at the END if warranted`
+
+// Regular system prompt (when trivia is disabled)
+const REGULAR_SYSTEM_PROMPT = `You are a helpful AI assistant focused on education and learning. Provide clear, detailed explanations with examples when appropriate. Use markdown formatting for better readability.`
 
 // Schema for AI SDK useChat hook format
 const chatSchema = z.object({
@@ -189,10 +180,14 @@ export async function POST(req: Request) {
       await incrementTrailCount(user.id)
     }
 
+    // Check if trivia feature is enabled
+    const triviaEnabled = process.env.NEXT_PUBLIC_ENABLE_TRIVIA === 'true'
+
     // Stream AI response using the full conversation history (filter out illustration messages for AI)
-    // Add trivia system prompt at the beginning
+    // Add system prompt based on feature flag
+    const systemPrompt = triviaEnabled ? TRIVIA_SYSTEM_PROMPT : REGULAR_SYSTEM_PROMPT
     const aiMessages = [
-      { role: "system" as const, content: TRIVIA_SYSTEM_PROMPT },
+      { role: "system" as const, content: systemPrompt },
       ...messages
         .filter(m => m.role !== "illustration")
         .map(m => ({
