@@ -10,6 +10,7 @@ import {
   incrementTrailCount,
 } from "@/lib/credits"
 import { canUseModel, getModelById, DEFAULT_MODELS } from "@/lib/constants"
+import { getTierOverrideFromHeaders } from "@/lib/tier-override"
 
 const openrouter = createOpenRouter({
   apiKey: process.env.OPENROUTER_API_KEY!,
@@ -80,7 +81,13 @@ export async function POST(req: Request) {
 
     // Get user credits and tier
     const userCredits = await getUserCredits(user.id)
-    const userTier = userCredits?.tier || 'free'
+    let userTier = userCredits?.tier || 'free'
+
+    // Check for tier override (for testing)
+    const tierOverride = getTierOverrideFromHeaders(req.headers)
+    if (tierOverride) {
+      userTier = tierOverride.tier
+    }
 
     // Check daily trail limit for free tier
     const trailCheck = await canCreateTrail(user.id)

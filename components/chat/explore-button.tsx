@@ -4,10 +4,16 @@ import { useState, useEffect, useRef, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useExploreStore } from "@/lib/store"
-import { useCreateTrail, useExpedition } from "@/lib/queries"
-import { Compass, X, Loader2 } from "lucide-react"
+import { useCreateTrail, useExpedition, useCreateWishlistItem } from "@/lib/queries"
+import { Compass, X, Loader2, BookmarkPlus, ChevronDown } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 interface ExploreButtonProps {
   expeditionId: string
@@ -22,6 +28,7 @@ export function ExploreButton({ expeditionId, parentTrailId }: ExploreButtonProp
   const [definition, setDefinition] = useState<string | null>(null)
   const [isDefining, setIsDefining] = useState(false)
   const createTrail = useCreateTrail()
+  const createWishlistItem = useCreateWishlistItem()
   const router = useRouter()
   const inputRef = useRef<HTMLInputElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -122,7 +129,7 @@ export function ExploreButton({ expeditionId, parentTrailId }: ExploreButtonProp
     }
   }, [selectedText, handleCancel])
 
-  const handleExplore = async () => {
+  const handleExplore = async (inBackground = false) => {
     if (!selectedText || createTrail.isPending) return
 
     try {
@@ -137,30 +144,60 @@ export function ExploreButton({ expeditionId, parentTrailId }: ExploreButtonProp
       })
 
       if (trail && trail.id) {
-        // Store the auto-message data for the ChatInterface to pick up
-        setAutoMessageData({
-          trailId: trail.id,
-          selectedText: (newTitle || "this topic"),
-        })
+        if (!inBackground) {
+          // Store the auto-message data for the ChatInterface to pick up
+          setAutoMessageData({
+            trailId: trail.id,
+            selectedText: (newTitle || "this topic"),
+          })
 
-        // 1. Set the new trail as current
-        setCurrentTrail(trail.id)
+          // 1. Set the new trail as current
+          setCurrentTrail(trail.id)
+
+          // 3. Navigate to ensure we're on the expedition page
+          // Use a timeout to ensure store updates have flushed
+          setTimeout(() => {
+            router.push(`/expedition/${expeditionId}?trailId=${trail.id}`)
+          }, 0)
+        }
 
         // 2. Clear the selection/input state
         setShowInput(false)
         setDefinition(null)
         setTitle("")
         setSelectedText(null) // This will unmount the tooltip
-
-        // 3. Navigate to ensure we're on the expedition page
-        // Use a timeout to ensure store updates have flushed
-        setTimeout(() => {
-          router.push(`/expedition/${expeditionId}?trailId=${trail.id}`)
-        }, 0)
       }
     } catch (error) {
       console.error("Failed to create trail:", error)
       alert("Failed to create exploration trail. Please try again.")
+    }
+  }
+
+  const handleAddToWishlist = async () => {
+    if (!selectedText || createWishlistItem.isPending) return
+
+    try {
+      const wishlistTitle = title.trim() || selectedText.substring(0, 50) || "New Topic"
+      const wishlistDescription = definition || selectedText
+
+      await createWishlistItem.mutateAsync({
+        title: wishlistTitle,
+        description: wishlistDescription,
+        category: expedition?.title || null,
+        priority: 5,
+        source_url: null,
+        estimated_time: null,
+        tags: null,
+      })
+
+      // Clear the selection/input state
+      setShowInput(false)
+      setDefinition(null)
+      setTitle("")
+      setSelectedText(null)
+    } catch (error) {
+      console.error("Failed to add to wishlist:", error)
+      alert("Failed to add to wishlist. Please try again.")
     }
   }
 
@@ -224,27 +261,55 @@ export function ExploreButton({ expeditionId, parentTrailId }: ExploreButtonProp
           </div>
 
           <div className="flex items-center gap-2 pt-1">
-            <Button
-              size="sm"
-              onClick={handleExplore}
-              disabled={createTrail.isPending}
-              className="flex-1 gap-2 bg-primary hover:bg-primary/90 shadow-sm text-xs md:text-sm"
-            >
-              {createTrail.isPending ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <Compass className="h-3.5 w-3.5" />
-              )}
-              {createTrail.isPending ? "Starting..." : "Explore More"}
-            </Button>
+            <DropdownMenu>
+              <div className="flex flex-1 gap-0">
+                <Button
+                  size="sm"
+                  onClick={() => handleExplore(false)}
+                  disabled={createTrail.isPending}
+                  className="flex-1 gap-2 bg-primary hover:bg-primary/90 shadow-sm text-xs md:text-sm rounded-r-none"
+                >
+                  {createTrail.isPending ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Compass className="h-3.5 w-3.5" />
+                  )}
+                  {createTrail.isPending ? "Starting..." : "Explore More"}
+                </Button>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    size="sm"
+                    disabled={createTrail.isPending}
+                    className="bg-primary hover:bg-primary/90 shadow-sm px-2 rounded-l-none border-l border-primary-foreground/20"
+                  >
+                    <ChevronDown className="h-3.5 w-3.5" />
+                  </Button>
+                </DropdownMenuTrigger>
+              </div>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem
+                  onClick={() => handleExplore(true)}
+                  disabled={createTrail.isPending}
+                  className="cursor-pointer"
+                >
+                  <Compass className="h-4 w-4 mr-2" />
+                  Explore in Background
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button
               size="sm"
               variant="outline"
-              onClick={handleCancel}
+              onClick={handleAddToWishlist}
               className="gap-2 text-xs md:text-sm px-2 md:px-3"
-              disabled={createTrail.isPending}
+              disabled={createWishlistItem.isPending}
             >
-              Close
+              {createWishlistItem.isPending ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <BookmarkPlus className="h-3.5 w-3.5" />
+              )}
+              {createWishlistItem.isPending ? "Adding..." : "Wishlist"}
             </Button>
           </div>
         </div>

@@ -8,6 +8,7 @@ import { FlagType } from "@/types/flags"
 import { useExploreStore } from "@/lib/store"
 import { useEffect } from "react"
 import { DEFAULT_MODELS } from "@/lib/constants"
+import { applyTierOverride } from "@/lib/tier-override"
 
 // Expeditions
 export function useExpeditions() {
@@ -127,10 +128,29 @@ export function useCreateExpedition() {
 
       if (trailError) throw trailError
 
+      // Record analytics for expedition + base camp trail creation
+      try {
+        // Use expedition title as the initial topic
+        const topic = data.title.substring(0, 50).trim()
+
+        await (supabase.rpc as any)('record_daily_activity', {
+          p_user_id: user.id,
+          p_messages: 0,
+          p_trails: 1, // Base camp trail
+          p_expeditions: 1,
+          p_tokens: 0,
+          p_topic: topic
+        })
+      } catch (analyticsError) {
+        console.error("Failed to record expedition analytics:", analyticsError)
+        // Non-blocking - don't fail the request
+      }
+
       return expedition as Expedition
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["expeditions"] })
+      queryClient.invalidateQueries({ queryKey: ["learningAnalytics"] })
     },
   })
 }
@@ -177,6 +197,28 @@ export function useCreateTrail() {
         .single()
 
       if (error) throw error
+
+      // Record analytics for trail creation
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        try {
+          // Extract a simple topic from the trail title (first 50 chars, cleaned)
+          const topic = data.title.substring(0, 50).trim()
+
+          await (supabase.rpc as any)('record_daily_activity', {
+            p_user_id: user.id,
+            p_messages: 0,
+            p_trails: 1,
+            p_expeditions: 0,
+            p_tokens: 0,
+            p_topic: topic
+          })
+        } catch (analyticsError) {
+          console.error("Failed to record trail analytics:", analyticsError)
+          // Non-blocking - don't fail the request
+        }
+      }
+
       return trail as Trail
     },
     onSuccess: (_, variables) => {
@@ -184,6 +226,7 @@ export function useCreateTrail() {
         queryKey: ["trails", variables.expeditionId],
       })
       queryClient.invalidateQueries({ queryKey: ["expeditions"] })
+      queryClient.invalidateQueries({ queryKey: ["learningAnalytics"] })
     },
   })
 }
@@ -330,7 +373,8 @@ export function useUserCredits() {
       const { data: { user } } = await supabase.auth.getUser()
 
       if (!user) {
-        return { credits: 0, tier: 'free' as UserTier, trails_today: 0 }
+        const defaultData = { credits: 0, tier: 'free' as UserTier, trails_today: 0 }
+        return applyTierOverride(defaultData)
       }
 
       const { data, error } = await supabase
@@ -341,7 +385,8 @@ export function useUserCredits() {
 
       if (error || !data) {
         // Return default free tier if no record exists
-        return { credits: 0, tier: 'free' as UserTier, trails_today: 0 }
+        const defaultData = { credits: 0, tier: 'free' as UserTier, trails_today: 0 }
+        return applyTierOverride(defaultData)
       }
 
       const typedData = data as Database['public']['Tables']['user_credits']['Row']
@@ -350,11 +395,14 @@ export function useUserCredits() {
       const today = new Date().toISOString().split('T')[0]
       const trailsToday = typedData.last_trail_date === today ? typedData.trails_today : 0
 
-      return {
+      const result = {
         credits: typedData.credits,
         tier: typedData.tier as UserTier,
         trails_today: trailsToday,
       }
+
+      // Apply tier override for testing (query params or localStorage)
+      return applyTierOverride(result)
     },
     staleTime: 30000, // Consider data stale after 30 seconds
     refetchOnWindowFocus: true,
@@ -549,11 +597,30 @@ export function useConvertToExpedition() {
 
       if (updateError) throw updateError
 
+      // Record analytics for expedition + base camp trail creation
+      try {
+        // Use wishlist item title as the topic
+        const topic = wishlistItem.title.substring(0, 50).trim()
+
+        await (supabase.rpc as any)('record_daily_activity', {
+          p_user_id: user.id,
+          p_messages: 0,
+          p_trails: 1, // Base camp trail
+          p_expeditions: 1,
+          p_tokens: 0,
+          p_topic: topic
+        })
+      } catch (analyticsError) {
+        console.error("Failed to record wishlist conversion analytics:", analyticsError)
+        // Non-blocking - don't fail the request
+      }
+
       return expedition as Expedition
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["learningWishlist"] })
       queryClient.invalidateQueries({ queryKey: ["expeditions"] })
+      queryClient.invalidateQueries({ queryKey: ["learningAnalytics"] })
     },
   })
 }

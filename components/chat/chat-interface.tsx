@@ -1,5 +1,6 @@
 "use client"
 
+import { getTierOverride } from "@/lib/tier-override"
 import { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { ChatInputWithOptions } from "./chat-input-with-options"
@@ -115,6 +116,7 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
   const { generateIllustration, isGenerating: isGeneratingIllustration } = useIllustrations()
   const scrollRef = useRef<HTMLDivElement>(null)
   const currentTrailIdRef = useRef(trailId)
+  const aiResponseStartRef = useRef<HTMLDivElement>(null)
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<Error | undefined>(undefined)
@@ -158,6 +160,13 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
     }
   }, [messages])
 
+  // Scroll to AI response start when assistant begins responding
+  const scrollToAiResponseStart = useCallback(() => {
+    if (aiResponseStartRef.current) {
+      aiResponseStartRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, [])
+
   const handleSend = useCallback(async (content: string) => {
     const userMessage: ChatMessage = {
       id: nanoid(),
@@ -177,6 +186,11 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
     const assistantId = nanoid()
     setMessages(prev => [...prev, { id: assistantId, role: "assistant", content: "" }])
 
+    // Scroll to the start of the AI response after a brief delay to ensure DOM update
+    setTimeout(() => {
+      scrollToAiResponseStart()
+    }, 100)
+
     try {
       // Limit message history to last 20 messages to reduce API latency
       const MAX_HISTORY_MESSAGES = 20
@@ -185,9 +199,15 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
         ? allMessages.slice(-MAX_HISTORY_MESSAGES)
         : allMessages
 
+      const tierOverride = getTierOverride()
+      const headers: HeadersInit = { "Content-Type": "application/json" }
+      if (tierOverride) {
+        headers["x-test-tier"] = tierOverride.tier
+      }
+
       const response = await fetch("/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({
           trailId: requestTrailId,
           model: selectedModelValue,
@@ -319,9 +339,15 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
         )
 
         // Save to database
+        const tierOverride = getTierOverride()
+        const saveHeaders: HeadersInit = { "Content-Type": "application/json" }
+        if (tierOverride) {
+          saveHeaders["x-test-tier"] = tierOverride.tier
+        }
+
         await fetch("/api/chat", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: saveHeaders,
           body: JSON.stringify({
             trailId,
             model: "illustration",
@@ -370,12 +396,12 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
 
   // Handle auto-message for trails with sourceText (generated topics)
   // This triggers when visiting a trail that has sourceText but no messages yet
-  const hasTriggeredAutoMessage = useRef<string | null>(null)
+  const hasTriggeredAutoMessage = useRef<Set<string>>(new Set())
 
   useEffect(() => {
     // Only trigger if:
     // 1. Trail has sourceText (it's a generated topic)
-    // 2. Messages query has completed (isFetched) and no messages exist
+    // 2. Messages query has completed (isFetched) and no messages exist in DB
     // 3. Not currently loading a chat response
     // 4. Haven't already triggered for this trail
     // 5. No autoMessageData is pending (to avoid double-triggering)
@@ -384,16 +410,16 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
       trailTitle &&
       isFetched &&
       !isLoadingMessages &&
-      messages.length === 0 &&
+      (!existingMessages || existingMessages.length === 0) &&
       !isLoading &&
-      hasTriggeredAutoMessage.current !== trailId &&
+      !hasTriggeredAutoMessage.current.has(trailId) &&
       !autoMessageData
     ) {
-      hasTriggeredAutoMessage.current = trailId
+      hasTriggeredAutoMessage.current.add(trailId)
       const autoMessage = `Explain more about "${trailTitle}"`
       handleSend(autoMessage)
     }
-  }, [trailId, trailTitle, trailSourceText, isFetched, isLoadingMessages, messages.length, isLoading, autoMessageData, handleSend])
+  }, [trailId, trailTitle, trailSourceText, isFetched, isLoadingMessages, existingMessages, isLoading, autoMessageData, handleSend])
 
   return (
     <div className="flex flex-col h-full mobile-chat-container">
@@ -403,6 +429,7 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
           isLoading={isLoading}
           error={error}
           onUpdateMessage={handleUpdateMessage}
+          aiResponseStartRef={aiResponseStartRef}
         />
       </ScrollArea>
       <div className="border-t bg-background mobile-input-container mobile-keyboard-safe p-4 md:p-6">

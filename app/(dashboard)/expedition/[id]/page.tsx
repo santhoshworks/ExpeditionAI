@@ -8,8 +8,6 @@ import { getDisplayFlagType } from "@/lib/flag-migration"
 import { ChatInterface } from "@/components/chat/chat-interface"
 import { ModelSelector } from "@/components/chat/model-selector"
 import { ExploreButton } from "@/components/chat/explore-button"
-import { LearningModeToggle } from "@/components/chat/learning-mode-toggle"
-import { CinemaModeOverlay } from "@/components/chat/cinema-mode-overlay"
 import { MultiFlagButton } from "@/components/trail/multi-flag-button"
 import { GenerateTopicsModal } from "@/components/trail/generate-topics-modal"
 import { MobileTrailSelector } from "@/components/trail/mobile-trail-selector"
@@ -91,9 +89,6 @@ export default function ExpeditionPage() {
 
   return (
     <div className="h-full bg-background flex flex-col">
-      {/* Cinema mode overlay - dims everything except chat */}
-      <CinemaModeOverlay />
-
       {/* Main Content - Full width for better chat visibility */}
       <div className="flex-1 flex overflow-hidden">
         {/* Trail Navigation - Simplified without expedition title */}
@@ -151,7 +146,6 @@ export default function ExpeditionPage() {
               <div className="hidden md:block">
                 <ModelSelector userTier={userTier} userCredits={userCredits} />
               </div>
-              <LearningModeToggle />
 
               {/* Mobile trail selector */}
               <MobileTrailSelector

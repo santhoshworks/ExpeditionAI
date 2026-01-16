@@ -18,16 +18,47 @@ export interface ModelOption {
 
 // All available models with tier restrictions
 export const MODELS: ModelOption[] = [
-  // Free Tier Models (Remove unreliable free models)
+  // Free Tier Models - Quick & Fast models with 0 cost
   {
-    id: 'deepseek/deepseek-chat',
-    name: 'DeepSeek V3',
+    id: 'mistralai/devstral-2512:free',
+    name: 'Mistral Devstral 2512',
+    provider: 'Mistral',
+    costPerTrail: 0,
+    speed: 'Very Fast',
+    tier: 'free',
+    recommended: true,
+    badge: 'Free',
+    description: 'Best free model for learning and coding',
+  },
+  {
+    id: 'xiaomi/mimo-v2-flash:free',
+    name: 'Xiaomi MiMo V2 Flash',
+    provider: 'Xiaomi',
+    costPerTrail: 0,
+    speed: 'Very Fast',
+    tier: 'free',
+    badge: 'Free',
+    description: 'Fast and efficient free model',
+  },
+  {
+    id: 'nvidia/nemotron-3-nano-30b-a3b:free',
+    name: 'NVIDIA Nemotron 3 Nano',
+    provider: 'NVIDIA',
+    costPerTrail: 0,
+    speed: 'Fast',
+    tier: 'free',
+    badge: 'Free',
+    description: 'Powerful 30B parameter free model',
+  },
+  {
+    id: 'deepseek/deepseek-r1-0528:free',
+    name: 'DeepSeek R1',
     provider: 'DeepSeek',
     costPerTrail: 0,
     speed: 'Fast',
     tier: 'free',
     badge: 'Free',
-    description: 'Best free model for learning',
+    description: 'Advanced reasoning model',
   },
 
   // Basic Tier Models (Budget-friendly for beta)
@@ -113,7 +144,7 @@ export const MODELS: ModelOption[] = [
 
 // Default model for each tier
 export const DEFAULT_MODELS: Record<UserTier, string> = {
-  free: 'deepseek/deepseek-chat',
+  free: 'mistralai/devstral-2512:free',
   basic: 'google/gemini-2.0-flash-001',
   pro: 'google/gemini-2.0-flash-001',
 }
@@ -136,7 +167,7 @@ export const TIER_CONFIGS: Record<UserTier, TierConfig> = {
     bonusCredits: 0,
     trailsPerDay: 15, // Increased for beta testing
     features: [
-      'DeepSeek V3 (free model)',
+      '4 free models (Mistral, Xiaomi, NVIDIA, DeepSeek)',
       '15 trails per day',
       'Basic features',
     ],

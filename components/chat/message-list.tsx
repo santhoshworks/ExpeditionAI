@@ -21,9 +21,10 @@ interface MessageListProps {
   isLoading: boolean
   error?: Error
   onUpdateMessage?: (messageId: string, updates: any) => void
+  aiResponseStartRef?: React.RefObject<HTMLDivElement>
 }
 
-export function MessageList({ messages, isLoading, error, onUpdateMessage }: MessageListProps) {
+export function MessageList({ messages, isLoading, error, onUpdateMessage, aiResponseStartRef }: MessageListProps) {
   if (error) {
     return (
       <div className="text-center py-8 text-destructive">
@@ -42,13 +43,20 @@ export function MessageList({ messages, isLoading, error, onUpdateMessage }: Mes
 
   return (
     <div className="space-y-4 md:space-y-6 pb-4">
-      {messages.map((message) => (
-        <Message
-          key={message.id}
-          message={message}
-          onUpdateMessage={onUpdateMessage}
-        />
-      ))}
+      {messages.map((message, index) => {
+        // Find the last assistant message to attach the ref
+        const isLastAssistant = message.role === "assistant" &&
+          index === messages.length - 1
+
+        return (
+          <div key={message.id} ref={isLastAssistant ? aiResponseStartRef : null}>
+            <Message
+              message={message}
+              onUpdateMessage={onUpdateMessage}
+            />
+          </div>
+        )
+      })}
       {isLoading && (
         <div className="flex items-center gap-2 text-muted-foreground px-2">
           <div className="flex gap-1">
