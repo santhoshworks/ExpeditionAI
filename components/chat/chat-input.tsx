@@ -3,14 +3,16 @@
 import { useState, KeyboardEvent, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { Send } from "lucide-react"
+import { Send, Square, RotateCcw } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 interface ChatInputProps {
   onSend: (message: string) => void
+  onStop?: () => void
   disabled?: boolean
 }
 
-export function ChatInput({ onSend, disabled }: ChatInputProps) {
+export function ChatInput({ onSend, onStop, disabled }: ChatInputProps) {
   const [input, setInput] = useState("")
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
@@ -68,16 +70,21 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
             onFocus={handleFocus}
             placeholder="Ask a question or explore a topic..."
             disabled={disabled}
-            className="min-h-[72px] md:min-h-[80px] max-h-[120px] resize-none text-sm md:text-base leading-relaxed px-4 py-3 rounded-xl border-2 focus:border-primary/50 transition-all"
-            rows={3}
+            className="min-h-[44px] md:min-h-[48px] max-h-[120px] resize-none text-sm leading-relaxed px-4 py-2.5 rounded-lg border-2 focus:border-primary/20 transition-all bg-white dark:bg-slate-900 shadow-sm"
+            rows={1}
           />
         </div>
+        {/* Reverted Send/Stop button layout to horizontal */}
         <Button
-          onClick={handleSend}
-          disabled={disabled || !input.trim()}
-          className="h-12 w-12 md:h-14 md:w-14 flex-shrink-0 rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center"
+          onClick={disabled ? onStop : handleSend}
+          disabled={(disabled && !onStop) || (!input.trim() && !disabled)}
+          className={cn(
+            "h-11 w-11 flex-shrink-0 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center",
+            disabled ? "bg-rose-500 hover:bg-rose-600 text-white" : "bg-indigo-600 hover:bg-slate-900 text-white"
+          )}
+          title={disabled ? "Stop generating" : "Send message"}
         >
-          <Send className="h-4 w-4 md:h-5 md:w-5" />
+          {disabled ? <Square className="h-4 w-4 fill-current" /> : <Send className="h-4 w-4" />}
         </Button>
       </div>
 

@@ -7,9 +7,14 @@ import { TierOverrideIndicator } from "@/components/tier-override-indicator"
 
 const inter = Inter({ subsets: ["latin"] })
 
+import { SITE_CONFIG } from "@/lib/config"
+
 export const metadata: Metadata = {
-  title: "ExplorerAI - Branching AI Learning Tool",
+  title: `${SITE_CONFIG.name} - ${SITE_CONFIG.description}`,
   description: "Start learning expeditions on any topic and branch into new trails when encountering interesting concepts",
+  icons: {
+    icon: "/favicon.svg",
+  },
 }
 
 export const viewport: Viewport = {

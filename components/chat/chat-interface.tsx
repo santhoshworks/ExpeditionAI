@@ -11,6 +11,9 @@ import { useMessages } from "@/lib/queries"
 import { useIllustrations } from "@/hooks/use-illustrations"
 import { nanoid } from "nanoid"
 import type { Message as DBMessage } from "@/types/database"
+import { Button } from "@/components/ui/button"
+import { RotateCcw } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 // Trivia data structure
 interface TriviaData {
@@ -120,6 +123,8 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<Error | undefined>(undefined)
+  const abortControllerRef = useRef<AbortController | null>(null)
+  const lastUserMessageRef = useRef<string | null>(null)
 
   // Feature flags
   const illustrationsEnabled = process.env.NEXT_PUBLIC_ENABLE_ILLUSTRATIONS === 'true'
@@ -167,7 +172,15 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
     }
   }, [])
 
-  const handleSend = useCallback(async (content: string) => {
+  const handleStop = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+      abortControllerRef.current = null
+      setIsLoading(false)
+    }
+  }, [])
+
+  const handleSend = useCallback(async (content: string, isResend: boolean = false) => {
     const userMessage: ChatMessage = {
       id: nanoid(),
       role: "user",
@@ -177,8 +190,21 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
     // Capture the trail ID at the time of sending
     const requestTrailId = trailId
 
-    // Add user message immediately
-    setMessages(prev => [...prev, userMessage])
+    // Add user message if not a resend
+    if (!isResend) {
+      setMessages(prev => [...prev, userMessage])
+      lastUserMessageRef.current = content
+    } else {
+      // For resend, we might want to remove the previous (potentially failed/incomplete) assistant message
+      setMessages(prev => {
+        const last = prev[prev.length - 1]
+        if (last && last.role === "assistant" && (last.content === "" || error)) {
+          return prev.slice(0, -1)
+        }
+        return prev
+      })
+    }
+
     setIsLoading(true)
     setError(undefined)
 
@@ -191,13 +217,31 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
       scrollToAiResponseStart()
     }, 100)
 
+    // Abort any existing request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+    }
+    abortControllerRef.current = new AbortController()
+
     try {
+      // Calculate messages for the API call
+      // We start with the current messages and add the user message if it's not a resend
+      let messagesForApi = isResend ? [...messages] : [...messages, userMessage]
+
+      // If resending, the last user message might have an assistant response (failed or empty) after it
+      // Filter out only the current sequence to avoid duplicates
+      if (isResend) {
+        // If the last message is assistant, remove it for the API call
+        if (messagesForApi.length > 0 && messagesForApi[messagesForApi.length - 1].role === "assistant") {
+          messagesForApi = messagesForApi.slice(0, -1)
+        }
+      }
+
       // Limit message history to last 20 messages to reduce API latency
       const MAX_HISTORY_MESSAGES = 20
-      const allMessages = [...messages, userMessage]
-      const limitedMessages = allMessages.length > MAX_HISTORY_MESSAGES
-        ? allMessages.slice(-MAX_HISTORY_MESSAGES)
-        : allMessages
+      const limitedMessages = messagesForApi.length > MAX_HISTORY_MESSAGES
+        ? messagesForApi.slice(-MAX_HISTORY_MESSAGES)
+        : messagesForApi
 
       const tierOverride = getTierOverride()
       const headers: HeadersInit = { "Content-Type": "application/json" }
@@ -216,6 +260,7 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
             content: m.role === "illustration" ? `[Illustration: ${m.content}]` : m.content,
           })),
         }),
+        signal: abortControllerRef.current.signal,
       })
 
       if (!response.ok) {
@@ -266,18 +311,29 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
         addTrailWithNewResponse(requestTrailId)
       }
     } catch (err) {
-      setError(err instanceof Error ? err : new Error("Failed to send message"))
-      // Remove the empty assistant message on error (only if still on same trail)
-      if (currentTrailIdRef.current === requestTrailId) {
-        setMessages(prev => prev.filter(m => m.id !== assistantId))
+      if ((err as Error).name === 'AbortError') {
+        console.log('Fetch aborted')
+      } else {
+        setError(err instanceof Error ? err : new Error("Failed to send message"))
+        // Remove the empty assistant message on error (only if still on same trail)
+        if (currentTrailIdRef.current === requestTrailId) {
+          setMessages(prev => prev.filter(m => m.id !== assistantId))
+        }
       }
     } finally {
       // Only update loading state if still on the same trail
       if (currentTrailIdRef.current === requestTrailId) {
         setIsLoading(false)
+        abortControllerRef.current = null
       }
     }
-  }, [messages, trailId, selectedModelValue, addTrailWithNewResponse])
+  }, [messages, trailId, selectedModelValue, addTrailWithNewResponse, scrollToAiResponseStart, error])
+
+  const handleResend = useCallback(() => {
+    if (lastUserMessageRef.current) {
+      handleSend(lastUserMessageRef.current, true)
+    }
+  }, [handleSend])
 
   const handleGenerateIllustration = useCallback(async (topic: string) => {
     // Determine the actual topic based on the input
@@ -423,7 +479,7 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
 
   return (
     <div className="flex flex-col h-full mobile-chat-container">
-      <ScrollArea className="flex-1 p-4 md:p-6" ref={scrollRef}>
+      <ScrollArea className="flex-1 p-3 md:p-4" ref={scrollRef}>
         <MessageList
           messages={messages}
           isLoading={isLoading}
@@ -432,16 +488,35 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
           aiResponseStartRef={aiResponseStartRef}
         />
       </ScrollArea>
-      <div className="border-t bg-background mobile-input-container mobile-keyboard-safe p-4 md:p-6">
+      <div className="border-t bg-background/50 backdrop-blur-md mobile-input-container mobile-keyboard-safe p-3 md:p-4 relative">
+        {/* Regenerate Button - Floating above input Area */}
+        {!isLoading && lastUserMessageRef.current && (
+          <div className="absolute -top-12 left-0 right-0 flex justify-center pointer-events-none pb-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleResend}
+              className="pointer-events-auto bg-background/90 backdrop-blur-md shadow-lg rounded-full px-6 h-10 border-indigo-100 dark:border-slate-800 hover:bg-indigo-50 dark:hover:bg-slate-800 transition-all flex items-center gap-2 group border-2"
+            >
+              <RotateCcw className="h-4 w-4 text-indigo-600 group-hover:rotate-180 transition-transform duration-500" />
+              <span className="text-sm font-bold text-slate-700 dark:text-slate-200">Regenerate response</span>
+            </Button>
+          </div>
+        )}
+
         {illustrationsEnabled ? (
           <ChatInputWithOptions
             onSend={handleSend}
+            onStop={handleStop}
             onGenerateIllustration={handleGenerateIllustration}
             disabled={isLoading}
             isGeneratingIllustration={isGeneratingIllustration}
           />
         ) : (
-          <ChatInput onSend={handleSend} disabled={isLoading} />
+          <ChatInput
+            onSend={handleSend}
+            onStop={handleStop}
+            disabled={isLoading} />
         )}
       </div>
     </div>

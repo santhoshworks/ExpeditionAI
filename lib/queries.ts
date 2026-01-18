@@ -305,6 +305,28 @@ export function useDeleteExpedition() {
   })
 }
 
+export function useDeleteTrail() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ trailId, expeditionId }: { trailId: string, expeditionId: string }) => {
+      const supabase = createClient()
+      const { error } = await supabase
+        .from("trails")
+        .delete()
+        .eq("id", trailId)
+
+      if (error) throw error
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["trails", variables.expeditionId],
+      })
+      queryClient.invalidateQueries({ queryKey: ["expeditions"] })
+    },
+  })
+}
+
 // Journals
 export function useJournal(expeditionId: string) {
   return useQuery({

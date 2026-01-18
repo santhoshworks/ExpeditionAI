@@ -5,9 +5,16 @@ import { TrailWithCounts } from "@/types/database"
 import { FlagType } from "@/types/flags"
 import { getDisplayFlagType } from "@/lib/flag-migration"
 import { cn } from "@/lib/utils"
-import { MessageSquare, ChevronRight, ChevronDown, Compass, MapPin, Tent } from "lucide-react"
+import { MessageSquare, ChevronRight, ChevronDown, Compass, MapPin, Tent, Trash2 } from "lucide-react"
 import { MultiFlagButton } from "@/components/trail/multi-flag-button"
 import { useExploreStore } from "@/lib/store"
+import { useDeleteTrail } from "@/lib/queries"
+import { Button } from "@/components/ui/button"
+
+// Simple toast alternative
+const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+  alert(message)
+}
 
 interface TrailTreeProps {
   trails: TrailWithCounts[]
@@ -17,6 +24,9 @@ interface TrailTreeProps {
 
 export function TrailTree({ trails, currentTrailId, onTrailSelect }: TrailTreeProps) {
   const trailsWithNewResponse = useExploreStore((state) => state.trailsWithNewResponse)
+  const deleteTrailMutation = useDeleteTrail()
+  const currentExpeditionId = useExploreStore((state) => state.currentExpeditionId)
+
   // Initialize with all trails that have children expanded
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(() => {
     const trailsWithChildren = new Set<string>()
@@ -73,6 +83,37 @@ export function TrailTree({ trails, currentTrailId, onTrailSelect }: TrailTreePr
       }
       return next
     })
+  }
+
+  const handleTrailDelete = async (e: React.MouseEvent, trailId: string) => {
+    e.stopPropagation()
+    if (!currentExpeditionId) return
+
+    if (!confirm("Are you sure you want to delete this trail? This will also delete all branched trails and messages.")) {
+      return
+    }
+
+    try {
+      await deleteTrailMutation.mutateAsync({
+        trailId,
+        expeditionId: currentExpeditionId
+      })
+      showToast("Trail deleted successfully")
+
+      // If we deleted the current trail, select base camp or first available trail
+      if (currentTrailId === trailId) {
+        const baseCamp = trails.find(t => t.is_base_camp)
+        if (baseCamp && baseCamp.id !== trailId) {
+          onTrailSelect(baseCamp.id)
+        } else {
+          const firstOther = trails.find(t => t.id !== trailId)
+          if (firstOther) onTrailSelect(firstOther.id)
+        }
+      }
+    } catch (error) {
+      console.error("Failed to delete trail:", error)
+      showToast("Failed to delete trail", "error")
+    }
   }
 
   const renderTrail = (trail: TrailWithCounts, depth: number = 0): React.ReactNode => {
@@ -165,6 +206,17 @@ export function TrailTree({ trails, currentTrailId, onTrailSelect }: TrailTreePr
                   <MessageSquare className="h-3 w-3" />
                   <span className="text-[10px] font-medium">{trail.message_count}</span>
                 </span>
+              )}
+              {!trail.is_base_camp && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 opacity-0 group-hover:opacity-100 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-all rounded-lg"
+                  onClick={(e) => handleTrailDelete(e, trail.id)}
+                  title="Delete trail"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
               )}
             </div>
           </div>

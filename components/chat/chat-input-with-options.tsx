@@ -3,16 +3,18 @@
 import { useState, KeyboardEvent, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { Send, Sparkles, ChevronDown } from "lucide-react"
+import { Send, Sparkles, ChevronDown, Square, RotateCcw } from "lucide-react"
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { cn } from "@/lib/utils"
 
 interface ChatInputWithOptionsProps {
     onSend: (message: string) => void
+    onStop?: () => void
     onGenerateIllustration: (topic: string) => void
     disabled?: boolean
     isGeneratingIllustration?: boolean
@@ -20,6 +22,7 @@ interface ChatInputWithOptionsProps {
 
 export function ChatInputWithOptions({
     onSend,
+    onStop,
     onGenerateIllustration,
     disabled,
     isGeneratingIllustration
@@ -199,11 +202,15 @@ export function ChatInputWithOptions({
                     />
                 </div>
                 <Button
-                    onClick={handleSend}
-                    disabled={disabled || !input.trim()}
-                    className="h-12 w-12 md:h-14 md:w-14 flex-shrink-0 rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center"
+                    onClick={disabled ? onStop : handleSend}
+                    disabled={(disabled && !onStop) || (!input.trim() && !disabled)}
+                    className={cn(
+                        "h-12 w-12 md:h-14 md:w-14 flex-shrink-0 rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center",
+                        disabled && "bg-rose-500 hover:bg-rose-600 text-white"
+                    )}
+                    title={disabled ? "Stop generating" : "Send message"}
                 >
-                    <Send className="h-4 w-4 md:h-5 md:w-5" />
+                    {disabled ? <Square className="h-4 w-4 md:h-5 md:w-5 fill-current" /> : <Send className="h-4 w-4 md:h-5 md:w-5" />}
                 </Button>
             </div>
 

@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation"
 import { useExpeditions } from "@/lib/queries"
+import { SITE_CONFIG } from "@/lib/config"
 
 export function Topbar() {
     const pathname = usePathname()
@@ -18,7 +19,7 @@ export function Topbar() {
             return currentExpedition?.title || "Loading Expedition..."
         }
         if (pathname === "/settings") return "Settings"
-        return "ExplorerAI"
+        return SITE_CONFIG.name
     }
 
     return (
