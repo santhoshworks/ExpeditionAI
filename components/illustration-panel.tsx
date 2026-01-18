@@ -7,13 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Loader2, Image, RefreshCw, Sparkles } from 'lucide-react'
 import { useIllustrations, type IllustrationData } from '@/hooks/use-illustrations'
-
-// Simple toast alternative
-const showToast = (message: string, type: 'success' | 'error' = 'success') => {
-    console.log(`${type.toUpperCase()}: ${message}`)
-    // You can replace this with your preferred toast library
-    alert(message)
-}
+import { toast } from 'sonner'
 
 interface IllustrationPanelProps {
     trailId: string
@@ -61,7 +55,7 @@ export function IllustrationPanel({
 
     const handleGenerate = async () => {
         if (!topic.trim()) {
-            showToast('Please enter a topic for the illustration', 'error')
+            toast.error('Please enter a topic for the illustration')
             return
         }
 
@@ -76,15 +70,15 @@ export function IllustrationPanel({
                 generatedAt: new Date().toISOString(),
                 trailTitle,
             })
-            showToast(`Illustration generated! Used ${result.creditsUsed} credits`)
+            toast.success(`Illustration generated! Used ${result.creditsUsed} credits`)
         } else if (error) {
-            showToast(error, 'error')
+            toast.error(error)
         }
     }
 
     const handleRegenerate = async () => {
         if (!illustration) {
-            showToast('No existing illustration to regenerate', 'error')
+            toast.error('No existing illustration to regenerate')
             return
         }
 
@@ -97,9 +91,9 @@ export function IllustrationPanel({
                 ...illustration,
                 generatedAt: new Date().toISOString(),
             })
-            showToast(`Illustration regenerated! Used ${result.creditsUsed} credits`)
+            toast.success(`Illustration regenerated! Used ${result.creditsUsed} credits`)
         } else if (error) {
-            showToast(error, 'error')
+            toast.error(error)
         }
     }
 

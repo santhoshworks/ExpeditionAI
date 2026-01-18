@@ -128,7 +128,7 @@ export function Sidebar() {
                     </Button>
                 </div>
 
-                <div className="p-6 mb-2 flex items-center gap-3">
+                <div className={cn("mb-2 flex items-center gap-3 transition-all", collapsed ? "p-2 justify-center" : "p-6")}>
                     <div className="bg-indigo-600 p-2.5 rounded-2xl text-white shadow-xl shadow-indigo-200 dark:shadow-indigo-900/20">
                         <Network className="w-6 h-6" />
                     </div>
@@ -170,7 +170,8 @@ export function Sidebar() {
                         <Link key={item.href} href={item.href} onClick={() => setMobileOpen(false)}>
                             <div
                                 className={cn(
-                                    "flex items-center gap-3.5 px-4 py-3 rounded-2xl transition-all duration-200 group relative",
+                                    "flex items-center gap-3.5 py-3 rounded-2xl transition-all duration-200 group relative",
+                                    collapsed ? "justify-center px-0" : "px-4",
                                     pathname === item.href
                                         ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xl shadow-slate-200 dark:shadow-none"
                                         : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white"
@@ -259,7 +260,7 @@ export function Sidebar() {
                 {/* Desktop collapse button */}
                 <button
                     onClick={() => setCollapsed(!collapsed)}
-                    className="absolute -right-3.5 top-12 w-7 h-7 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-full flex items-center justify-center shadow-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-all hidden md:flex z-50 group"
+                    className="absolute -right-3.5 top-24 w-7 h-7 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-full flex items-center justify-center shadow-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-all hidden md:flex z-50 group"
                 >
                     {collapsed ? <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-indigo-600" /> : <ChevronLeft className="w-4 h-4 text-slate-600 group-hover:text-indigo-600" />}
                 </button>

@@ -68,16 +68,25 @@ export async function POST(req: Request) {
     const body = await req.json()
     const { trailId, model, messages } = chatSchema.parse(body)
 
-    // Verify trail ownership
+    // Verify trail ownership and get context
     const { data: trail, error: trailError } = await supabase
       .from("trails")
-      .select("expedition_id, expeditions!inner(user_id)")
+      .select("title, is_base_camp, expeditions!inner(user_id, title)")
       .eq("id", trailId)
       .single()
 
     if (trailError || !trail || (trail as any).expeditions.user_id !== user.id) {
       return new Response("Trail not found or access denied", { status: 403 })
     }
+
+    const expeditionTitle = (trail as any).expeditions.title
+    const trailTitle = trail.title
+    const isBaseCamp = trail.is_base_camp
+
+    // Enhanced context for the system prompt
+    const contextPrompt = `You are currently assisting the user in an "Expedition" titled "${expeditionTitle}". 
+${isBaseCamp ? `The user is at the Base Camp, which covers the core topic: "${trailTitle}".` : `The user is currently exploring a specific branch called "${trailTitle}" within this expedition.`}
+All questions, quizzes, and summaries should be strictly relevant to this topic unless the user explicitly asks to pivot.`
 
     // Get user credits and tier
     const userCredits = await getUserCredits(user.id)
@@ -191,8 +200,9 @@ export async function POST(req: Request) {
     const triviaEnabled = process.env.NEXT_PUBLIC_ENABLE_TRIVIA === 'true'
 
     // Stream AI response using the full conversation history (filter out illustration messages for AI)
-    // Add system prompt based on feature flag
-    const systemPrompt = triviaEnabled ? TRIVIA_SYSTEM_PROMPT : REGULAR_SYSTEM_PROMPT
+    // Add system prompt based on feature flag and prepend the topic context
+    const baseSystemPrompt = triviaEnabled ? TRIVIA_SYSTEM_PROMPT : REGULAR_SYSTEM_PROMPT
+    const systemPrompt = `${contextPrompt}\n\n${baseSystemPrompt}`
     const aiMessages = [
       { role: "system" as const, content: systemPrompt },
       ...messages

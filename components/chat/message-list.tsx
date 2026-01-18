@@ -22,9 +22,10 @@ interface MessageListProps {
   error?: Error
   onUpdateMessage?: (messageId: string, updates: any) => void
   aiResponseStartRef?: React.RefObject<HTMLDivElement>
+  emptyState?: React.ReactNode
 }
 
-export function MessageList({ messages, isLoading, error, onUpdateMessage, aiResponseStartRef }: MessageListProps) {
+export function MessageList({ messages, isLoading, error, onUpdateMessage, aiResponseStartRef, emptyState }: MessageListProps) {
   if (error) {
     return (
       <div className="text-center py-8 text-destructive">
@@ -34,7 +35,7 @@ export function MessageList({ messages, isLoading, error, onUpdateMessage, aiRes
   }
 
   if (messages.length === 0 && !isLoading) {
-    return (
+    return emptyState || (
       <div className="text-center py-8 md:py-12 text-muted-foreground px-4">
         <p className="text-sm md:text-base">Start a conversation to begin your learning journey</p>
       </div>

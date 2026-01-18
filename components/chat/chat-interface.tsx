@@ -14,6 +14,7 @@ import type { Message as DBMessage } from "@/types/database"
 import { Button } from "@/components/ui/button"
 import { RotateCcw } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { EmptyChatState } from "./empty-chat-state"
 
 // Trivia data structure
 interface TriviaData {
@@ -111,9 +112,10 @@ interface ChatInterfaceProps {
   model?: string
   trailTitle?: string
   trailSourceText?: string | null
+  onOpenGenerateModal?: () => void
 }
 
-export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailSourceText }: ChatInterfaceProps) {
+export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailSourceText, onOpenGenerateModal }: ChatInterfaceProps) {
   const { selectedModel, autoMessageData, setAutoMessageData, addTrailWithNewResponse, clearTrailNewResponse } = useExploreStore()
   const { data: existingMessages, refetch, isLoading: isLoadingMessages, isFetched } = useMessages(trailId)
   const { generateIllustration, isGenerating: isGeneratingIllustration } = useIllustrations()
@@ -157,13 +159,17 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
     }
   }, [trailId, formattedExistingMessages, clearTrailNewResponse])
 
-  // Scroll to bottom when new messages arrive
+  // Scroll to bottom when new messages arrive, but stay at top for empty state
   useEffect(() => {
     const scrollElement = scrollRef.current?.querySelector('[data-radix-scroll-area-viewport]')
     if (scrollElement) {
-      scrollElement.scrollTop = scrollElement.scrollHeight
+      if (messages.length > 0 || isLoading) {
+        scrollElement.scrollTop = scrollElement.scrollHeight
+      } else {
+        scrollElement.scrollTop = 0
+      }
     }
-  }, [messages])
+  }, [messages, isLoading])
 
   // Scroll to AI response start when assistant begins responding
   const scrollToAiResponseStart = useCallback(() => {
@@ -477,6 +483,32 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
     }
   }, [trailId, trailTitle, trailSourceText, isFetched, isLoadingMessages, existingMessages, isLoading, autoMessageData, handleSend])
 
+  const handleAction = useCallback((actionId: string) => {
+    switch (actionId) {
+      case "generate_dives":
+        if (onOpenGenerateModal) {
+          onOpenGenerateModal()
+        } else {
+          handleSend("Suggest some specific sub-topics for me to dive deeper into.")
+        }
+        break
+      case "quiz":
+        handleSend("Quiz me on this topic with 3 challenging questions to test my understanding.")
+        break
+      case "summary":
+        handleSend("Can you provide a concise but comprehensive summary of what we're learning here?")
+        break
+    }
+  }, [handleSend, onOpenGenerateModal])
+
+  const emptyState = useMemo(() => (
+    <EmptyChatState
+      topicTitle={trailTitle}
+      onSuggest={handleSend}
+      onAction={handleAction}
+    />
+  ), [trailTitle, handleSend, handleAction])
+
   return (
     <div className="flex flex-col h-full mobile-chat-container">
       <ScrollArea className="flex-1 p-3 md:p-4" ref={scrollRef}>
@@ -486,6 +518,7 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
           error={error}
           onUpdateMessage={handleUpdateMessage}
           aiResponseStartRef={aiResponseStartRef}
+          emptyState={emptyState}
         />
       </ScrollArea>
       <div className="border-t bg-background/50 backdrop-blur-md mobile-input-container mobile-keyboard-safe p-3 md:p-4 relative">

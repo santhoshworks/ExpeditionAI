@@ -9,12 +9,16 @@ import { MessageSquare, ChevronRight, ChevronDown, Compass, MapPin, Tent, Trash2
 import { MultiFlagButton } from "@/components/trail/multi-flag-button"
 import { useExploreStore } from "@/lib/store"
 import { useDeleteTrail } from "@/lib/queries"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
-
-// Simple toast alternative
-const showToast = (message: string, type: 'success' | 'error' = 'success') => {
-  alert(message)
-}
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 
 interface TrailTreeProps {
   trails: TrailWithCounts[]
@@ -26,6 +30,9 @@ export function TrailTree({ trails, currentTrailId, onTrailSelect }: TrailTreePr
   const trailsWithNewResponse = useExploreStore((state) => state.trailsWithNewResponse)
   const deleteTrailMutation = useDeleteTrail()
   const currentExpeditionId = useExploreStore((state) => state.currentExpeditionId)
+
+  const [trailToDelete, setTrailToDelete] = useState<string | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   // Initialize with all trails that have children expanded
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(() => {
@@ -85,20 +92,16 @@ export function TrailTree({ trails, currentTrailId, onTrailSelect }: TrailTreePr
     })
   }
 
-  const handleTrailDelete = async (e: React.MouseEvent, trailId: string) => {
-    e.stopPropagation()
+  const handleTrailDelete = async (trailId: string) => {
     if (!currentExpeditionId) return
-
-    if (!confirm("Are you sure you want to delete this trail? This will also delete all branched trails and messages.")) {
-      return
-    }
+    setIsDeleting(true)
 
     try {
       await deleteTrailMutation.mutateAsync({
         trailId,
         expeditionId: currentExpeditionId
       })
-      showToast("Trail deleted successfully")
+      toast.success("Trail deleted successfully")
 
       // If we deleted the current trail, select base camp or first available trail
       if (currentTrailId === trailId) {
@@ -106,14 +109,22 @@ export function TrailTree({ trails, currentTrailId, onTrailSelect }: TrailTreePr
         if (baseCamp && baseCamp.id !== trailId) {
           onTrailSelect(baseCamp.id)
         } else {
-          const firstOther = trails.find(t => t.id !== trailId)
+          const firstOther = trails.find(t => trailId !== t.id)
           if (firstOther) onTrailSelect(firstOther.id)
         }
       }
+      setTrailToDelete(null)
     } catch (error) {
       console.error("Failed to delete trail:", error)
-      showToast("Failed to delete trail", "error")
+      toast.error("Failed to delete trail")
+    } finally {
+      setIsDeleting(false)
     }
+  }
+
+  const confirmDelete = (e: React.MouseEvent, trailId: string) => {
+    e.stopPropagation()
+    setTrailToDelete(trailId)
   }
 
   const renderTrail = (trail: TrailWithCounts, depth: number = 0): React.ReactNode => {
@@ -212,7 +223,7 @@ export function TrailTree({ trails, currentTrailId, onTrailSelect }: TrailTreePr
                   variant="ghost"
                   size="icon"
                   className="h-7 w-7 opacity-0 group-hover:opacity-100 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-all rounded-lg"
-                  onClick={(e) => handleTrailDelete(e, trail.id)}
+                  onClick={(e) => confirmDelete(e, trail.id)}
                   title="Delete trail"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
@@ -240,6 +251,44 @@ export function TrailTree({ trails, currentTrailId, onTrailSelect }: TrailTreePr
   return (
     <div className="p-2 space-y-0.5 w-full">
       {rootTrails.map((trail) => renderTrail(trail))}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!trailToDelete} onOpenChange={(open) => !open && setTrailToDelete(null)}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Delete Trail</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this trail? This action cannot be undone.
+              All messages and branched trails within this path will be permanently removed.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 py-4">
+            <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/30">
+              <p className="text-sm text-rose-800 dark:text-rose-300 font-medium">
+                Warning: Deleting this trail will also delete all its "child" trails and conversation history.
+              </p>
+            </div>
+          </div>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => setTrailToDelete(null)}
+              disabled={isDeleting}
+              className="rounded-full"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => trailToDelete && handleTrailDelete(trailToDelete)}
+              disabled={isDeleting}
+              className="rounded-full bg-rose-600 hover:bg-rose-700"
+            >
+              {isDeleting ? "Deleting..." : "Delete Trail"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

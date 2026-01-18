@@ -6,12 +6,13 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { useExpeditions, useCreateExpedition, useDeleteExpedition } from "@/lib/queries"
 import { AnalyticsCards } from "@/components/analytics"
 import { formatDate } from "@/lib/utils"
+import { toast } from "sonner"
 import {
   Plus,
   Trash2,
@@ -41,6 +42,9 @@ export default function DashboardPage() {
   const [description, setDescription] = useState("")
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid")
   const [searchTerm, setSearchTerm] = useState("")
+  const [expeditionToDelete, setExpeditionToDelete] = useState<string | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [isCreating, setIsCreating] = useState(false)
 
   const filteredExpeditions = expeditions?.filter(e =>
     e.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -51,29 +55,42 @@ export default function DashboardPage() {
     if (!title.trim()) return
 
     try {
+      setIsCreating(true)
       const expedition = await createExpedition.mutateAsync({
         title: title.trim(),
         description: description.trim() || undefined,
       })
+      toast.success("Expedition started!")
       setShowNewDialog(false)
       setTitle("")
       setDescription("")
       router.push(`/expedition/${expedition.id}`)
     } catch (error) {
       console.error("Failed to create expedition:", error)
+      toast.error("Failed to start expedition")
+    } finally {
+      setIsCreating(false)
     }
   }
 
-  const handleDelete = async (id: string, e: React.MouseEvent) => {
+  const handleDelete = async (id: string) => {
+    try {
+      setIsDeleting(true)
+      await deleteExpedition.mutateAsync(id)
+      toast.success("Expedition deleted")
+      setExpeditionToDelete(null)
+    } catch (error) {
+      console.error("Failed to delete expedition:", error)
+      toast.error("Failed to delete expedition")
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
+  const confirmDelete = (id: string, e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    if (confirm("Are you sure you want to delete this expedition? All progress will be lost.")) {
-      try {
-        await deleteExpedition.mutateAsync(id)
-      } catch (error) {
-        console.error("Failed to delete expedition:", error)
-      }
-    }
+    setExpeditionToDelete(id)
   }
 
   if (isError) {
@@ -263,7 +280,7 @@ export default function DashboardPage() {
                           variant="ghost"
                           size="icon"
                           className="h-12 w-12 rounded-xl text-slate-400 hover:text-rose-500 hover:bg-rose-50"
-                          onClick={(e) => handleDelete(expedition.id, e)}
+                          onClick={(e) => confirmDelete(expedition.id, e)}
                         >
                           <Trash2 className="w-5 h-5" />
                         </Button>
@@ -332,7 +349,7 @@ export default function DashboardPage() {
                               variant="ghost"
                               size="icon"
                               className="h-10 w-10 text-slate-400 hover:text-rose-500"
-                              onClick={e => handleDelete(expedition.id, e)}
+                              onClick={(e) => confirmDelete(expedition.id, e)}
                             >
                               <Trash2 className="w-5 h-5" />
                             </Button>
@@ -408,6 +425,43 @@ export default function DashboardPage() {
               </Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!expeditionToDelete} onOpenChange={(open) => !open && setExpeditionToDelete(null)}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Abandon Expedition?</DialogTitle>
+            <DialogDescription>
+              This will permanently delete the expedition and all associated trails, messages, and progress.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 py-4">
+            <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/30">
+              <p className="text-sm text-rose-800 dark:text-rose-300 font-medium">
+                Warning: This action is irreversible. All your learning progress in this expedition will be lost.
+              </p>
+            </div>
+          </div>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => setExpeditionToDelete(null)}
+              disabled={isDeleting}
+              className="rounded-full"
+            >
+              Keep Expedition
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => expeditionToDelete && handleDelete(expeditionToDelete)}
+              disabled={isDeleting}
+              className="rounded-full bg-rose-600 hover:bg-rose-700"
+            >
+              {isDeleting ? "Deleting..." : "Abandon Expedition"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

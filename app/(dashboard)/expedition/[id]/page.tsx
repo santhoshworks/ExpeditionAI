@@ -187,6 +187,7 @@ export default function ExpeditionPage() {
                 expeditionId={expeditionId}
                 trailTitle={currentTrail?.title}
                 trailSourceText={currentTrail?.source_text}
+                onOpenGenerateModal={() => setGenerateModalOpen(true)}
               />
               <ExploreButton
                 expeditionId={expeditionId}
