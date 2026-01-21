@@ -41,6 +41,11 @@ export interface Expedition {
   title: string;
   description: string | null;
   is_archived: boolean;
+  is_public?: boolean;
+  public_slug?: string | null;
+  public_description?: string | null;
+  view_count?: number;
+  last_viewed_at?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -161,4 +166,16 @@ export interface LearningAnalyticsSummary {
     minutes: number;
   }>;
   activity_by_hour: Record<string, number>;
+}
+
+export interface QuizChallenge {
+  id: string;
+  expedition_id: string;
+  challenger_id: string;
+  challenger_name: string;
+  score: number;
+  total_questions: number;
+  percentage: number;
+  created_at: string;
+  updated_at: string;
 }

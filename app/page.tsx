@@ -19,7 +19,11 @@ import {
   Cpu,
   Layers,
   FileText,
-  Zap
+  Zap,
+  Youtube,
+  Users,
+  Code,
+  TrendingUp
 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { SITE_CONFIG } from "@/lib/config"
@@ -61,6 +65,7 @@ export default function LandingPage() {
           </Link>
 
           <nav className="hidden md:flex items-center gap-10 text-sm font-semibold text-slate-600">
+            <Link href="/explore" className="hover:text-indigo-600 transition-colors">Explore</Link>
             <Link href="#features" className="hover:text-indigo-600 transition-colors">Features</Link>
             <Link href="#methodology" className="hover:text-indigo-600 transition-colors">Methodology</Link>
             <Link href="/pricing" className="hover:text-indigo-600 transition-colors">Pricing</Link>
@@ -94,6 +99,7 @@ export default function LandingPage() {
         {/* Mobile Menu */}
         <div className={`md:hidden absolute top-full left-0 w-full bg-white border-b border-slate-100 transition-all duration-300 ease-in-out ${mobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"}`}>
           <nav className="container mx-auto px-6 py-8 flex flex-col gap-6">
+            <Link href="/explore" className="text-lg font-medium text-slate-700 hover:text-indigo-600" onClick={() => setMobileMenuOpen(false)}>Explore</Link>
             <Link href="#features" className="text-lg font-medium text-slate-700 hover:text-indigo-600" onClick={() => setMobileMenuOpen(false)}>Features</Link>
             <Link href="#methodology" className="text-lg font-medium text-slate-700 hover:text-indigo-600" onClick={() => setMobileMenuOpen(false)}>Methodology</Link>
             <Link href="/pricing" className="text-lg font-medium text-slate-700 hover:text-indigo-600" onClick={() => setMobileMenuOpen(false)}>Pricing</Link>
@@ -131,9 +137,10 @@ export default function LandingPage() {
                     <Zap className="w-5 h-5 ml-2 fill-indigo-400 text-indigo-400" />
                   </Button>
                 </Link>
-                <Link href="#demo">
-                  <Button size="lg" variant="outline" className="h-14 px-10 rounded-2xl border-2 border-slate-200 text-lg font-bold hover:bg-white hover:border-indigo-200 transition-all">
-                    See How it Works
+                <Link href="/demo/create">
+                  <Button size="lg" variant="outline" className="h-14 px-10 rounded-2xl border-2 border-indigo-600 text-indigo-600 text-lg font-bold hover:bg-indigo-50 hover:border-indigo-700 transition-all">
+                    <Sparkles className="w-5 h-5 mr-2" />
+                    Try Interactive Demo
                   </Button>
                 </Link>
               </div>
@@ -362,7 +369,90 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* CTA Section */}
+        {/* Growth Features Section */}
+        <section className="py-32 bg-gradient-to-br from-indigo-50 to-purple-50 relative">
+          <div className="container mx-auto px-6">
+            <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
+              <h2 className="text-indigo-600 font-bold tracking-wider uppercase text-sm">Viral Learning</h2>
+              <h3 className="text-3xl md:text-5xl font-bold text-slate-900 leading-tight">Share knowledge. Challenge friends. Learn together.</h3>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* YouTube Integration */}
+              <Card className="bg-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 group">
+                <CardContent className="p-8 text-center space-y-4">
+                  <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center text-red-500 mx-auto group-hover:scale-110 transition-transform">
+                    <Youtube className="w-8 h-8" />
+                  </div>
+                  <h4 className="text-xl font-bold text-slate-900">YouTube to Expedition</h4>
+                  <p className="text-slate-600 text-sm leading-relaxed">
+                    Transform any YouTube video into an interactive learning journey with AI-generated trails and topics.
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Public Sharing */}
+              <Card className="bg-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 group">
+                <CardContent className="p-8 text-center space-y-4">
+                  <div className="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center text-green-500 mx-auto group-hover:scale-110 transition-transform">
+                    <Share2 className="w-8 h-8" />
+                  </div>
+                  <h4 className="text-xl font-bold text-slate-900">Share Expeditions</h4>
+                  <p className="text-slate-600 text-sm leading-relaxed">
+                    Make your learning journeys public and help others explore the same topics with your insights.
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Quiz Challenges */}
+              <Card className="bg-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 group">
+                <CardContent className="p-8 text-center space-y-4">
+                  <div className="w-16 h-16 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-500 mx-auto group-hover:scale-110 transition-transform">
+                    <Users className="w-8 h-8" />
+                  </div>
+                  <h4 className="text-xl font-bold text-slate-900">Challenge Friends</h4>
+                  <p className="text-slate-600 text-sm leading-relaxed">
+                    Test your knowledge with AI-generated quizzes and challenge friends to beat your score.
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Embed Widgets */}
+              <Card className="bg-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 group">
+                <CardContent className="p-8 text-center space-y-4">
+                  <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-500 mx-auto group-hover:scale-110 transition-transform">
+                    <Code className="w-8 h-8" />
+                  </div>
+                  <h4 className="text-xl font-bold text-slate-900">Embed Anywhere</h4>
+                  <p className="text-slate-600 text-sm leading-relaxed">
+                    Embed interactive knowledge maps in your blog, website, or documentation with simple code.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Explore Public Expeditions CTA */}
+            <div className="mt-16 text-center">
+              <Card className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-0 shadow-xl max-w-2xl mx-auto">
+                <CardContent className="p-10 text-center space-y-6">
+                  <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center text-white mx-auto">
+                    <TrendingUp className="w-8 h-8" />
+                  </div>
+                  <h4 className="text-2xl font-bold">Explore Public Expeditions</h4>
+                  <p className="text-indigo-100 leading-relaxed">
+                    Discover learning journeys created by others. See how complex topics are broken down and explored.
+                  </p>
+                  <Link href="/explore">
+                    <Button size="lg" variant="secondary" className="h-12 px-8 rounded-xl font-bold">
+                      Browse Expeditions
+                      <ArrowRight className="w-5 h-5 ml-2" />
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </section>
         <section className="py-40 relative">
           <div className="container mx-auto px-6 text-center">
             <div className="max-w-4xl mx-auto space-y-10 relative z-10">

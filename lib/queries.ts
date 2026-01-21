@@ -73,7 +73,7 @@ export function useTrails(expeditionId: string) {
 }
 
 // Messages
-export function useMessages(trailId: string) {
+export function useMessages(trailId: string, options: { enabled?: boolean } = {}) {
   return useQuery({
     queryKey: ["messages", trailId],
     queryFn: async () => {
@@ -88,7 +88,7 @@ export function useMessages(trailId: string) {
       if (error) throw error
       return data as Message[]
     },
-    enabled: !!trailId,
+    enabled: !!trailId && (options.enabled ?? true),
     staleTime: 30000, // Consider data fresh for 30 seconds
     gcTime: 300000, // Keep in cache for 5 minutes
   })

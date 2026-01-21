@@ -113,11 +113,30 @@ interface ChatInterfaceProps {
   trailTitle?: string
   trailSourceText?: string | null
   onOpenGenerateModal?: () => void
+  apiEndpoint?: string
+  enablePersistence?: boolean
+  initialMessages?: any[]
+  maxMessages?: number
+  expeditionTitle?: string
+  isBaseCamp?: boolean
 }
 
-export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailSourceText, onOpenGenerateModal }: ChatInterfaceProps) {
+export function ChatInterface({
+  trailId,
+  expeditionId,
+  model,
+  trailTitle,
+  trailSourceText,
+  onOpenGenerateModal,
+  apiEndpoint = "/api/chat",
+  enablePersistence = true,
+  initialMessages = [],
+  maxMessages,
+  expeditionTitle,
+  isBaseCamp
+}: ChatInterfaceProps) {
   const { selectedModel, autoMessageData, setAutoMessageData, addTrailWithNewResponse, clearTrailNewResponse } = useExploreStore()
-  const { data: existingMessages, refetch, isLoading: isLoadingMessages, isFetched } = useMessages(trailId)
+  const { data: existingMessages, refetch, isLoading: isLoadingMessages, isFetched } = useMessages(trailId, { enabled: enablePersistence })
   const { generateIllustration, isGenerating: isGeneratingIllustration } = useIllustrations()
   const scrollRef = useRef<HTMLDivElement>(null)
   const currentTrailIdRef = useRef(trailId)
@@ -152,12 +171,18 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
     clearTrailNewResponse(trailId)
     setIsLoading(false)
     setError(undefined)
+  }, [trailId, clearTrailNewResponse])
+
+  // Set messages when data changes
+  useEffect(() => {
     if (formattedExistingMessages.length > 0) {
       setMessages(formattedExistingMessages)
+    } else if (!enablePersistence && initialMessages.length > 0) {
+      setMessages(initialMessages as ChatMessage[])
     } else {
       setMessages([])
     }
-  }, [trailId, formattedExistingMessages, clearTrailNewResponse])
+  }, [formattedExistingMessages, enablePersistence, initialMessages])
 
   // Scroll to bottom when new messages arrive, but stay at top for empty state
   useEffect(() => {
@@ -198,6 +223,12 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
 
     // Add user message if not a resend
     if (!isResend) {
+      // Check message limit (user messages / 2 approx, or just total messages)
+      if (maxMessages && messages.length >= maxMessages * 2) {
+        setError(new Error("Demo limit reached. Please sign up to continue chatting!"))
+        return
+      }
+
       setMessages(prev => [...prev, userMessage])
       lastUserMessageRef.current = content
     } else {
@@ -255,7 +286,7 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
         headers["x-test-tier"] = tierOverride.tier
       }
 
-      const response = await fetch("/api/chat", {
+      const response = await fetch(apiEndpoint, {
         method: "POST",
         headers,
         body: JSON.stringify({
@@ -265,6 +296,12 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
             role: m.role === "illustration" ? "system" : m.role,
             content: m.role === "illustration" ? `[Illustration: ${m.content}]` : m.content,
           })),
+          // Pass context for demo mode
+          context: !enablePersistence ? {
+            trailTitle,
+            expeditionTitle,
+            isBaseCamp
+          } : undefined
         }),
         signal: abortControllerRef.current.signal,
       })
@@ -333,7 +370,7 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
         abortControllerRef.current = null
       }
     }
-  }, [messages, trailId, selectedModelValue, addTrailWithNewResponse, scrollToAiResponseStart, error])
+  }, [trailId, selectedModelValue, addTrailWithNewResponse, scrollToAiResponseStart, error])
 
   const handleResend = useCallback(() => {
     if (lastUserMessageRef.current) {
@@ -344,6 +381,9 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
   const handleGenerateIllustration = useCallback(async (topic: string) => {
     // Determine the actual topic based on the input
     let actualTopic = topic
+
+    const isDemo = !enablePersistence
+    if (isDemo) return // No illustrations in demo mode
 
     if (topic === "Current conversation topic") {
       // Extract topic from recent messages

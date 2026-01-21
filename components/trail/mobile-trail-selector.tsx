@@ -19,13 +19,15 @@ interface MobileTrailSelectorProps {
     currentTrailId?: string
     onTrailSelect: (trailId: string) => void
     onGenerateTopics?: () => void
+    readOnly?: boolean
 }
 
 export function MobileTrailSelector({
     trails,
     currentTrailId,
     onTrailSelect,
-    onGenerateTopics
+    onGenerateTopics,
+    readOnly
 }: MobileTrailSelectorProps) {
     const [open, setOpen] = useState(false)
 
@@ -58,6 +60,7 @@ export function MobileTrailSelector({
                         trails={trails}
                         currentTrailId={currentTrailId}
                         onTrailSelect={handleTrailSelect}
+                        readOnly={readOnly}
                     />
                 </div>
 

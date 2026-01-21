@@ -12,11 +12,16 @@ import { MultiFlagButton } from "@/components/trail/multi-flag-button"
 import { GenerateTopicsModal } from "@/components/trail/generate-topics-modal"
 import { MobileTrailSelector } from "@/components/trail/mobile-trail-selector"
 import { TrailTree } from "@/components/trail/trail-tree"
+import { ShareExpeditionModal } from "@/components/expedition/share-expedition-modal"
+import { EmbedCodeModal } from "@/components/expedition/embed-code-modal"
 import { useTextSelection } from "@/hooks/use-text-selection"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { BookOpen, Wand2, GitBranch, Compass, Zap } from "lucide-react"
+import { BookOpen, Wand2, GitBranch, Compass, Zap, Share2, Code, Brain } from "lucide-react"
 import Link from "next/link"
+import { ExpeditionMapContainer } from "@/components/map/ExpeditionMapContainer"
+import { cn } from "@/lib/utils"
+import { Map as MapIcon } from "lucide-react"
 
 export default function ExpeditionPage() {
   const params = useParams()
@@ -25,6 +30,9 @@ export default function ExpeditionPage() {
   const trailIdParam = searchParams.get("trailId")
 
   const [generateModalOpen, setGenerateModalOpen] = useState(false)
+  const [showMap, setShowMap] = useState(false)
+  const [shareModalOpen, setShareModalOpen] = useState(false)
+  const [embedModalOpen, setEmbedModalOpen] = useState(false)
 
   const { setCurrentExpedition, currentTrailId, setCurrentTrail, userTier, userCredits } = useExploreStore()
   const { data: expedition, isLoading: expeditionLoading } = useExpedition(expeditionId)
@@ -93,7 +101,7 @@ export default function ExpeditionPage() {
       {/* Main Content - Full width for better chat visibility */}
       <div className="flex-1 flex overflow-hidden">
         {/* Trail Navigation - Premium Glass Sidebar */}
-        <aside className="hidden lg:flex w-60 border-r bg-white/60 dark:bg-slate-900/40 backdrop-blur-3xl flex-col transition-all duration-300">
+        <aside className="hidden lg:flex w-80 border-r bg-white/60 dark:bg-slate-900/40 backdrop-blur-3xl flex-col transition-all duration-300">
           <div className="px-5 py-3 border-b border-slate-100 dark:border-slate-800">
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-[10px] uppercase tracking-[0.2em] text-slate-400 flex items-center gap-2">
@@ -165,6 +173,44 @@ export default function ExpeditionPage() {
 
               {/* Quick actions */}
               <div className="hidden sm:flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setShareModalOpen(true)}
+                  className="h-9 rounded-lg font-bold text-xs gap-2 border-slate-200 dark:border-slate-800 hover:bg-indigo-50 hover:border-indigo-200 text-slate-700"
+                >
+                  <Share2 className="h-3.5 w-3.5 text-indigo-500" />
+                  Share
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setEmbedModalOpen(true)}
+                  className="h-9 rounded-lg font-bold text-xs gap-2 border-slate-200 dark:border-slate-800 hover:bg-indigo-50 hover:border-indigo-200 text-slate-700"
+                >
+                  <Code className="h-3.5 w-3.5 text-indigo-500" />
+                  Embed
+                </Button>
+                <Link href={`/expedition/${expeditionId}/quiz?trailId=${currentTrailId}`}>
+                  <Button
+                    variant="outline"
+                    className="h-9 rounded-lg font-bold text-xs gap-2 border-slate-200 dark:border-slate-800 hover:bg-purple-50 hover:border-purple-200 text-slate-700"
+                  >
+                    <Brain className="h-3.5 w-3.5 text-purple-500" />
+                    Quiz
+                  </Button>
+                </Link>
+                <Button
+                  variant={showMap ? "default" : "outline"}
+                  onClick={() => setShowMap(!showMap)}
+                  className={cn(
+                    "h-9 rounded-lg font-bold text-xs gap-2 transition-colors",
+                    showMap
+                      ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-200"
+                      : "border-slate-200 dark:border-slate-800 hover:bg-indigo-50 hover:border-indigo-200 text-slate-700"
+                  )}
+                >
+                  <MapIcon className={cn("h-3.5 w-3.5", showMap ? "text-white" : "text-indigo-500")} />
+                  {showMap ? "Close Map" : "Map View"}
+                </Button>
                 <Link href={`/expedition/${expeditionId}/journal`}>
                   <Button variant="outline" className="h-9 rounded-lg border-slate-200 dark:border-slate-800 font-bold text-xs gap-2 hover:bg-indigo-50 hover:border-indigo-200 transition-colors">
                     <BookOpen className="h-3.5 w-3.5 text-indigo-500" />
@@ -180,7 +226,18 @@ export default function ExpeditionPage() {
             <ModelSelector userTier={userTier} userCredits={userCredits} />
           </div>
 
-          {currentTrailId ? (
+          {showMap ? (
+            <div className="flex-1 overflow-hidden bg-slate-100/50 relative">
+              <ExpeditionMapContainer
+                trails={trails || []}
+                currentTrailId={currentTrailId || undefined}
+                onNodeClick={(id) => {
+                  setCurrentTrail(id)
+                  setShowMap(false) // Navigate to the selected trail
+                }}
+              />
+            </div>
+          ) : currentTrailId ? (
             <div className="flex-1 flex flex-col min-h-0 bg-slate-50/30 dark:bg-slate-950/10">
               <ChatInterface
                 trailId={currentTrailId}
@@ -224,6 +281,22 @@ export default function ExpeditionPage() {
         expeditionTitle={expedition.title}
         trails={trails || []}
       />
+
+      {/* Share Expedition Modal */}
+      <ShareExpeditionModal
+        expedition={expedition}
+        open={shareModalOpen}
+        onOpenChange={setShareModalOpen}
+      />
+
+      {/* Embed Code Modal */}
+      <EmbedCodeModal
+        expedition={expedition}
+        open={embedModalOpen}
+        onOpenChange={setEmbedModalOpen}
+      />
+
+
     </div>
   )
 }

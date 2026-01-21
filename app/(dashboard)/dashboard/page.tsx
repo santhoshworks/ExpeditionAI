@@ -11,6 +11,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge"
 import { useExpeditions, useCreateExpedition, useDeleteExpedition } from "@/lib/queries"
 import { AnalyticsCards } from "@/components/analytics"
+import { YouTubeToExpedition } from "@/components/youtube/youtube-to-expedition"
+import { PdfToExpedition } from "@/components/pdf/pdf-to-expedition"
 import { formatDate } from "@/lib/utils"
 import { toast } from "sonner"
 import {
@@ -27,7 +29,9 @@ import {
   BookOpen,
   Search,
   Filter,
-  Zap
+  Zap,
+  Youtube,
+  FileText
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -45,6 +49,8 @@ export default function DashboardPage() {
   const [expeditionToDelete, setExpeditionToDelete] = useState<string | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
+  const [showYouTubeDialog, setShowYouTubeDialog] = useState(false)
+  const [showPdfDialog, setShowPdfDialog] = useState(false)
 
   const filteredExpeditions = expeditions?.filter(e =>
     e.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -124,6 +130,22 @@ export default function DashboardPage() {
             </div>
 
             <div className="flex items-center gap-3 w-full md:w-auto">
+              <Button
+                onClick={() => setShowPdfDialog(true)}
+                variant="outline"
+                className="rounded-2xl h-12 px-6 border-indigo-200 text-indigo-600 hover:bg-indigo-50 font-bold text-base flex-1 md:flex-initial"
+              >
+                <FileText className="h-5 w-5 mr-2" />
+                From PDF
+              </Button>
+              <Button
+                onClick={() => setShowYouTubeDialog(true)}
+                variant="outline"
+                className="rounded-2xl h-12 px-6 border-red-200 text-red-600 hover:bg-red-50 font-bold text-base flex-1 md:flex-initial"
+              >
+                <Youtube className="h-5 w-5 mr-2" />
+                From YouTube
+              </Button>
               <Button
                 onClick={() => setShowNewDialog(true)}
                 className="rounded-2xl h-12 px-6 bg-indigo-600 hover:bg-slate-900 text-white font-bold text-base shadow-xl shadow-indigo-100 dark:shadow-none transition-all hover:scale-105 active:scale-95 flex-1 md:flex-initial"
@@ -462,6 +484,60 @@ export default function DashboardPage() {
               {isDeleting ? "Deleting..." : "Abandon Expedition"}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* YouTube to Expedition Dialog */}
+      <Dialog open={showYouTubeDialog} onOpenChange={setShowYouTubeDialog}>
+        <DialogContent className="sm:max-w-[700px] p-0 border-none shadow-[0_20px_50px_rgba(0,0,0,0.2)] rounded-[3rem] overflow-hidden">
+          <div className="bg-gradient-to-br from-red-500 to-red-600 p-12 text-center relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-full opacity-10">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,_var(--tw-gradient-stops))] from-white to-transparent" />
+            </div>
+            <div className="bg-white p-4 rounded-3xl w-fit mx-auto mb-6 shadow-2xl shadow-red-500/20 relative z-10">
+              <Youtube className="w-8 h-8 text-red-500" />
+            </div>
+            <DialogTitle className="text-2xl md:text-3xl font-bold text-white relative z-10">YouTube to Expedition</DialogTitle>
+            <DialogDescription className="text-red-100 text-base mt-2 relative z-10 font-medium">
+              Transform any YouTube video into an interactive learning journey
+            </DialogDescription>
+          </div>
+
+          <div className="p-8">
+            <YouTubeToExpedition
+              onSuccess={(expeditionId) => {
+                setShowYouTubeDialog(false)
+                router.push(`/expedition/${expeditionId}`)
+              }}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* PDF to Expedition Dialog */}
+      <Dialog open={showPdfDialog} onOpenChange={setShowPdfDialog}>
+        <DialogContent className="sm:max-w-[700px] p-0 border-none shadow-[0_20px_50px_rgba(0,0,0,0.2)] rounded-[3rem] overflow-hidden">
+          <div className="bg-gradient-to-br from-indigo-500 to-violet-600 p-12 text-center relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-full opacity-10">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,_var(--tw-gradient-stops))] from-white to-transparent" />
+            </div>
+            <div className="bg-white p-4 rounded-3xl w-fit mx-auto mb-6 shadow-2xl shadow-indigo-500/20 relative z-10">
+              <FileText className="w-8 h-8 text-indigo-500" />
+            </div>
+            <DialogTitle className="text-2xl md:text-3xl font-bold text-white relative z-10">PDF to Expedition</DialogTitle>
+            <DialogDescription className="text-indigo-100 text-base mt-2 relative z-10 font-medium">
+              Turn any research paper, book, or document into a knowledge map
+            </DialogDescription>
+          </div>
+
+          <div className="p-8">
+            <PdfToExpedition
+              onSuccess={(expeditionId) => {
+                setShowPdfDialog(false)
+                router.push(`/expedition/${expeditionId}`)
+              }}
+            />
+          </div>
         </DialogContent>
       </Dialog>
     </div>

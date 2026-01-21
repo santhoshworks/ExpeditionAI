@@ -51,6 +51,11 @@ export interface Database {
           title: string
           description: string | null
           is_archived: boolean
+          is_public: boolean
+          public_slug: string | null
+          public_description: string | null
+          view_count: number
+          last_viewed_at: string | null
           created_at: string
           updated_at: string
         }
@@ -60,6 +65,11 @@ export interface Database {
           title: string
           description?: string | null
           is_archived?: boolean
+          is_public?: boolean
+          public_slug?: string | null
+          public_description?: string | null
+          view_count?: number
+          last_viewed_at?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -69,6 +79,11 @@ export interface Database {
           title?: string
           description?: string | null
           is_archived?: boolean
+          is_public?: boolean
+          public_slug?: string | null
+          public_description?: string | null
+          view_count?: number
+          last_viewed_at?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -224,6 +239,41 @@ export interface Database {
           updated_at?: string
         }
       }
+      quiz_challenges: {
+        Row: {
+          id: string
+          expedition_id: string
+          challenger_id: string
+          challenger_name: string
+          score: number
+          total_questions: number
+          percentage: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          expedition_id: string
+          challenger_id: string
+          challenger_name: string
+          score: number
+          total_questions: number
+          percentage: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          expedition_id?: string
+          challenger_id?: string
+          challenger_name?: string
+          score?: number
+          total_questions?: number
+          percentage?: number
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Views: {
       trails_with_counts: {
@@ -282,6 +332,18 @@ export interface Database {
         Args: {
           p_user_id: string
           p_date: string
+        }
+        Returns: void
+      }
+      generate_expedition_slug: {
+        Args: {
+          title: string
+        }
+        Returns: string
+      }
+      increment_expedition_views: {
+        Args: {
+          expedition_slug: string
         }
         Returns: void
       }

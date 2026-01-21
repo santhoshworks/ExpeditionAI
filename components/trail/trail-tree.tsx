@@ -24,9 +24,10 @@ interface TrailTreeProps {
   trails: TrailWithCounts[]
   currentTrailId?: string
   onTrailSelect: (trailId: string) => void
+  readOnly?: boolean
 }
 
-export function TrailTree({ trails, currentTrailId, onTrailSelect }: TrailTreeProps) {
+export function TrailTree({ trails, currentTrailId, onTrailSelect, readOnly }: TrailTreeProps) {
   const trailsWithNewResponse = useExploreStore((state) => state.trailsWithNewResponse)
   const deleteTrailMutation = useDeleteTrail()
   const currentExpeditionId = useExploreStore((state) => state.currentExpeditionId)
@@ -218,7 +219,7 @@ export function TrailTree({ trails, currentTrailId, onTrailSelect }: TrailTreePr
                   <span className="text-[10px] font-medium">{trail.message_count}</span>
                 </span>
               )}
-              {!trail.is_base_camp && (
+              {!trail.is_base_camp && !readOnly && (
                 <Button
                   variant="ghost"
                   size="icon"

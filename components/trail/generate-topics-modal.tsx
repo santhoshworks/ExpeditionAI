@@ -40,7 +40,10 @@ interface GenerateTopicsModalProps {
     onOpenChange: (open: boolean) => void
     expeditionId: string
     expeditionTitle: string
+    expeditionTitle: string
     trails: TrailWithCounts[]
+    apiEndpoint?: string
+    onCreateTrails?: (topics: GeneratedTopic[]) => Promise<void>
 }
 
 type Step = "count" | "generating" | "select" | "creating"
@@ -51,6 +54,8 @@ export function GenerateTopicsModal({
     expeditionId,
     expeditionTitle,
     trails,
+    apiEndpoint = "/api/generate-topics",
+    onCreateTrails,
 }: GenerateTopicsModalProps) {
     const [step, setStep] = useState<Step>("count")
     const [topicCount, setTopicCount] = useState(5)
@@ -84,7 +89,7 @@ export function GenerateTopicsModal({
                 .filter(t => !t.is_base_camp)
                 .map(t => t.title)
 
-            const response = await fetch("/api/generate-topics", {
+            const response = await fetch(apiEndpoint, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -143,6 +148,16 @@ export function GenerateTopicsModal({
         }
 
         setStep("creating")
+
+        if (onCreateTrails) {
+            try {
+                await onCreateTrails(selectedTopics)
+                handleClose()
+            } catch (err) {
+                console.error("Failed to create local trails:", err)
+            }
+            return
+        }
 
         // Find the base camp to use as parent
         const baseCamp = trails.find(t => t.is_base_camp)

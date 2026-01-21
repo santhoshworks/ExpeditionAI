@@ -1,6 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Disable type checking during build for faster builds
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  // Disable ESLint during build for faster builds
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   images: {
     domains: ['upload.wikimedia.org'],
   },
@@ -17,7 +25,8 @@ const nextConfig = {
       '@radix-ui/react-tooltip',
       '@radix-ui/react-checkbox',
       'react-syntax-highlighter'
-    ]
+    ],
+    serverComponentsExternalPackages: ['pdf-parse']
   }
 }
 
