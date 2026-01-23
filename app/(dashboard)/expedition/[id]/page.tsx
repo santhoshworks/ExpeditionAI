@@ -15,8 +15,10 @@ import { TrailTree } from "@/components/trail/trail-tree"
 import { useTextSelection } from "@/hooks/use-text-selection"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { BookOpen, Wand2, GitBranch, Compass, Zap } from "lucide-react"
+import { BookOpen, Wand2, GitBranch, Compass, Zap, Brain } from "lucide-react"
 import Link from "next/link"
+import { QuizSelectionModal } from "@/components/quiz/quiz-selection-modal"
+import { QuizInterface } from "@/components/quiz/quiz-interface"
 
 export default function ExpeditionPage() {
   const params = useParams()
@@ -25,8 +27,18 @@ export default function ExpeditionPage() {
   const trailIdParam = searchParams.get("trailId")
 
   const [generateModalOpen, setGenerateModalOpen] = useState(false)
+  const [quizModalOpen, setQuizModalOpen] = useState(false)
 
-  const { setCurrentExpedition, currentTrailId, setCurrentTrail, userTier, userCredits } = useExploreStore()
+  const {
+    setCurrentExpedition,
+    currentTrailId,
+    setCurrentTrail,
+    userTier,
+    userCredits,
+    quizState,
+    setQuizMode,
+    setSelectedQuestionCount,
+  } = useExploreStore()
   const { data: expedition, isLoading: expeditionLoading } = useExpedition(expeditionId)
   const { data: trails, isLoading: trailsLoading } = useTrails(expeditionId)
 
@@ -64,6 +76,15 @@ export default function ExpeditionPage() {
       }
     }
   }, [trails, currentTrailId, setCurrentTrail, trailIdParam])
+
+  const handleStartQuiz = (questionCount: number) => {
+    setSelectedQuestionCount(questionCount)
+    setQuizMode(true)
+  }
+
+  const handleExitQuiz = () => {
+    setQuizMode(false)
+  }
 
   if (expeditionLoading || trailsLoading) {
     return (
@@ -165,6 +186,14 @@ export default function ExpeditionPage() {
 
               {/* Quick actions */}
               <div className="hidden sm:flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setQuizModalOpen(true)}
+                  className="h-9 rounded-lg border-slate-200 dark:border-slate-800 font-bold text-xs gap-2 hover:bg-purple-50 hover:border-purple-200 transition-colors"
+                >
+                  <Brain className="h-3.5 w-3.5 text-purple-500" />
+                  Quiz Me
+                </Button>
                 <Link href={`/expedition/${expeditionId}/journal`}>
                   <Button variant="outline" className="h-9 rounded-lg border-slate-200 dark:border-slate-800 font-bold text-xs gap-2 hover:bg-indigo-50 hover:border-indigo-200 transition-colors">
                     <BookOpen className="h-3.5 w-3.5 text-indigo-500" />
@@ -181,19 +210,28 @@ export default function ExpeditionPage() {
           </div>
 
           {currentTrailId ? (
-            <div className="flex-1 flex flex-col min-h-0 bg-slate-50/30 dark:bg-slate-950/10">
-              <ChatInterface
-                trailId={currentTrailId}
-                expeditionId={expeditionId}
-                trailTitle={currentTrail?.title}
-                trailSourceText={currentTrail?.source_text}
-                onOpenGenerateModal={() => setGenerateModalOpen(true)}
-              />
-              <ExploreButton
-                expeditionId={expeditionId}
-                parentTrailId={currentTrailId}
-              />
-            </div>
+            quizState.isQuizMode ? (
+              <div className="flex-1 flex flex-col min-h-0 bg-slate-50/30 dark:bg-slate-950/10">
+                <QuizInterface
+                  expeditionId={expeditionId}
+                  onExit={handleExitQuiz}
+                />
+              </div>
+            ) : (
+              <div className="flex-1 flex flex-col min-h-0 bg-slate-50/30 dark:bg-slate-950/10">
+                <ChatInterface
+                  trailId={currentTrailId}
+                  expeditionId={expeditionId}
+                  trailTitle={currentTrail?.title}
+                  trailSourceText={currentTrail?.source_text}
+                  onOpenGenerateModal={() => setGenerateModalOpen(true)}
+                />
+                <ExploreButton
+                  expeditionId={expeditionId}
+                  parentTrailId={currentTrailId}
+                />
+              </div>
+            )
           ) : (
             <div className="flex-1 flex items-center justify-center text-slate-500 p-12 bg-white/50">
               <div className="text-center space-y-6 max-w-sm">
@@ -223,6 +261,13 @@ export default function ExpeditionPage() {
         expeditionId={expeditionId}
         expeditionTitle={expedition.title}
         trails={trails || []}
+      />
+
+      {/* Quiz Selection Modal */}
+      <QuizSelectionModal
+        open={quizModalOpen}
+        onOpenChange={setQuizModalOpen}
+        onStartQuiz={handleStartQuiz}
       />
     </div>
   )
