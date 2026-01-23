@@ -11,49 +11,61 @@ export async function GET(request: NextRequest) {
 
         const { searchParams } = new URL(request.url)
         const page = parseInt(searchParams.get('page') || '1')
-        const limit = parseInt(searchParams.get('limit') || '50')
+        const limit = parseInt(searchParams.get('limit') || '20')
         const search = searchParams.get('search') || ''
         const tier = searchParams.get('tier') || ''
 
         const offset = (page - 1) * limit
 
-        // Build query
-        let query = supabase
+        // Build the main query
+        let baseQuery = supabase
             .from('profiles')
-            .select(`
-        id,
-        email,
-        full_name,
-        created_at,
-        user_credits (
-          credits,
-          tier,
-          trails_today,
-          last_trail_date
-        ),
-        user_learning_streaks (
-          current_streak,
-          longest_streak,
-          total_active_days
-        )
-      `)
+            .select('id, email, full_name, created_at')
             .order('created_at', { ascending: false })
             .range(offset, offset + limit - 1)
 
-        // Apply filters
+        // Apply search filter
         if (search) {
-            query = query.or(`email.ilike.%${search}%,full_name.ilike.%${search}%`)
+            baseQuery = baseQuery.or(`email.ilike.%${search}%,full_name.ilike.%${search}%`)
         }
 
-        if (tier) {
-            query = query.eq('user_credits.tier', tier)
-        }
+        const { data: baseUsers, error: baseError } = await baseQuery
 
-        const { data: users, error, count } = await query
-
-        if (error) {
-            console.error('Users fetch error:', error)
+        if (baseError) {
             return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 })
+        }
+
+        // Enrich with related data
+        const enrichedUsers = []
+
+        for (const user of baseUsers || []) {
+            // Get user credits
+            const { data: userCredits } = await supabase
+                .from('user_credits')
+                .select('credits, tier, trails_today, last_trail_date')
+                .eq('user_id', user.id)
+                .single()
+
+            // Get user streaks
+            const { data: userStreaks } = await supabase
+                .from('user_learning_streaks')
+                .select('current_streak, longest_streak, total_active_days')
+                .eq('user_id', user.id)
+                .single()
+
+            enrichedUsers.push({
+                ...user,
+                user_credits: userCredits ? [userCredits] : [],
+                user_learning_streaks: userStreaks ? [userStreaks] : []
+            })
+        }
+
+        // Apply tier filter after enrichment
+        let filteredUsers = enrichedUsers
+        if (tier && tier !== 'all') {
+            filteredUsers = enrichedUsers.filter(user =>
+                user.user_credits.length > 0 && user.user_credits[0].tier === tier
+            )
         }
 
         // Get total count for pagination
@@ -62,7 +74,7 @@ export async function GET(request: NextRequest) {
             .select('*', { count: 'exact', head: true })
 
         return NextResponse.json({
-            users: users || [],
+            users: filteredUsers || [],
             pagination: {
                 page,
                 limit,
@@ -72,7 +84,6 @@ export async function GET(request: NextRequest) {
         })
 
     } catch (error) {
-        console.error('Admin users error:', error)
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
     }
 }
@@ -136,7 +147,6 @@ export async function PATCH(request: NextRequest) {
         return NextResponse.json({ success: true })
 
     } catch (error) {
-        console.error('Admin user update error:', error)
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
     }
 }

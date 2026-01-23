@@ -33,7 +33,7 @@ export function AdminOverview() {
                 setData(result)
             }
         } catch (error) {
-            console.error('Failed to fetch overview data:', error)
+            // Error handling
         } finally {
             setLoading(false)
         }

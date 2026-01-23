@@ -16,31 +16,9 @@ export default async function AdminLayout({
         redirect('/login')
     }
 
-    // Debug: Log user info
-    console.log('Current user ID:', user.id)
-    console.log('Current user email:', user.email)
-
     // Check if user is an admin
-    try {
-        const userIsAdmin = await isAdmin()
-        console.log('Is admin check result:', userIsAdmin)
-
-        // Debug: Check admin_users table directly
-        const { data: adminCheck, error } = await supabase
-            .from('admin_users')
-            .select('*')
-            .eq('user_id', user.id)
-            .eq('is_active', true)
-            .single()
-
-        console.log('Direct admin check:', adminCheck, error)
-
-        if (!userIsAdmin) {
-            console.log('Admin check failed, redirecting to dashboard')
-            redirect('/dashboard')
-        }
-    } catch (error) {
-        console.error('Admin check error:', error)
+    const userIsAdmin = await isAdmin()
+    if (!userIsAdmin) {
         redirect('/dashboard')
     }
 

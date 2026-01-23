@@ -81,7 +81,6 @@ export async function GET() {
         })
 
     } catch (error) {
-        console.error('Admin overview error:', error)
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
     }
 }

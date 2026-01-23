@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
-import { Search, Plus, Edit, CreditCard } from 'lucide-react'
+import { Search, Plus, Edit } from 'lucide-react'
 
 interface User {
     id: string
@@ -42,7 +42,7 @@ export function UserManagement() {
     const [data, setData] = useState<UserManagementData | null>(null)
     const [loading, setLoading] = useState(true)
     const [search, setSearch] = useState('')
-    const [tierFilter, setTierFilter] = useState('')
+    const [tierFilter, setTierFilter] = useState('all')
     const [page, setPage] = useState(1)
     const [selectedUser, setSelectedUser] = useState<User | null>(null)
     const [editDialogOpen, setEditDialogOpen] = useState(false)
@@ -58,16 +58,17 @@ export function UserManagement() {
                 page: page.toString(),
                 limit: '20',
                 ...(search && { search }),
-                ...(tierFilter && { tier: tierFilter })
+                ...(tierFilter && tierFilter !== 'all' && { tier: tierFilter })
             })
 
             const response = await fetch(`/api/admin/users?${params}`)
+
             if (response.ok) {
                 const result = await response.json()
                 setData(result)
             }
         } catch (error) {
-            console.error('Failed to fetch users:', error)
+            // Error handling - could add user-friendly error display here
         } finally {
             setLoading(false)
         }
@@ -86,7 +87,7 @@ export function UserManagement() {
                 setEditDialogOpen(false)
             }
         } catch (error) {
-            console.error('Failed to update user:', error)
+            // Error handling - could add user-friendly error display here
         }
     }
 
@@ -128,7 +129,7 @@ export function UserManagement() {
                                 <SelectValue placeholder="All Tiers" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="">All Tiers</SelectItem>
+                                <SelectItem value="all">All Tiers</SelectItem>
                                 <SelectItem value="free">Free</SelectItem>
                                 <SelectItem value="basic">Basic</SelectItem>
                                 <SelectItem value="pro">Pro</SelectItem>

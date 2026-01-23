@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
 
 async function handlePaymentSuccess(sessionData: any) {
     try {
-        const { metadata } = sessionData
+        const { metadata, amount, payment_method, session_id } = sessionData
         const { user_id, tier, credits, bonus_credits } = metadata
 
         if (!user_id || !tier) {
@@ -70,19 +70,41 @@ async function handlePaymentSuccess(sessionData: any) {
 
         const totalCredits = parseInt(credits) + parseInt(bonus_credits || 0)
 
+        // Store payment event
+        const supabase = await createClient()
+        await supabase.from('payment_events').insert({
+            event_type: 'checkout.session.completed',
+            session_id: session_id,
+            user_id: user_id,
+            amount: amount / 100, // Convert cents to dollars
+            status: 'completed',
+            payment_method: payment_method || 'card',
+            tier: tier,
+            credits: parseInt(credits),
+            bonus_credits: parseInt(bonus_credits || 0),
+            metadata: sessionData,
+            processed_at: new Date().toISOString()
+        })
+
         // Upgrade user tier and add credits
         const result = await upgradeTier(user_id, tier, totalCredits)
 
         if (!result.success) {
             console.error('Failed to upgrade user tier:', result.error)
-            // You might want to implement retry logic or manual intervention here
+            // Update payment event with error
+            await supabase.from('payment_events')
+                .update({
+                    failure_reason: result.error,
+                    status: 'processing_failed'
+                })
+                .eq('session_id', session_id)
             return
         }
 
-        console.log(`Successfully upgraded user ${user_id} to ${tier} tier with ${totalCredits} credits`)
+        console.log(`Successfully processed payment for user ${user_id} - ${tier} tier with ${totalCredits} credits`)
 
-        // Optional: Send confirmation email or notification
-        // await sendPaymentConfirmationEmail(user_id, tier, totalCredits)
+        // Update daily analytics
+        await supabase.rpc('update_payment_analytics')
 
     } catch (error) {
         console.error('Error handling payment success:', error)
@@ -91,13 +113,29 @@ async function handlePaymentSuccess(sessionData: any) {
 
 async function handlePaymentFailed(sessionData: any) {
     try {
-        const { metadata } = sessionData
+        const { metadata, amount, failure_reason, session_id } = sessionData
         const { user_id, tier } = metadata
 
-        console.log(`Payment failed for user ${user_id}, tier ${tier}`)
+        console.log(`Payment failed for user ${user_id} - ${tier} tier`)
 
-        // Optional: Send payment failure notification
-        // await sendPaymentFailureEmail(user_id, tier)
+        // Store failed payment event
+        const supabase = await createClient()
+        await supabase.from('payment_events').insert({
+            event_type: 'checkout.session.failed',
+            session_id: session_id,
+            user_id: user_id,
+            amount: amount / 100, // Convert cents to dollars
+            status: 'failed',
+            tier: tier,
+            credits: parseInt(metadata.credits || 0),
+            bonus_credits: parseInt(metadata.bonus_credits || 0),
+            failure_reason: failure_reason || 'Payment processing failed',
+            metadata: sessionData,
+            processed_at: new Date().toISOString()
+        })
+
+        // Update daily analytics
+        await supabase.rpc('update_payment_analytics')
 
     } catch (error) {
         console.error('Error handling payment failure:', error)

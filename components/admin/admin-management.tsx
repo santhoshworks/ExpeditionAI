@@ -42,7 +42,7 @@ export function AdminManagement() {
                 setAdminUsers(result.adminUsers || [])
             }
         } catch (error) {
-            console.error('Failed to fetch admin users:', error)
+            // Error handling
         } finally {
             setLoading(false)
         }
@@ -88,7 +88,6 @@ export function AdminManagement() {
                 alert(error.error || 'Failed to add admin')
             }
         } catch (error) {
-            console.error('Failed to add admin:', error)
             alert('Failed to add admin')
         }
     }
@@ -113,7 +112,6 @@ export function AdminManagement() {
                 alert(error.error || 'Failed to remove admin')
             }
         } catch (error) {
-            console.error('Failed to remove admin:', error)
             alert('Failed to remove admin')
         }
     }

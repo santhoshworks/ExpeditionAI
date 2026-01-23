@@ -25,14 +25,12 @@ export async function GET() {
             .order('created_at', { ascending: false })
 
         if (error) {
-            console.error('Failed to fetch admin users:', error)
             return NextResponse.json({ error: 'Failed to fetch admin users' }, { status: 500 })
         }
 
         return NextResponse.json({ adminUsers })
 
     } catch (error) {
-        console.error('Admin manage error:', error)
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
     }
 }
@@ -61,7 +59,6 @@ export async function POST(request: NextRequest) {
         }
 
     } catch (error) {
-        console.error('Admin manage error:', error)
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
     }
 }
