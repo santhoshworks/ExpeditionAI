@@ -131,9 +131,10 @@ export default function LandingPage() {
                     <Zap className="w-5 h-5 ml-2 fill-indigo-400 text-indigo-400" />
                   </Button>
                 </Link>
-                <Link href="#demo">
-                  <Button size="lg" variant="outline" className="h-14 px-10 rounded-2xl border-2 border-slate-200 text-lg font-bold hover:bg-white hover:border-indigo-200 transition-all">
-                    See How it Works
+                <Link href="/demo">
+                  <Button size="lg" variant="outline" className="h-14 px-10 rounded-2xl border-2 border-indigo-600 text-indigo-600 text-lg font-bold hover:bg-indigo-50 hover:border-indigo-700 transition-all">
+                    <Sparkles className="w-5 h-5 mr-2" />
+                    Try Interactive Demo
                   </Button>
                 </Link>
               </div>

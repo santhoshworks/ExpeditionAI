@@ -3,6 +3,24 @@ import { persist } from "zustand/middleware"
 import type { UserTier } from "./constants"
 import { DEFAULT_MODELS } from "./constants"
 
+export interface QuizQuestion {
+  id: string
+  question: string
+  options: string[]
+  correctAnswer: number // index of correct option
+  explanation: string
+  userAnswer: number | null
+}
+
+export interface QuizState {
+  isQuizMode: boolean
+  quizQuestions: QuizQuestion[]
+  currentQuestionIndex: number
+  quizLoading: boolean
+  quizError: string | null
+  selectedQuestionCount: number | null
+}
+
 interface ExploreState {
   // Current expedition context
   currentExpeditionId: string | null
@@ -32,6 +50,9 @@ interface ExploreState {
   userCredits: number
   trailsToday: number
 
+  // Quiz state
+  quizState: QuizState
+
   // Actions
   setCurrentExpedition: (id: string | null) => void
   setCurrentTrail: (id: string | null) => void
@@ -48,6 +69,16 @@ interface ExploreState {
   setUserCredits: (credits: number, tier: UserTier, trailsToday?: number) => void
   deductCreditsLocally: (amount: number) => void
   reset: () => void
+
+  // Quiz actions
+  setQuizMode: (isActive: boolean) => void
+  setQuizQuestions: (questions: QuizQuestion[]) => void
+  setCurrentQuestionIndex: (index: number) => void
+  answerQuestion: (questionIndex: number, answerIndex: number) => void
+  setQuizLoading: (loading: boolean) => void
+  setQuizError: (error: string | null) => void
+  setSelectedQuestionCount: (count: number | null) => void
+  resetQuiz: () => void
 }
 
 export const useExploreStore = create<ExploreState>()(
@@ -67,6 +98,16 @@ export const useExploreStore = create<ExploreState>()(
       userTier: "free",
       userCredits: 0,
       trailsToday: 0,
+
+      // Initial quiz state
+      quizState: {
+        isQuizMode: false,
+        quizQuestions: [],
+        currentQuestionIndex: 0,
+        quizLoading: false,
+        quizError: null,
+        selectedQuestionCount: null,
+      },
 
       // Actions
       setCurrentExpedition: (id) => set({ currentExpeditionId: id }),
@@ -125,6 +166,61 @@ export const useExploreStore = create<ExploreState>()(
           selectedTextPosition: null,
           showExploreButton: false,
         }),
+
+      // Quiz actions
+      setQuizMode: (isActive) =>
+        set((state) => ({
+          quizState: { ...state.quizState, isQuizMode: isActive },
+        })),
+
+      setQuizQuestions: (questions) =>
+        set((state) => ({
+          quizState: { ...state.quizState, quizQuestions: questions },
+        })),
+
+      setCurrentQuestionIndex: (index) =>
+        set((state) => ({
+          quizState: { ...state.quizState, currentQuestionIndex: index },
+        })),
+
+      answerQuestion: (questionIndex, answerIndex) =>
+        set((state) => {
+          const newQuestions = [...state.quizState.quizQuestions]
+          newQuestions[questionIndex] = {
+            ...newQuestions[questionIndex],
+            userAnswer: answerIndex,
+          }
+          return {
+            quizState: { ...state.quizState, quizQuestions: newQuestions },
+          }
+        }),
+
+      setQuizLoading: (loading) =>
+        set((state) => ({
+          quizState: { ...state.quizState, quizLoading: loading },
+        })),
+
+      setQuizError: (error) =>
+        set((state) => ({
+          quizState: { ...state.quizState, quizError: error },
+        })),
+
+      setSelectedQuestionCount: (count) =>
+        set((state) => ({
+          quizState: { ...state.quizState, selectedQuestionCount: count },
+        })),
+
+      resetQuiz: () =>
+        set((state) => ({
+          quizState: {
+            isQuizMode: false,
+            quizQuestions: [],
+            currentQuestionIndex: 0,
+            quizLoading: false,
+            quizError: null,
+            selectedQuestionCount: null,
+          },
+        })),
     }),
     {
       name: "explore-storage",
