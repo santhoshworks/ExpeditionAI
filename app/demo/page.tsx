@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { CTAButton } from "@/components/ui/cta-button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Sparkles, ArrowRight, Loader2, Zap, Brain, BookOpen, AlertCircle } from "lucide-react"
 import Link from "next/link"
@@ -97,8 +98,9 @@ export default function DemoPage() {
                                         </CardDescription>
                                     </CardHeader>
                                     <CardContent>
-                                        <Button
-                                            className="w-full bg-slate-900 dark:bg-indigo-600 hover:bg-indigo-600 dark:hover:bg-indigo-700 text-white"
+                                        <CTAButton
+                                            variant="secondary"
+                                            fullWidth
                                             disabled={isStarting}
                                         >
                                             {isStarting ? (
@@ -112,7 +114,7 @@ export default function DemoPage() {
                                                     <ArrowRight className="w-4 h-4 ml-2" />
                                                 </>
                                             )}
-                                        </Button>
+                                        </CTAButton>
                                     </CardContent>
                                 </Card>
                             ))}
@@ -168,12 +170,12 @@ export default function DemoPage() {
                                 </p>
                             </div>
                             <div className="flex gap-3">
-                                <Button asChild variant="outline" className="border-indigo-200 dark:border-indigo-800">
+                                <Button asChild variant="outline" className="border-indigo-200 dark:border-indigo-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/50">
                                     <Link href="/login">Log In</Link>
                                 </Button>
-                                <Button asChild className="bg-indigo-600 hover:bg-indigo-700 text-white">
+                                <CTAButton asChild variant="primary">
                                     <Link href="/signup">Sign Up Free</Link>
-                                </Button>
+                                </CTAButton>
                             </div>
                         </div>
                     </div>

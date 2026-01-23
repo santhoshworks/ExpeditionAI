@@ -187,15 +187,32 @@ export function TrailTree({ trails, currentTrailId, onTrailSelect }: TrailTreePr
             className="flex-1 flex items-center justify-between min-w-0 gap-2"
           >
             <span className="flex items-center gap-1.5 min-w-0">
-              <span
-                className={cn(
-                  "truncate font-medium",
-                  isActive ? "text-primary" : "text-foreground",
-                  trail.is_base_camp && "font-semibold"
-                )}
-              >
-                {trail.title}
-              </span>
+              <div className="min-w-0 flex-1 scroll-text-container">
+                <div className="scroll-text-content">
+                  <span
+                    className={cn(
+                      "font-medium inline-block",
+                      isActive ? "text-primary" : "text-foreground",
+                      trail.is_base_camp && "font-semibold"
+                    )}
+                    title={trail.title}
+                  >
+                    {trail.title}
+                  </span>
+                  {/* Duplicate text for seamless scrolling when text is long */}
+                  {trail.title.length > 20 && (
+                    <span
+                      className={cn(
+                        "font-medium inline-block ml-8",
+                        isActive ? "text-primary" : "text-foreground",
+                        trail.is_base_camp && "font-semibold"
+                      )}
+                    >
+                      {trail.title}
+                    </span>
+                  )}
+                </div>
+              </div>
               {hasNewResponse && (
                 <span className="flex-shrink-0 w-2 h-2 rounded-full bg-blue-500 animate-pulse" title="New response ready" />
               )}

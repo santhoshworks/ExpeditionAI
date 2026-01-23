@@ -185,6 +185,33 @@
     color: hsl(var(--foreground));
   }
 
+  /* Custom scrolling text animation for long trail titles */
+  .scroll-text-container {
+    overflow: hidden;
+    white-space: nowrap;
+    position: relative;
+  }
+
+  .scroll-text-content {
+    display: inline-block;
+    transition: transform 0.3s ease;
+  }
+
+  .group:hover .scroll-text-content {
+    animation: scroll-text 8s linear infinite;
+  }
+
+  /* Only animate on devices that support hover */
+  @media (hover: hover) {
+    .scroll-text-content {
+      animation-play-state: paused;
+    }
+
+    .group:hover .scroll-text-content {
+      animation-play-state: running;
+    }
+  }
+
   /* Markdown Typography Fixes - Relying on @tailwindcss/typography plugin */
   .prose li::marker {
     @apply text-primary/60 font-bold;

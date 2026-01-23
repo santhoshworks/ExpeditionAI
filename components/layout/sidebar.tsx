@@ -46,7 +46,9 @@ const sidebarItems = [
 
 export function Sidebar() {
     const pathname = usePathname()
-    const [collapsed, setCollapsed] = useState(false)
+    // Auto-collapse sidebar on expedition pages
+    const isExpeditionPage = pathname.includes("/expedition/")
+    const [collapsed, setCollapsed] = useState(isExpeditionPage)
     const [mobileOpen, setMobileOpen] = useState(false)
     const [searchQuery, setSearchQuery] = useState("")
     const router = useRouter()
@@ -57,7 +59,6 @@ export function Sidebar() {
     // Check if we're on an expedition page
     const expeditionId = pathname.split("/expedition/")[1]?.split("/")[0]
     const currentExpedition = expeditions?.find(e => e.id === expeditionId)
-    const isExpeditionPage = pathname.includes("/expedition/")
 
     const handleLogout = async () => {
         const supabase = createClient()

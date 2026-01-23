@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { CTAButton } from "@/components/ui/cta-button"
 import { Card } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Sparkles, ArrowLeft, MessageCircle, AlertCircle, Zap, Lightbulb } from "lucide-react"
@@ -224,9 +225,9 @@ function DemoChatContent() {
                                 </span>
                                 <span className="text-slate-500 dark:text-slate-400"> messages left</span>
                             </div>
-                            <Button asChild size="sm" className="bg-indigo-600 hover:bg-indigo-700">
+                            <CTAButton asChild variant="primary" size="sm">
                                 <Link href="/signup">Sign Up</Link>
-                            </Button>
+                            </CTAButton>
                         </div>
                     </div>
                 </div>
@@ -280,11 +281,10 @@ function DemoChatContent() {
                                     className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
                                 >
                                     <div
-                                        className={`max-w-[80%] rounded-2xl px-4 py-3 ${
-                                            message.role === "user"
-                                                ? "bg-indigo-600 text-white"
-                                                : "bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700"
-                                        }`}
+                                        className={`max-w-[80%] rounded-2xl px-4 py-3 ${message.role === "user"
+                                            ? "bg-indigo-600 text-white"
+                                            : "bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700"
+                                            }`}
                                     >
                                         <p className="whitespace-pre-wrap break-words">{message.content}</p>
                                     </div>
@@ -331,12 +331,12 @@ function DemoChatContent() {
                                 You've used all {MAX_DEMO_MESSAGES} demo messages. Sign up to continue your learning journey with unlimited messages!
                             </p>
                             <div className="flex gap-3 justify-center">
-                                <Button asChild variant="outline">
+                                <Button asChild variant="outline" className="border-indigo-200 dark:border-indigo-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/50">
                                     <Link href="/demo">Try Another Topic</Link>
                                 </Button>
-                                <Button asChild className="bg-indigo-600 hover:bg-indigo-700">
+                                <CTAButton asChild variant="primary">
                                     <Link href="/signup">Sign Up Free</Link>
-                                </Button>
+                                </CTAButton>
                             </div>
                         </div>
                     </Card>
@@ -354,7 +354,7 @@ function DemoChatContent() {
                     >
                         <Button
                             onClick={handleExploreText}
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg gap-2 h-9 px-4"
+                            className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-500 text-white shadow-lg gap-2 h-9 px-4 font-bold"
                             size="sm"
                         >
                             <Lightbulb className="w-4 h-4" />
@@ -394,13 +394,14 @@ function DemoChatContent() {
                         <div className="text-xs text-slate-500 dark:text-slate-400">
                             Press Enter to send
                         </div>
-                        <Button
+                        <CTAButton
                             onClick={handleSendMessage}
                             disabled={!input.trim() || isLoading || remainingMessages === 0}
-                            className="bg-indigo-600 hover:bg-indigo-700"
+                            variant="primary"
+                            size="sm"
                         >
                             {isLoading ? "Sending..." : "Send"}
-                        </Button>
+                        </CTAButton>
                     </div>
                 </div>
             </div>

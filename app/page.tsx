@@ -3,6 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
+import { CTAButton } from "@/components/ui/cta-button"
 import { Card, CardContent } from "@/components/ui/card"
 import {
   Network,
@@ -46,7 +47,7 @@ export default function LandingPage() {
       {/* Navigation */}
       <header
         className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled
-          ? "bg-white/70 backdrop-blur-xl border-b border-slate-200/50 py-3"
+          ? "bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-800/50 py-3 shadow-sm"
           : "bg-transparent py-5"
           }`}
       >
@@ -55,35 +56,35 @@ export default function LandingPage() {
             <div className="bg-indigo-600 p-2 rounded-xl shadow-lg shadow-indigo-200 group-hover:scale-110 transition-transform duration-300">
               <Network className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600">
+            <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-slate-100 dark:to-slate-400">
               {SITE_CONFIG.name}
             </span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-10 text-sm font-semibold text-slate-600">
-            <Link href="#features" className="hover:text-indigo-600 transition-colors">Features</Link>
-            <Link href="#methodology" className="hover:text-indigo-600 transition-colors">Methodology</Link>
-            <Link href="/pricing" className="hover:text-indigo-600 transition-colors">Pricing</Link>
-            <Link href="/blog" className="hover:text-indigo-600 transition-colors">Resources</Link>
+          <nav className="hidden md:flex items-center gap-10 text-sm font-semibold text-slate-600 dark:text-slate-400">
+            <Link href="#features" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Features</Link>
+            <Link href="#methodology" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Methodology</Link>
+            <Link href="/pricing" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Pricing</Link>
+            <Link href="/blog" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Resources</Link>
           </nav>
 
           <div className="flex items-center gap-4">
             <Link href="/login" className="hidden sm:block">
-              <Button variant="ghost" className="text-slate-600 font-semibold hover:bg-slate-100 transition-all">
+              <CTAButton variant="ghost" size="default">
                 Sign in
-              </Button>
+              </CTAButton>
             </Link>
             <Link href="/signup">
-              <Button className="rounded-full px-6 bg-slate-900 hover:bg-indigo-600 text-white shadow-xl shadow-slate-200 hover:shadow-indigo-200 transition-all duration-300">
+              <CTAButton variant="primary" size="default" className="px-6">
                 Get Started
                 <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
+              </CTAButton>
             </Link>
 
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden text-slate-600"
+              className="md:hidden text-slate-600 dark:text-slate-400"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -92,13 +93,13 @@ export default function LandingPage() {
         </div>
 
         {/* Mobile Menu */}
-        <div className={`md:hidden absolute top-full left-0 w-full bg-white border-b border-slate-100 transition-all duration-300 ease-in-out ${mobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"}`}>
+        <div className={`md:hidden absolute top-full left-0 w-full bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl border-b border-slate-100 dark:border-slate-800 shadow-lg transition-all duration-300 ease-in-out ${mobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"}`}>
           <nav className="container mx-auto px-6 py-8 flex flex-col gap-6">
-            <Link href="#features" className="text-lg font-medium text-slate-700 hover:text-indigo-600" onClick={() => setMobileMenuOpen(false)}>Features</Link>
-            <Link href="#methodology" className="text-lg font-medium text-slate-700 hover:text-indigo-600" onClick={() => setMobileMenuOpen(false)}>Methodology</Link>
-            <Link href="/pricing" className="text-lg font-medium text-slate-700 hover:text-indigo-600" onClick={() => setMobileMenuOpen(false)}>Pricing</Link>
-            <Link href="/login" className="text-lg font-medium text-slate-700 hover:text-indigo-600" onClick={() => setMobileMenuOpen(false)}>Sign in</Link>
-            <Button className="w-full rounded-xl bg-indigo-600 h-12 text-lg">Start Learning</Button>
+            <Link href="#features" className="text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400" onClick={() => setMobileMenuOpen(false)}>Features</Link>
+            <Link href="#methodology" className="text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400" onClick={() => setMobileMenuOpen(false)}>Methodology</Link>
+            <Link href="/pricing" className="text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400" onClick={() => setMobileMenuOpen(false)}>Pricing</Link>
+            <Link href="/login" className="text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400" onClick={() => setMobileMenuOpen(false)}>Sign in</Link>
+            <Button className="w-full rounded-xl bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-500 h-12 text-lg font-bold">Start Learning</Button>
           </nav>
         </div>
       </header>
@@ -126,16 +127,16 @@ export default function LandingPage() {
 
               <div className="flex flex-col sm:flex-row items-center gap-5 pt-4">
                 <Link href="/signup">
-                  <Button size="lg" className="h-14 px-10 rounded-2xl bg-slate-900 hover:bg-slate-800 text-lg font-bold shadow-2xl shadow-slate-200 transition-all hover:scale-[1.02] active:scale-95">
+                  <CTAButton variant="primary" size="lg" className="px-10">
                     Start Your Expedition
                     <Zap className="w-5 h-5 ml-2 fill-indigo-400 text-indigo-400" />
-                  </Button>
+                  </CTAButton>
                 </Link>
                 <Link href="/demo">
-                  <Button size="lg" variant="outline" className="h-14 px-10 rounded-2xl border-2 border-indigo-600 text-indigo-600 text-lg font-bold hover:bg-indigo-50 hover:border-indigo-700 transition-all">
+                  <CTAButton variant="secondary" size="lg" className="px-10">
                     <Sparkles className="w-5 h-5 mr-2" />
                     Try Interactive Demo
-                  </Button>
+                  </CTAButton>
                 </Link>
               </div>
 
@@ -321,10 +322,10 @@ export default function LandingPage() {
 
                 <div className="pt-4">
                   <Link href="/signup">
-                    <Button className="h-14 px-10 rounded-2xl bg-slate-900 text-lg font-bold group">
+                    <CTAButton variant="secondary" size="lg" className="px-10">
                       Begin Your Learning Journey
                       <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                    </Button>
+                    </CTAButton>
                   </Link>
                 </div>
               </div>
@@ -375,9 +376,9 @@ export default function LandingPage() {
               </p>
               <div className="flex flex-col sm:flex-row justify-center items-center gap-6 pt-6">
                 <Link href="/signup">
-                  <Button size="lg" className="h-16 px-12 rounded-2xl bg-indigo-600 hover:bg-slate-900 text-white font-bold text-xl shadow-2xl shadow-indigo-200 transition-all hover:scale-105 active:scale-95">
+                  <CTAButton variant="primary" size="xl" className="px-12">
                     Start Your Expedition for Free
-                  </Button>
+                  </CTAButton>
                 </Link>
                 <p className="text-slate-400 font-medium text-sm">No credit card required. Free forever limit of 50 maps.</p>
               </div>

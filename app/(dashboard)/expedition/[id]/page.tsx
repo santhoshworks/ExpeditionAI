@@ -113,8 +113,8 @@ export default function ExpeditionPage() {
     <div className="h-full bg-slate-50/50 dark:bg-slate-950/20 flex flex-col overflow-hidden">
       {/* Main Content - Full width for better chat visibility */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Trail Navigation - Premium Glass Sidebar */}
-        <aside className="hidden lg:flex w-60 border-r bg-white/60 dark:bg-slate-900/40 backdrop-blur-3xl flex-col transition-all duration-300">
+        {/* Trail Navigation - Premium Glass Sidebar - More expandable */}
+        <aside className="hidden lg:flex w-80 border-r bg-white/60 dark:bg-slate-900/40 backdrop-blur-3xl flex-col transition-all duration-300 hover:w-96 group">
           <div className="px-5 py-3 border-b border-slate-100 dark:border-slate-800">
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-[10px] uppercase tracking-[0.2em] text-slate-400 flex items-center gap-2">

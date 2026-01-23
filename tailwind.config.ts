@@ -83,6 +83,10 @@ const config = {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0.5" },
         },
+        "scroll-text": {
+          "0%": { transform: "translateX(0%)" },
+          "100%": { transform: "translateX(-100%)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -91,6 +95,7 @@ const config = {
         "bounce-slow": "bounce-slow 3s infinite ease-in-out",
         "spin-slow": "spin-slow 3s linear infinite",
         "pulse-slow": "pulse-slow 2s ease-in-out infinite",
+        "scroll-text": "scroll-text 8s linear infinite",
       },
     },
   },
