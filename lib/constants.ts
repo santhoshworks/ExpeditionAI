@@ -256,6 +256,9 @@ export const FEATURE_MODELS = {
 
   // Define feature - vocabulary definitions
   DEFINE_FEATURE: 'google/gemini-2.0-flash-lite-001',
+
+  // Quiz generation
+  QUIZ_GENERATION: 'openai/gpt-4o-mini',
 } as const
 
 // Helper function to get model for a specific feature
