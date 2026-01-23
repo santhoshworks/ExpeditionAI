@@ -185,7 +185,7 @@ export function QuizInterface({ expeditionId, onExit }: QuizInterfaceProps) {
                 Quiz Complete!
               </h2>
               <p className="text-slate-600 dark:text-slate-400 mb-4">
-                Here's how you did:
+                Here&apos;s how you did:
               </p>
               <div className="text-5xl font-bold text-indigo-600 dark:text-indigo-400 mb-2">
                 {score}/{quizState.quizQuestions.length}

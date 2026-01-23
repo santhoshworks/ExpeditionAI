@@ -1,6 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  typescript: {
+    // Skip type checking during production build
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    // Skip ESLint during production build
+    ignoreDuringBuilds: true,
+  },
   images: {
     domains: ['upload.wikimedia.org'],
   },

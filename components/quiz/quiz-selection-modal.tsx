@@ -47,7 +47,7 @@ export function QuizSelectionModal({
             <DialogTitle className="text-xl">Start Quiz</DialogTitle>
           </div>
           <DialogDescription>
-            Test your understanding of the topics discussed in this expedition. Choose how many questions you'd like:
+            Test your understanding of the topics discussed in this expedition. Choose how many questions you&apos;d like:
           </DialogDescription>
         </DialogHeader>
 
