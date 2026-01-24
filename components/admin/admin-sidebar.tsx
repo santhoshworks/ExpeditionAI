@@ -10,7 +10,8 @@ import {
     CreditCard,
     Settings,
     Shield,
-    LogOut
+    LogOut,
+    Mail
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
@@ -19,6 +20,7 @@ import { useRouter } from 'next/navigation'
 const navigation = [
     { name: 'Overview', href: '/admin', icon: LayoutDashboard },
     { name: 'Users', href: '/admin/users', icon: Users },
+    { name: 'Email Subscriptions', href: '/admin/email-subscriptions', icon: Mail },
     { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
     { name: 'Payments', href: '/admin/payments', icon: CreditCard },
     { name: 'Admin Management', href: '/admin/manage', icon: Shield },

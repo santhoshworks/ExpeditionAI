@@ -14,6 +14,7 @@ export async function GET() {
             totalUsersResult,
             activeUsersResult,
             subscriptionsResult,
+            emailSubscriptionsResult,
             revenueResult,
             activityResult
         ] = await Promise.all([
@@ -33,6 +34,12 @@ export async function GET() {
                 .from('user_credits')
                 .select('tier')
                 .neq('tier', 'free'),
+
+            // Email subscriptions
+            supabase
+                .from('email_subscriptions')
+                .select('id, is_active, created_at', { count: 'exact' })
+                .eq('is_active', true),
 
             // Revenue calculation (approximate)
             supabase
@@ -60,6 +67,14 @@ export async function GET() {
             return acc
         }, {} as Record<string, number>) || {}
 
+        // Email subscription metrics
+        const totalEmailSubscriptions = emailSubscriptionsResult.count || 0
+        const recentEmailSubscriptions = emailSubscriptionsResult.data?.filter((sub: any) => {
+            const createdAt = new Date(sub.created_at)
+            const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+            return createdAt >= sevenDaysAgo
+        }).length || 0
+
         const monthlyRevenue = revenueResult.data?.reduce((sum: number, transaction: any) => {
             return sum + (parseFloat(transaction.amount.toString()) * 0.01) // Convert credits to USD
         }, 0) || 0
@@ -75,6 +90,10 @@ export async function GET() {
             totalUsers,
             activeUsers,
             subscriptionBreakdown,
+            emailSubscriptions: {
+                total: totalEmailSubscriptions,
+                recent: recentEmailSubscriptions
+            },
             monthlyRevenue,
             weeklyActivity,
             conversionRate: totalUsers > 0 ? ((subscriptionBreakdown.basic || 0) + (subscriptionBreakdown.pro || 0)) / totalUsers * 100 : 0

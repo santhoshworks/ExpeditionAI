@@ -2,12 +2,16 @@
 
 import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Users, UserCheck, CreditCard, TrendingUp, MessageSquare, Map, Compass } from 'lucide-react'
+import { Users, UserCheck, CreditCard, TrendingUp, MessageSquare, Map, Compass, Mail } from 'lucide-react'
 
 interface OverviewData {
     totalUsers: number
     activeUsers: number
     subscriptionBreakdown: Record<string, number>
+    emailSubscriptions: {
+        total: number
+        recent: number
+    }
     monthlyRevenue: number
     weeklyActivity: {
         messages: number
@@ -42,7 +46,7 @@ export function AdminOverview() {
     if (loading) {
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {[...Array(8)].map((_, i) => (
+                {[...Array(9)].map((_, i) => (
                     <Card key={i} className="animate-pulse">
                         <CardHeader className="pb-2">
                             <div className="h-4 bg-gray-200 rounded w-3/4"></div>
@@ -92,7 +96,20 @@ export function AdminOverview() {
 
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Subscribers</CardTitle>
+                    <CardTitle className="text-sm font-medium">Email Subscribers</CardTitle>
+                    <Mail className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold">{data.emailSubscriptions.total.toLocaleString()}</div>
+                    <p className="text-xs text-muted-foreground">
+                        +{data.emailSubscriptions.recent} this week
+                    </p>
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Paid Subscribers</CardTitle>
                     <CreditCard className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>

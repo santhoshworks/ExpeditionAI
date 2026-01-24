@@ -24,10 +24,13 @@ import {
 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { SITE_CONFIG } from "@/lib/config"
+import { EmailSubscriptionPopup } from "@/components/email-subscription-popup"
+import { useAuth } from "@/hooks/use-auth"
 
 export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const { isLoggedIn } = useAuth()
 
   // Handle scroll effect for navbar
   useEffect(() => {
@@ -452,6 +455,9 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+
+      {/* Email Subscription Popup */}
+      <EmailSubscriptionPopup isLoggedIn={isLoggedIn} />
     </div>
   )
 }

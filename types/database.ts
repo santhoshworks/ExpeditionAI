@@ -162,3 +162,14 @@ export interface LearningAnalyticsSummary {
   }>;
   activity_by_hour: Record<string, number>;
 }
+
+export interface EmailSubscription {
+  id: string;
+  email: string;
+  subscribed_at: string;
+  is_active: boolean;
+  source: string;
+  user_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
