@@ -73,7 +73,7 @@ export function EmptyChatState({ onSuggest, onAction, topicTitle }: EmptyChatSta
                     <BrainCircuit className="w-8 h-8 md:w-10 md:h-10 text-white" />
                 </div>
                 <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight px-2">
-                    Welcome to <span className="text-indigo-600">{topicTitle || "this Expedition"}</span>
+                    Welcome to <span className="text-indigo-600">{topicTitle || "this Exploration"}</span>
                 </h2>
                 <p className="text-sm md:text-lg text-slate-500 dark:text-slate-400 font-medium leading-relaxed max-w-lg mx-auto">
                     Your AI guide is ready to help you master this topic. Choose a path to begin your learning journey.

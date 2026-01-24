@@ -132,7 +132,7 @@ function ProgressCard({ trails, expeditions, messages }: { trails: number; exped
           <span className="text-slate-400 font-semibold text-sm tracking-tight">milestones</span>
         </div>
         <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mt-2">
-          {expeditions} Dives, {messages} Ideas
+          {expeditions} Explorations, {messages} Ideas
         </p>
       </CardContent>
     </Card>

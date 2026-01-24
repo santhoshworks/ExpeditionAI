@@ -1,5 +1,5 @@
 export const SITE_CONFIG = {
-    name: "ExpeditionAI",
+    name: "Explorer AI",
     description: "Next-Gen Visual Learning Platform",
-    url: "https://expeditionai.com",
+    url: "https://explorerai.com",
 } as const;

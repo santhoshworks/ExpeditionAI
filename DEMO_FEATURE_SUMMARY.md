@@ -1,7 +1,7 @@
 # Demo Feature Implementation Summary
 
 ## Overview
-Implemented a simplified, ephemeral demo experience with text highlight exploration feature for ExpeditionAI.
+Implemented a simplified, ephemeral demo experience with text highlight exploration feature for Explorer AI.
 
 ## Features Implemented
 

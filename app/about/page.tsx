@@ -1,35 +1,27 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, Compass, Target, Zap, Users } from "lucide-react"
+import { PublicHeader } from "@/components/layout/public-header"
 
 export default function AboutPage() {
     return (
-        <div className="min-h-screen bg-background">
-            <header className="border-b sticky top-0 bg-background/80 backdrop-blur-md z-10">
-                <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-                    <Link href="/" className="flex items-center gap-2 group">
-                        <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                            <ArrowLeft className="h-4 w-4" />
-                        </div>
-                        <span className="font-semibold">Back to Home</span>
-                    </Link>
-                    <div className="flex items-center gap-2 text-primary font-bold">
-                        <Compass className="h-5 w-5" />
-                        <span>ExplorerAI</span>
-                    </div>
-                </div>
-            </header>
+        <div className="min-h-screen bg-slate-50 text-slate-900 overflow-x-hidden selection:bg-indigo-100 selection:text-indigo-900">
+            {/* Dynamic Background */}
+            <div className="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-indigo-50 via-white to-slate-50" />
+            <div className="fixed inset-0 -z-10 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
+
+            <PublicHeader currentPage="about" />
 
             <main>
                 {/* Hero Section */}
-                <section className="container mx-auto px-4 py-20 text-center space-y-8">
-                    <div className="inline-block p-4 rounded-3xl bg-primary/5 border border-primary/10 mb-4">
-                        <h2 className="text-primary font-semibold tracking-wider text-sm uppercase">Our Mission</h2>
+                <section className="container mx-auto px-6 py-20 text-center space-y-8 pt-32">
+                    <div className="inline-block p-4 rounded-3xl bg-indigo-500/5 border border-indigo-500/10 mb-4">
+                        <h2 className="text-indigo-600 font-semibold tracking-wider text-sm uppercase">Our Mission</h2>
                     </div>
-                    <h1 className="text-5xl font-extrabold tracking-tight sm:text-7xl max-w-4xl mx-auto leading-tight">
-                        Mapping the <span className="text-primary italic">human curiosity</span> path.
+                    <h1 className="text-5xl font-extrabold tracking-tight sm:text-7xl max-w-4xl mx-auto leading-tight text-slate-900">
+                        Mapping the <span className="text-indigo-600 italic">human curiosity</span> path.
                     </h1>
-                    <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+                    <p className="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
                         We believe that learning shouldn&apos;t be a linear list of search results.
                         It&apos;s a branching journey of discovery, where one concept naturally leads to another.
                     </p>

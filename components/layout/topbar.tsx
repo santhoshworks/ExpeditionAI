@@ -16,7 +16,7 @@ export function Topbar() {
         if (pathname === "/dashboard") return "Your Dashboard"
         if (pathname === "/wishlist") return "Learning Wishlist"
         if (pathname.includes("/expedition/")) {
-            return currentExpedition?.title || "Loading Expedition..."
+            return currentExpedition?.title || "Loading Exploration..."
         }
         if (pathname === "/settings") return "Settings"
         return SITE_CONFIG.name

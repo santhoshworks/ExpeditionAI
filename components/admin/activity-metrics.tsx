@@ -152,7 +152,7 @@ export function ActivityMetrics() {
                         </div>
 
                         <div className="flex justify-between items-center">
-                            <span className="text-sm font-medium">Expeditions</span>
+                            <span className="text-sm font-medium">Explorations</span>
                             <div className="text-right">
                                 <div className="font-bold">{metrics.weeklyTrends.expeditions.current.toLocaleString()}</div>
                                 <div className={`text-xs ${getChangeColor(metrics.weeklyTrends.expeditions.change)}`}>

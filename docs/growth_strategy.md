@@ -1,7 +1,7 @@
-# ExpeditionAI: Growth & Feature Strategy
+# Explorer AI: Growth & Feature Strategy
 
 ## Executive Summary
-This document outlines a strategy to increase user traffic for ExpeditionAI. Based on an analysis of the current product (visual knowledge mapping) and the competitive landscape, the primary driver for growth should be **viral content loops** and **SEO-driven public assets**.
+This document outlines a strategy to increase user traffic for Explorer AI. Based on an analysis of the current product (visual knowledge mapping) and the competitive landscape, the primary driver for growth should be **viral content loops** and **SEO-driven public assets**.
 
 The "Do Not Implement" constraint is acknowledged; these are purely strategic recommendations.
 
@@ -9,7 +9,7 @@ The "Do Not Implement" constraint is acknowledged; these are purely strategic re
 
 The "AI Knowledge Mapping" space is splitting into two categories: **Study Tools** (Student focus) and **Research/Thinking Tools** (Prosumer focus).
 
-| Competitor | Primary Focus | Key Viral/Growth Feature | Gap vs ExpeditionAI |
+| Competitor | Primary Focus | Key Viral/Growth Feature | Gap vs Explorer AI |
 | :--- | :--- | :--- | :--- |
 | **Algor Education** | Student / Learning | Auto-generate maps from huge texts/photos. | Strong on generic "study", weak on "deep research" connection. |
 | **Mapify / ChatMap** | Content Summarization | **YouTube-to-Map**. This is their killer viral feature. | Very transient (one-off maps), less "knowledge base" building. |
@@ -18,7 +18,7 @@ The "AI Knowledge Mapping" space is splitting into two categories: **Study Tools
 | **Perplexity** | Answer Engine | "Share this thread". Clean, readable answers. | Linear text outcome, not spatial/conceptual. |
 
 ### 🔍 Key Takeaway
-ExpeditionAI sits uniquely between **Mapify** (Auto-gen magic) and **Heptabase** (Deep visual organization). To grow, we need to lean into the "Auto-gen" side for top-of-funnel traffic, then convert them to the "Deep visual" side for retention.
+Explorer AI sits uniquely between **Mapify** (Auto-gen magic) and **Heptabase** (Deep visual organization). To grow, we need to lean into the "Auto-gen" side for top-of-funnel traffic, then convert them to the "Deep visual" side for retention.
 
 ---
 
@@ -50,14 +50,14 @@ To get traffic, you need features that exist *outside* the authenticated wall or
 *   **Feature:** **"Challenge a Friend" Quiz Mode.**
     *   Current State: You have "Quiz Me".
     *   Upgrade: After a quiz, simple button: "I scored 80%. Challenge a friend."
-    *   Result: Friend clicks link -> Lands on ExpeditionAI -> Takes Quiz -> Signs up to see full results or create their own.
+    *   Result: Friend clicks link -> Lands on Explorer AI -> Takes Quiz -> Signs up to see full results or create their own.
 
 ### D. The "Embed" Strategy
 *   **Concept:** Backlinks and brand awareness.
 *   **Feature:** **Embeddable Maps.**
-    *   Allow bloggers/writers to embed an ExpeditionAI map into their Substack/Medium/Blog.
+    *   Allow bloggers/writers to embed an Explorer AI map into their Substack/Medium/Blog.
     *   "Explore this interactive map of my article."
-    *   Includes a "Powered by ExpeditionAI" button.
+    *   Includes a "Powered by Explorer AI" button.
 
 ---
 

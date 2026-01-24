@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Check, Zap, Star, Sparkles } from "lucide-react"
 import { TIER_CONFIGS, MODELS } from "@/lib/constants"
 import { CheckoutButton } from "@/components/payment/checkout-button"
+import { PublicHeader } from "@/components/layout/public-header"
 
 export default function PricingPage() {
   // Group models by tier for display
@@ -12,29 +13,18 @@ export default function PricingPage() {
   const proModels = MODELS.filter(m => m.tier === 'pro')
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
-      {/* Header */}
-      <header className="border-b">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="text-2xl">🧭</span>
-            <span className="text-lg md:text-xl font-bold">ExplorerAI</span>
-          </Link>
-          <div className="flex gap-2 md:gap-4">
-            <Link href="/login">
-              <Button variant="ghost" size="sm" className="text-sm">Login</Button>
-            </Link>
-            <Link href="/signup">
-              <Button size="sm" className="text-sm">Get Started</Button>
-            </Link>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-slate-50 text-slate-900 overflow-x-hidden selection:bg-indigo-100 selection:text-indigo-900">
+      {/* Dynamic Background */}
+      <div className="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-indigo-50 via-white to-slate-50" />
+      <div className="fixed inset-0 -z-10 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
 
-      <div className="container mx-auto px-4 py-12 md:py-20">
+      {/* Header */}
+      <PublicHeader currentPage="pricing" />
+
+      <div className="container mx-auto px-6 py-12 md:py-20 pt-32">
         <div className="text-center mb-8 md:mb-12">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4">Simple, Credit-Based Pricing</h1>
-          <p className="text-lg md:text-xl text-muted-foreground">
+          <h1 className="text-3xl md:text-4xl font-bold mb-4 text-slate-900">Simple, Credit-Based Pricing</h1>
+          <p className="text-lg md:text-xl text-slate-600">
             Pay only for what you use. No subscriptions required.
           </p>
         </div>
@@ -265,7 +255,7 @@ export default function PricingPage() {
         </div>
 
         <div className="mt-8 md:mt-12 text-center text-muted-foreground">
-          <p className="text-sm">Questions? Email us at support@expeditionai.com</p>
+          <p className="text-sm">Questions? Email us at support@explorerai.com</p>
         </div>
       </div>
     </div>

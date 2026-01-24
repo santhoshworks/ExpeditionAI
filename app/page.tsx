@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { CTAButton } from "@/components/ui/cta-button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -13,33 +12,19 @@ import {
   Sparkles,
   Brain,
   ArrowRight,
-  CheckCircle2,
-  Menu,
-  X,
   Search,
   Cpu,
   Layers,
   FileText,
   Zap
 } from "lucide-react"
-import { useState, useEffect } from "react"
 import { SITE_CONFIG } from "@/lib/config"
 import { EmailSubscriptionPopup } from "@/components/email-subscription-popup"
 import { useAuth } from "@/hooks/use-auth"
+import { PublicHeader } from "@/components/layout/public-header"
 
 export default function LandingPage() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
   const { isLoggedIn } = useAuth()
-
-  // Handle scroll effect for navbar
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20)
-    }
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 overflow-x-hidden selection:bg-indigo-100 selection:text-indigo-900">
@@ -48,74 +33,7 @@ export default function LandingPage() {
       <div className="fixed inset-0 -z-10 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
 
       {/* Navigation */}
-      <header
-        className={`fixed top-0 w-full z-50 transition-all duration-300 overflow-hidden ${scrolled
-          ? "bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-800/50 py-3 shadow-sm"
-          : "bg-gradient-to-r from-white/80 via-white/90 to-white/80 dark:from-slate-950/80 dark:via-slate-950/90 dark:to-slate-950/80 backdrop-blur-xl py-5"
-          }`}
-      >
-        {/* Subtle background pattern - only visible when not scrolled */}
-        {!scrolled && (
-          <>
-            <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/5 via-transparent to-violet-500/5 opacity-50" />
-            <div className="absolute inset-0 bg-journal-pattern opacity-20" />
-          </>
-        )}
-        <div className="container mx-auto px-6 flex items-center justify-between relative z-10">
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="bg-indigo-600 p-2 rounded-xl shadow-lg shadow-indigo-200 group-hover:scale-110 transition-transform duration-300">
-              <Network className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-slate-100 dark:to-slate-400">
-              {SITE_CONFIG.name}
-            </span>
-          </Link>
-
-          <nav className="hidden md:flex items-center gap-10 text-sm font-semibold text-slate-600 dark:text-slate-400">
-            <Link href="#features" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Features</Link>
-            <Link href="#methodology" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Methodology</Link>
-            <Link href="/pricing" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Pricing</Link>
-            <Link href="/blog" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Resources</Link>
-          </nav>
-
-          <div className="flex items-center gap-4">
-            <Link href="/login" className="hidden sm:block">
-              <CTAButton variant="ghost" size="default">
-                Sign in
-              </CTAButton>
-            </Link>
-            <Link href="/signup">
-              <CTAButton variant="primary" size="default" className="px-6">
-                Get Started
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </CTAButton>
-            </Link>
-
-            <Button
-              variant="ghost"
-              size="icon"
-              className="md:hidden text-slate-600 dark:text-slate-400"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </Button>
-          </div>
-        </div>
-
-        {/* Mobile Menu */}
-        <div className={`md:hidden absolute top-full left-0 w-full bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl border-b border-slate-100 dark:border-slate-800 shadow-lg transition-all duration-300 ease-in-out overflow-hidden ${mobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"}`}>
-          {/* Background pattern for mobile menu */}
-          <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/3 via-transparent to-violet-500/3 opacity-50" />
-          <div className="absolute inset-0 bg-journal-pattern opacity-10" />
-          <nav className="container mx-auto px-6 py-8 flex flex-col gap-6 relative z-10">
-            <Link href="#features" className="text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400" onClick={() => setMobileMenuOpen(false)}>Features</Link>
-            <Link href="#methodology" className="text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400" onClick={() => setMobileMenuOpen(false)}>Methodology</Link>
-            <Link href="/pricing" className="text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400" onClick={() => setMobileMenuOpen(false)}>Pricing</Link>
-            <Link href="/login" className="text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400" onClick={() => setMobileMenuOpen(false)}>Sign in</Link>
-            <Button className="w-full rounded-xl bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-500 h-12 text-lg font-bold">Start Learning</Button>
-          </nav>
-        </div>
-      </header>
+      <PublicHeader currentPage="home" />
 
       <main>
         {/* Hero Section */}
@@ -135,7 +53,7 @@ export default function LandingPage() {
               </h1>
 
               <p className="text-base md:text-xl text-slate-500 max-w-3xl leading-relaxed font-medium">
-                ExpeditionAI transforms overwhelming information into a beautiful, interactive knowledge map. Visualize connections, deep-dive with AI, and master complex subjects in record time.
+                Explorer AI transforms overwhelming information into a beautiful, interactive knowledge map. Visualize connections, deep-dive with AI, and master complex subjects in record time.
               </p>
 
               <div className="flex flex-col sm:flex-row items-center gap-5 pt-4">
@@ -243,7 +161,7 @@ export default function LandingPage() {
                     </div>
                     <h4 className="text-3xl font-bold tracking-tight">Automated Study Journaling</h4>
                     <p className="text-slate-400 text-lg leading-relaxed">
-                      ExpeditionAI synthesizes your entire learning session into a structured, exportable journal. No more messy notes.
+                      Explorer AI synthesizes your entire learning session into a structured, exportable journal. No more messy notes.
                     </p>
                   </div>
                   <div className="pt-10 flex items-center gap-4 text-indigo-400 font-bold group-hover:gap-6 transition-all">
@@ -385,7 +303,7 @@ export default function LandingPage() {
                 Ready to transform the way you <span className="text-indigo-600 underline underline-offset-8 decoration-indigo-200">learn</span>?
               </h2>
               <p className="text-xl md:text-2xl text-slate-500 font-medium">
-                Join 10,000+ students and researchers mapping their minds with ExpeditionAI.
+                Join 10,000+ students and researchers mapping their minds with Explorer AI.
               </p>
               <div className="flex flex-col sm:flex-row justify-center items-center gap-6 pt-6">
                 <Link href="/signup">

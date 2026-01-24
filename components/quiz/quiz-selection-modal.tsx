@@ -47,7 +47,7 @@ export function QuizSelectionModal({
             <DialogTitle className="text-xl">Start Quiz</DialogTitle>
           </div>
           <DialogDescription>
-            Test your understanding of the topics discussed in this expedition. Choose how many questions you&apos;d like:
+            Test your understanding of the topics discussed in this exploration. Choose how many questions you&apos;d like:
           </DialogDescription>
         </DialogHeader>
 
@@ -56,11 +56,10 @@ export function QuizSelectionModal({
             <button
               key={option.count}
               onClick={() => setSelected(option.count)}
-              className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
-                selected === option.count
+              className={`w-full text-left p-4 rounded-lg border-2 transition-all ${selected === option.count
                   ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-950/50"
                   : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
-              }`}
+                }`}
             >
               <div className="flex items-center justify-between">
                 <div>
