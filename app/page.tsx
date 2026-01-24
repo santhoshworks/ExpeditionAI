@@ -49,12 +49,19 @@ export default function LandingPage() {
 
       {/* Navigation */}
       <header
-        className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled
+        className={`fixed top-0 w-full z-50 transition-all duration-300 overflow-hidden ${scrolled
           ? "bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-800/50 py-3 shadow-sm"
-          : "bg-transparent py-5"
+          : "bg-gradient-to-r from-white/80 via-white/90 to-white/80 dark:from-slate-950/80 dark:via-slate-950/90 dark:to-slate-950/80 backdrop-blur-xl py-5"
           }`}
       >
-        <div className="container mx-auto px-6 flex items-center justify-between">
+        {/* Subtle background pattern - only visible when not scrolled */}
+        {!scrolled && (
+          <>
+            <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/5 via-transparent to-violet-500/5 opacity-50" />
+            <div className="absolute inset-0 bg-journal-pattern opacity-20" />
+          </>
+        )}
+        <div className="container mx-auto px-6 flex items-center justify-between relative z-10">
           <Link href="/" className="flex items-center gap-2.5 group">
             <div className="bg-indigo-600 p-2 rounded-xl shadow-lg shadow-indigo-200 group-hover:scale-110 transition-transform duration-300">
               <Network className="w-5 h-5 text-white" />
@@ -96,8 +103,11 @@ export default function LandingPage() {
         </div>
 
         {/* Mobile Menu */}
-        <div className={`md:hidden absolute top-full left-0 w-full bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl border-b border-slate-100 dark:border-slate-800 shadow-lg transition-all duration-300 ease-in-out ${mobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"}`}>
-          <nav className="container mx-auto px-6 py-8 flex flex-col gap-6">
+        <div className={`md:hidden absolute top-full left-0 w-full bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl border-b border-slate-100 dark:border-slate-800 shadow-lg transition-all duration-300 ease-in-out overflow-hidden ${mobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"}`}>
+          {/* Background pattern for mobile menu */}
+          <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/3 via-transparent to-violet-500/3 opacity-50" />
+          <div className="absolute inset-0 bg-journal-pattern opacity-10" />
+          <nav className="container mx-auto px-6 py-8 flex flex-col gap-6 relative z-10">
             <Link href="#features" className="text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400" onClick={() => setMobileMenuOpen(false)}>Features</Link>
             <Link href="#methodology" className="text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400" onClick={() => setMobileMenuOpen(false)}>Methodology</Link>
             <Link href="/pricing" className="text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400" onClick={() => setMobileMenuOpen(false)}>Pricing</Link>
