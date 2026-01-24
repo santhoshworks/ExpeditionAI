@@ -35,7 +35,7 @@ export default function AboutPage() {
                         </div>
                         <h3 className="text-2xl font-bold">Focus on Discovery</h3>
                         <p className="text-muted-foreground leading-relaxed">
-                            We built ExplorerAI to solve the &quot;tab overload&quot; problem. Instead of 20 open tabs,
+                            We built ThoughtMap to solve the &quot;tab overload&quot; problem. Instead of 20 open tabs,
                             you have one visual map of your thought process.
                         </p>
                     </div>
@@ -67,7 +67,7 @@ export default function AboutPage() {
                         <h2 className="text-3xl font-bold">The Story</h2>
                         <div className="space-y-6 text-lg text-muted-foreground leading-relaxed">
                             <p>
-                                ExplorerAI started as a weekend experiment to visualize Wikipedia rabbit holes.
+                                ThoughtMap started as a weekend experiment to visualize Wikipedia rabbit holes.
                                 We realized that LLMs are incredible at explaining things, but they often
                                 &quot;forget&quot; the context of how we got to a specific question.
                             </p>
@@ -77,7 +77,7 @@ export default function AboutPage() {
                                 and felt more in control of their learning journey.
                             </p>
                             <p>
-                                Today, ExplorerAI is used by researchers, students, and curious minds
+                                Today, ThoughtMap is used by researchers, students, and curious minds
                                 all over the world to map their path through the vast ocean of human knowledge.
                             </p>
                         </div>
@@ -102,7 +102,7 @@ export default function AboutPage() {
 
             <footer className="border-t py-12">
                 <div className="container mx-auto px-4 text-center text-muted-foreground">
-                    <p>© 2026 ExplorerAI. Designed for the curious.</p>
+                    <p>© 2026 ThoughtMap. Designed for the curious.</p>
                 </div>
             </footer>
         </div>

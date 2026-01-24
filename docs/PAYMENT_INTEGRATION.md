@@ -1,6 +1,6 @@
 # Dodo Payment Integration
 
-This document outlines the complete Dodo payment integration implementation for ExplorerAI.
+This document outlines the complete Dodo payment integration implementation for ThoughtMap.
 
 ## Overview
 

@@ -1,6 +1,6 @@
-# ExplorerAI - Branching AI Learning Tool
+# ThoughtMap - Branching AI Learning Tool
 
-ExplorerAI is a modern web application that enables interactive learning through branching conversations. Start learning expeditions on any topic, branch into new trails when encountering interesting concepts, and visualize your learning journey.
+ThoughtMap is a modern web application that enables interactive learning through branching conversations. Start learning expeditions on any topic, branch into new trails when encountering interesting concepts, and visualize your learning journey.
 
 ## Features
 

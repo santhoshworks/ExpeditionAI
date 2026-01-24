@@ -1,6 +1,6 @@
-# ExplorerAI - Setup Guide
+# ThoughtMap - Setup Guide
 
-This guide will help you set up and run ExplorerAI on your local machine.
+This guide will help you set up and run ThoughtMap on your local machine.
 
 ## Prerequisites
 

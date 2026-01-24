@@ -150,7 +150,7 @@ Ready to transform how you study? Try these steps:
 4. Answer those questions without looking
 5. Identify gaps and review only those areas
 
-**Want to make active learning automatic?** Try Explore - the AI-powered learning platform that turns any topic into an interactive question trail. Get started free at [ExplorerAI](/signup)
+**Want to make active learning automatic?** Try ThoughtMap - the AI-powered learning platform that turns any topic into an interactive question trail. Get started free at [ThoughtMap](/signup)
 
 ---
 

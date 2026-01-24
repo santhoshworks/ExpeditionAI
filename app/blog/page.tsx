@@ -6,7 +6,7 @@ import { getAllBlogPosts } from "@/content/blog"
 import { PublicHeader } from "@/components/layout/public-header"
 
 export const metadata = {
-  title: "Blog | Explorer AI",
+  title: "Blog | ThoughtMap",
   description: "Insights on learning science, study techniques, and how AI is transforming education.",
 }
 
@@ -87,7 +87,7 @@ export default function BlogPage() {
           <div className="bg-gradient-to-br from-indigo-500/10 to-indigo-500/5 rounded-3xl p-12 text-center border border-indigo-100">
             <h2 className="text-3xl font-bold mb-4 text-slate-900">Ready to transform your learning?</h2>
             <p className="text-slate-600 mb-8 max-w-2xl mx-auto">
-              Put these learning science principles into practice with Explorer AI - the AI-powered platform that makes active learning effortless.
+              Put these learning science principles into practice with ThoughtMap - the AI-powered platform that makes active learning effortless.
             </p>
             <Link href="/signup">
               <Button size="lg" className="rounded-full px-8 bg-indigo-600 hover:bg-indigo-700">
@@ -107,14 +107,14 @@ export default function BlogPage() {
               <div className="bg-indigo-600 p-2 rounded-xl">
                 <Network className="w-4 h-4 text-white" />
               </div>
-              <span className="font-semibold text-white">Explorer AI</span>
+              <span className="font-semibold text-white">ThoughtMap</span>
             </div>
             <div className="flex gap-6">
               <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
               <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
               <Link href="/blog" className="hover:text-white transition-colors">Blog</Link>
             </div>
-            <p>© 2026 Explorer AI Inc. All rights reserved.</p>
+            <p>© 2026 ThoughtMap Inc. All rights reserved.</p>
           </div>
         </div>
       </footer>

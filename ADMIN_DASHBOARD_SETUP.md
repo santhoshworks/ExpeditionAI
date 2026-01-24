@@ -2,7 +2,7 @@
 
 ## Overview
 
-The admin dashboard provides comprehensive analytics and user management capabilities for your ExplorerAI learning platform. It uses a **database-driven admin system** for secure and scalable admin user management.
+The admin dashboard provides comprehensive analytics and user management capabilities for your ThoughtMap learning platform. It uses a **database-driven admin system** for secure and scalable admin user management.
 
 ## Features
 

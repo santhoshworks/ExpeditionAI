@@ -53,7 +53,7 @@ export default function LandingPage() {
               </h1>
 
               <p className="text-base md:text-xl text-slate-500 max-w-3xl leading-relaxed font-medium">
-                Explorer AI transforms overwhelming information into a beautiful, interactive knowledge map. Visualize connections, deep-dive with AI, and master complex subjects in record time.
+                ThoughtMap transforms overwhelming information into a beautiful, interactive knowledge map. Visualize connections, deep-dive with AI, and master complex subjects in record time.
               </p>
 
               <div className="flex flex-col sm:flex-row items-center gap-5 pt-4">
@@ -161,7 +161,7 @@ export default function LandingPage() {
                     </div>
                     <h4 className="text-3xl font-bold tracking-tight">Automated Study Journaling</h4>
                     <p className="text-slate-400 text-lg leading-relaxed">
-                      Explorer AI synthesizes your entire learning session into a structured, exportable journal. No more messy notes.
+                      ThoughtMap synthesizes your entire learning session into a structured, exportable journal. No more messy notes.
                     </p>
                   </div>
                   <div className="pt-10 flex items-center gap-4 text-indigo-400 font-bold group-hover:gap-6 transition-all">
@@ -303,7 +303,7 @@ export default function LandingPage() {
                 Ready to transform the way you <span className="text-indigo-600 underline underline-offset-8 decoration-indigo-200">learn</span>?
               </h2>
               <p className="text-xl md:text-2xl text-slate-500 font-medium">
-                Join 10,000+ students and researchers mapping their minds with Explorer AI.
+                Join 10,000+ students and researchers mapping their minds with ThoughtMap.
               </p>
               <div className="flex flex-col sm:flex-row justify-center items-center gap-6 pt-6">
                 <Link href="/signup">

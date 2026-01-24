@@ -52,11 +52,11 @@ export default function DemoPage() {
                                 <Sparkles className="w-5 h-5 text-white" />
                             </div>
                             <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-slate-100 dark:to-slate-400">
-                                Explorer AI
+                                ThoughtMap
                             </span>
                         </Link>
                         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight mb-6">
-                            Try Explorer AI Free
+                            Try ThoughtMap Free
                         </h1>
                         <p className="text-lg md:text-xl text-slate-500 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed font-medium">
                             Experience AI-powered learning. Choose a topic and start chatting!
@@ -71,7 +71,7 @@ export default function DemoPage() {
                                 Demo Mode - Data Not Saved
                             </p>
                             <p className="text-sm text-amber-700 dark:text-amber-400">
-                                You get 10 messages to try out Explorer AI. Progress resets when you leave. Sign up to save your learning journey!
+                                You get 10 messages to try out ThoughtMap. Progress resets when you leave. Sign up to save your learning journey!
                             </p>
                         </div>
                     </div>

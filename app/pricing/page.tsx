@@ -255,7 +255,7 @@ export default function PricingPage() {
         </div>
 
         <div className="mt-8 md:mt-12 text-center text-muted-foreground">
-          <p className="text-sm">Questions? Email us at support@explorerai.com</p>
+          <p className="text-sm">Questions? Email us at support@thoughtmap.space</p>
         </div>
       </div>
     </div>

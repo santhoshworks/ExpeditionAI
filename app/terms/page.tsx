@@ -32,7 +32,7 @@ export default function TermsPage() {
                     <section>
                         <h2 className="text-2xl font-semibold mb-4">1. Acceptance of Terms</h2>
                         <p className="text-muted-foreground leading-relaxed">
-                            By accessing, browsing, or using ExplorerAI (&quot;Service&quot;, &quot;Platform&quot;, &quot;we&quot;, &quot;us&quot;, or &quot;our&quot;), you (&quot;User&quot;, &quot;you&quot;, or &quot;your&quot;) acknowledge that you have read, understood, and agree to be bound by these Terms of Service (&quot;Terms&quot;) and our Privacy Policy. These Terms constitute a legally binding agreement between you and ExplorerAI Technologies Inc. If you do not agree to these Terms, you must not access or use our Service.
+                            By accessing, browsing, or using ThoughtMap (&quot;Service&quot;, &quot;Platform&quot;, &quot;we&quot;, &quot;us&quot;, or &quot;our&quot;), you (&quot;User&quot;, &quot;you&quot;, or &quot;your&quot;) acknowledge that you have read, understood, and agree to be bound by these Terms of Service (&quot;Terms&quot;) and our Privacy Policy. These Terms constitute a legally binding agreement between you and ThoughtMap Technologies Inc. If you do not agree to these Terms, you must not access or use our Service.
                         </p>
                         <p className="text-muted-foreground leading-relaxed mt-4">
                             These Terms apply to all users, including visitors, registered users, subscribers, and any other persons who access or use the Service in any manner.
@@ -67,7 +67,7 @@ export default function TermsPage() {
                         <h2 className="text-2xl font-semibold mb-4">3. Acceptable Use Policy</h2>
                         <div className="space-y-4">
                             <p className="text-muted-foreground leading-relaxed">
-                                ExplorerAI is an AI-powered learning platform designed for educational and research purposes. You agree to use the Service responsibly and in compliance with all applicable laws and regulations.
+                                ThoughtMap is an AI-powered learning platform designed for educational and research purposes. You agree to use the Service responsibly and in compliance with all applicable laws and regulations.
                             </p>
                             <div>
                                 <h3 className="text-lg font-semibold mb-2">3.1 Prohibited Uses</h3>
@@ -132,7 +132,7 @@ export default function TermsPage() {
                             <div>
                                 <h3 className="text-lg font-semibold mb-2">5.1 Our Intellectual Property</h3>
                                 <p className="text-muted-foreground leading-relaxed">
-                                    The Service, including its software, algorithms, user interface, design, trademarks, logos, and all related intellectual property, is owned by ExplorerAI Technologies Inc. and protected by copyright, trademark, and other intellectual property laws.
+                                    The Service, including its software, algorithms, user interface, design, trademarks, logos, and all related intellectual property, is owned by ThoughtMap Technologies Inc. and protected by copyright, trademark, and other intellectual property laws.
                                 </p>
                             </div>
                             <div>
@@ -208,7 +208,7 @@ export default function TermsPage() {
                             <div>
                                 <h3 className="text-lg font-semibold mb-2">9.2 Limitation of Liability</h3>
                                 <p className="text-muted-foreground leading-relaxed">
-                                    TO THE MAXIMUM EXTENT PERMITTED BY LAW, IN NO EVENT SHALL EXPLORERAI, ITS OFFICERS, DIRECTORS, EMPLOYEES, OR AGENTS BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING BUT NOT LIMITED TO LOSS OF PROFITS, DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES, ARISING OUT OF OR RELATING TO YOUR USE OF THE SERVICE.
+                                    TO THE MAXIMUM EXTENT PERMITTED BY LAW, IN NO EVENT SHALL THOUGHTMAP, ITS OFFICERS, DIRECTORS, EMPLOYEES, OR AGENTS BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING BUT NOT LIMITED TO LOSS OF PROFITS, DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES, ARISING OUT OF OR RELATING TO YOUR USE OF THE SERVICE.
                                 </p>
                             </div>
                             <div>
@@ -223,14 +223,14 @@ export default function TermsPage() {
                     <section>
                         <h2 className="text-2xl font-semibold mb-4">10. Indemnification</h2>
                         <p className="text-muted-foreground leading-relaxed">
-                            You agree to indemnify, defend, and hold harmless ExplorerAI and its officers, directors, employees, and agents from and against any claims, liabilities, damages, losses, and expenses arising out of or in any way connected with your use of the Service, your violation of these Terms, or your violation of any rights of another party.
+                            You agree to indemnify, defend, and hold harmless ThoughtMap and its officers, directors, employees, and agents from and against any claims, liabilities, damages, losses, and expenses arising out of or in any way connected with your use of the Service, your violation of these Terms, or your violation of any rights of another party.
                         </p>
                     </section>
 
                     <section className="bg-amber-50 dark:bg-amber-950/20 p-6 rounded-2xl border border-amber-200 dark:border-amber-900">
                         <h3 className="text-lg font-semibold mb-2 text-amber-800 dark:text-amber-400">AI Content Disclaimer</h3>
                         <p className="text-sm text-amber-700 dark:text-amber-300 mb-3">
-                            <strong>Important Notice:</strong> ExplorerAI utilizes Large Language Models and AI technologies that may occasionally produce inaccurate, biased, incomplete, or fabricated information (&quot;hallucinations&quot;).
+                            <strong>Important Notice:</strong> ThoughtMap utilizes Large Language Models and AI technologies that may occasionally produce inaccurate, biased, incomplete, or fabricated information (&quot;hallucinations&quot;).
                         </p>
                         <ul className="text-sm text-amber-700 dark:text-amber-300 space-y-1 list-disc pl-4">
                             <li>AI-generated content should be used for educational and informational purposes only</li>
@@ -295,7 +295,7 @@ export default function TermsPage() {
                             <div>
                                 <h3 className="text-lg font-semibold mb-2">14.1 Entire Agreement</h3>
                                 <p className="text-muted-foreground leading-relaxed">
-                                    These Terms, together with our Privacy Policy, constitute the entire agreement between you and ExplorerAI regarding the Service.
+                                    These Terms, together with our Privacy Policy, constitute the entire agreement between you and ThoughtMap regarding the Service.
                                 </p>
                             </div>
                             <div>
@@ -307,7 +307,7 @@ export default function TermsPage() {
                             <div>
                                 <h3 className="text-lg font-semibold mb-2">14.3 Contact Information</h3>
                                 <p className="text-muted-foreground leading-relaxed">
-                                    For questions about these Terms, please contact us at legal@explorerai.com or through our support channels.
+                                    For questions about these Terms, please contact us at legal@thoughtmap.space or through our support channels.
                                 </p>
                             </div>
                         </div>

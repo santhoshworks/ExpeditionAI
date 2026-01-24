@@ -1,7 +1,7 @@
 # Demo Feature Implementation Summary
 
 ## Overview
-Implemented a simplified, ephemeral demo experience with text highlight exploration feature for Explorer AI.
+Implemented a simplified, ephemeral demo experience with text highlight exploration feature for ThoughtMap.
 
 ## Features Implemented
 

@@ -1,5 +1,5 @@
 export const SITE_CONFIG = {
-    name: "Explorer AI",
-    description: "Next-Gen Visual Learning Platform",
-    url: "https://explorerai.com",
+    name: "ThoughtMap",
+    description: "A space for structured thinking.",
+    url: "https://thoughtmap.space",
 } as const;

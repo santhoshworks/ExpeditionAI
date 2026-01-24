@@ -42,18 +42,10 @@ export function TrailList({
             onClick={() => onTrailSelect(trail.id)}
           >
             <div className="flex-1 min-w-0">
-              <div className="scroll-text-container">
-                <div className="scroll-text-content">
-                  <span className="font-medium inline-block" title={trail.title}>
-                    {trail.title}
-                  </span>
-                  {/* Duplicate text for seamless scrolling when text is long */}
-                  {trail.title.length > 25 && (
-                    <span className="font-medium inline-block ml-8">
-                      {trail.title}
-                    </span>
-                  )}
-                </div>
+              <div className="truncate">
+                <span className="font-medium" title={trail.title}>
+                  {trail.title}
+                </span>
               </div>
               <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
                 <span className="flex items-center gap-1">

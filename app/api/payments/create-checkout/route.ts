@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
             currency: 'USD',
             customer_email: user.email,
             customer_id: user.id,
-            product_name: `ExplorerAI ${tierConfig.name} Plan`,
+            product_name: `ThoughtMap ${tierConfig.name} Plan`,
             product_description: `${tierConfig.credits} credits + ${tierConfig.bonusCredits} bonus credits`,
             success_url: `${process.env.NEXT_PUBLIC_APP_URL}/payment/success?tier=${tier}`,
             cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/pricing`,

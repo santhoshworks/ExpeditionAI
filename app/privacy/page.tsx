@@ -32,7 +32,7 @@ export default function PrivacyPage() {
                     <section>
                         <h2 className="text-2xl font-semibold mb-4">1. Introduction</h2>
                         <p className="text-muted-foreground leading-relaxed">
-                            ExplorerAI Technologies Inc. (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;, or &quot;ExplorerAI&quot;) is committed to protecting your privacy and personal information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our AI-powered learning platform and related services (collectively, the &quot;Service&quot;).
+                            ThoughtMap Technologies Inc. (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;, or &quot;ThoughtMap&quot;) is committed to protecting your privacy and personal information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our AI-powered learning platform and related services (collectively, the &quot;Service&quot;).
                         </p>
                         <p className="text-muted-foreground leading-relaxed mt-4">
                             This Privacy Policy applies to all users of our Service and should be read in conjunction with our Terms of Service. By using our Service, you consent to the data practices described in this policy.
@@ -246,7 +246,7 @@ export default function PrivacyPage() {
                             <div>
                                 <h3 className="text-lg font-semibold mb-2">7.5 Exercising Your Rights</h3>
                                 <p className="text-muted-foreground leading-relaxed">
-                                    To exercise these rights, contact us at privacy@explorerai.com or use the privacy controls in your account settings. We will respond to your request within 30 days.
+                                    To exercise these rights, contact us at privacy@thoughtmap.space or use the privacy controls in your account settings. We will respond to your request within 30 days.
                                 </p>
                             </div>
                         </div>
@@ -318,7 +318,7 @@ export default function PrivacyPage() {
                                 <li>Right to non-discrimination for exercising your privacy rights</li>
                             </ul>
                             <p className="text-muted-foreground leading-relaxed mt-4">
-                                To exercise these rights, contact us at privacy@explorerai.com with &quot;California Privacy Request&quot; in the subject line.
+                                To exercise these rights, contact us at privacy@thoughtmap.space with &quot;California Privacy Request&quot; in the subject line.
                             </p>
                         </div>
                     </section>
@@ -358,7 +358,7 @@ export default function PrivacyPage() {
                                 If you have any questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us:
                             </p>
                             <div className="bg-muted p-4 rounded-lg">
-                                <p className="text-muted-foreground"><strong>Email:</strong> privacy@explorerai.com</p>
+                                <p className="text-muted-foreground"><strong>Email:</strong> privacy@thoughtmap.space</p>
                                 <p className="text-muted-foreground"><strong>Subject Line:</strong> Privacy Policy Inquiry</p>
                                 <p className="text-muted-foreground"><strong>Response Time:</strong> We will respond within 30 days</p>
                             </div>

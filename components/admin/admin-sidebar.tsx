@@ -41,7 +41,7 @@ export function AdminSidebar() {
         <div className="flex flex-col w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-center h-16 px-4 border-b border-gray-200 dark:border-gray-700">
                 <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                    ExplorerAI Admin
+                    ThoughtMap Admin
                 </h1>
             </div>
 

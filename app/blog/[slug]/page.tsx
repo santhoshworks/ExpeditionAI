@@ -24,12 +24,12 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
 
   if (!post) {
     return {
-      title: "Post Not Found | ExplorerAI",
+      title: "Post Not Found | ThoughtMap",
     }
   }
 
   return {
-    title: `${post.title} | ExplorerAI Blog`,
+    title: `${post.title} | ThoughtMap Blog`,
     description: post.meta_description,
     keywords: post.keywords,
     authors: [{ name: post.author }],
@@ -60,7 +60,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             <div className="bg-primary/10 p-2 rounded-lg group-hover:bg-primary/20 transition-colors">
               <Network className="w-5 h-5 text-primary" />
             </div>
-            <span className="text-xl font-bold tracking-tight">ExplorerAI</span>
+            <span className="text-xl font-bold tracking-tight">ThoughtMap</span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
@@ -126,7 +126,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           <div className="mt-16 bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl p-8 md:p-12 text-center">
             <h2 className="text-2xl md:text-3xl font-bold mb-4">Ready to try active learning?</h2>
             <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-              ExplorerAI turns any topic into an interactive learning journey. Experience the science of active learning with AI-powered question trails.
+              ThoughtMap turns any topic into an interactive learning journey. Experience the science of active learning with AI-powered question trails.
             </p>
             <Link href="/signup">
               <Button size="lg" className="rounded-full px-8">
@@ -146,14 +146,14 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               <div className="bg-primary/10 p-2 rounded-lg">
                 <Network className="w-4 h-4 text-primary" />
               </div>
-              <span className="font-semibold">ExplorerAI</span>
+              <span className="font-semibold">ThoughtMap</span>
             </div>
             <div className="flex gap-6">
               <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
               <Link href="/terms" className="hover:text-foreground transition-colors">Terms</Link>
               <Link href="/blog" className="hover:text-foreground transition-colors">Blog</Link>
             </div>
-            <p>© 2026 ExplorerAI Inc. All rights reserved.</p>
+            <p>© 2026 ThoughtMap Inc. All rights reserved.</p>
           </div>
         </div>
       </footer>
