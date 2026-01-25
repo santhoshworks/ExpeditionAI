@@ -2,7 +2,7 @@ export const post = {
   title: "How Active Learning Increases Memory Retention by 75% (Science-Backed)",
   meta_description: "Discover why active learning improves retention by 75% compared to passive studying. Learn proven techniques and how AI-powered tools make active learning effortless.",
   slug: "active-learning-increases-retention",
-  author: "Santhosh Kumar",
+  author: "Santhosh Palanisamy",
   date: "2025-01-11",
   category: "Learning Science",
   featured_image: "/images/blog/active-learning-retention.jpg",

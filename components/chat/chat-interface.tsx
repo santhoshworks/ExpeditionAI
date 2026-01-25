@@ -71,10 +71,10 @@ function parseTriviaResponse(rawContent: string, triviaEnabled: boolean): { cont
   // Extract trivia section
   const triviaText = rawContent.substring(startIndex + triviaMarkerStart.length, endIndex).trim()
 
-  // Parse trivia fields
-  const whyMatch = triviaText.match(/WHY_IT_MATTERS:\s*(.+?)(?=\n(?:REAL_WORLD_USE|WHEN_YOU_NEED|DID_YOU_KNOW|$))/s)
-  const realWorldMatch = triviaText.match(/REAL_WORLD_USE:\s*(.+?)(?=\n(?:WHEN_YOU_NEED|DID_YOU_KNOW|$))/s)
-  const whenMatch = triviaText.match(/WHEN_YOU_NEED:\s*(.+?)(?=\n(?:DID_YOU_KNOW|$))/s)
+  // Parse trivia fields - handle both single-line and multi-line formats
+  const whyMatch = triviaText.match(/WHY_IT_MATTERS:\s*(.+?)(?=(?:REAL_WORLD_USE|WHEN_YOU_NEED|DID_YOU_KNOW|$))/s)
+  const realWorldMatch = triviaText.match(/REAL_WORLD_USE:\s*(.+?)(?=(?:WHEN_YOU_NEED|DID_YOU_KNOW|$))/s)
+  const whenMatch = triviaText.match(/WHEN_YOU_NEED:\s*(.+?)(?=(?:DID_YOU_KNOW|$))/s)
   const didYouKnowMatch = triviaText.match(/DID_YOU_KNOW:\s*(.+?)$/s)
 
   // Only create trivia object if we have all fields

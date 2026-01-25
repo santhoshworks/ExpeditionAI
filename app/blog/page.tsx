@@ -4,11 +4,26 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Network, ArrowRight, Calendar, User, Tag } from "lucide-react"
 import { getAllBlogPosts } from "@/content/blog"
 import { PublicHeader } from "@/components/layout/public-header"
+import { generateSEOMetadata } from "@/lib/seo"
+import { Metadata } from "next"
 
-export const metadata = {
-  title: "Blog | ThoughtMap",
-  description: "Insights on learning science, study techniques, and how AI is transforming education.",
-}
+export const metadata: Metadata = generateSEOMetadata({
+  title: "Blog - Learning Science & AI Education Insights",
+  description: "Discover evidence-based study techniques, learning science research, and how AI is transforming education. Expert insights on personalized learning, educational technology, and effective study methods.",
+  keywords: [
+    "learning science blog",
+    "educational technology insights",
+    "AI in education",
+    "study techniques",
+    "personalized learning research",
+    "educational psychology",
+    "learning strategies",
+    "AI tutoring insights",
+    "educational innovation",
+    "learning analytics"
+  ],
+  url: "/blog"
+})
 
 export default function BlogPage() {
   const posts = getAllBlogPosts()

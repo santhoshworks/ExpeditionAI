@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Button } from '@/components/ui/button'
+import { CTAButton } from '@/components/ui/cta-button'
 import { Loader2 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 
@@ -10,7 +10,8 @@ interface CheckoutButtonProps {
     price: number
     children: React.ReactNode
     className?: string
-    variant?: 'default' | 'outline' | 'secondary'
+    variant?: 'primary' | 'secondary'
+    size?: 'sm' | 'md' | 'lg' | 'xl'
 }
 
 export function CheckoutButton({
@@ -18,7 +19,8 @@ export function CheckoutButton({
     price,
     children,
     className,
-    variant = 'default'
+    variant = 'primary',
+    size = 'lg'
 }: CheckoutButtonProps) {
     const [isLoading, setIsLoading] = useState(false)
     const { toast } = useToast()
@@ -57,11 +59,12 @@ export function CheckoutButton({
     }
 
     return (
-        <Button
+        <CTAButton
             onClick={handleCheckout}
             disabled={isLoading}
             className={className}
             variant={variant}
+            size={size}
         >
             {isLoading ? (
                 <>
@@ -71,6 +74,6 @@ export function CheckoutButton({
             ) : (
                 children
             )}
-        </Button>
+        </CTAButton>
     )
 }

@@ -2,6 +2,24 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, Compass, Target, Zap, Users } from "lucide-react"
 import { PublicHeader } from "@/components/layout/public-header"
+import { generateSEOMetadata } from "@/lib/seo"
+import { Metadata } from "next"
+
+export const metadata: Metadata = generateSEOMetadata({
+    title: "About - AI-Powered Learning Platform",
+    description: "Learn about ThoughtMap's mission to revolutionize education through AI-powered branching conversations. Discover how we're mapping human curiosity and making deep learning effortless for students and lifelong learners.",
+    keywords: [
+        "about ThoughtMap",
+        "AI learning platform mission",
+        "educational technology company",
+        "learning innovation",
+        "AI-powered education",
+        "personalized learning platform",
+        "educational AI company",
+        "learning technology startup"
+    ],
+    url: "/about"
+})
 
 export default function AboutPage() {
     return (

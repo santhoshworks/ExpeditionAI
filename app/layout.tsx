@@ -4,18 +4,33 @@ import "./globals.css"
 import { Providers } from "@/components/providers"
 import { Analytics } from "@vercel/analytics/next"
 import { TierOverrideIndicator } from "@/components/tier-override-indicator"
+import { generateSEOMetadata, generateOrganizationSchema, generateWebsiteSchema, generateEducationalOrganizationSchema, generateSoftwareApplicationSchema } from "@/lib/seo"
 
 const inter = Inter({ subsets: ["latin"] })
 
-import { SITE_CONFIG } from "@/lib/config"
-
-export const metadata: Metadata = {
-  title: `${SITE_CONFIG.name} - ${SITE_CONFIG.description}`,
-  description: "Start learning expeditions on any topic and branch into new trails when encountering interesting concepts",
-  icons: {
-    icon: "/favicon.svg",
-  },
-}
+export const metadata: Metadata = generateSEOMetadata({
+  title: "AI-Powered Learning Platform",
+  description: "Master any topic with AI-powered branching conversations. Create learning expeditions, explore trails, and test knowledge with personalized quizzes. 300+ AI models available.",
+  keywords: [
+    "AI learning platform",
+    "educational technology",
+    "personalized learning",
+    "AI tutoring",
+    "online education",
+    "study tools",
+    "knowledge mapping",
+    "branching conversations",
+    "interactive learning",
+    "adaptive learning",
+    "educational AI",
+    "learning analytics",
+    "student engagement",
+    "AI models",
+    "GPT-4",
+    "Claude",
+    "Gemini"
+  ]
+})
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -31,10 +46,47 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  // Generate structured data
+  const organizationSchema = generateOrganizationSchema()
+  const websiteSchema = generateWebsiteSchema()
+  const educationalOrgSchema = generateEducationalOrganizationSchema()
+  const softwareAppSchema = generateSoftwareApplicationSchema()
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/favicon.svg" />
+        <meta name="theme-color" content="#4f46e5" />
+        <meta name="msapplication-TileColor" content="#4f46e5" />
+
+        {/* Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(organizationSchema),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(websiteSchema),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(educationalOrgSchema),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(softwareAppSchema),
+          }}
+        />
+
         <script
           dangerouslySetInnerHTML={{
             __html: `

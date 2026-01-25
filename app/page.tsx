@@ -52,22 +52,22 @@ export default function LandingPage() {
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-slate-900 leading-[0.95] md:leading-[1.05]">
                 Master any topic with <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-br from-indigo-600 via-violet-600 to-fuchsia-600">
-                  AI-Powered Learning.
+                  AI-Powered Learning
                 </span>
               </h1>
 
               <p className="text-base md:text-xl text-slate-500 max-w-3xl leading-relaxed font-medium">
-                ThoughtMap lets you explore any topic through branching conversations with AI. Create learning expeditions, branch into new trails, and test your knowledge with AI-generated quizzes.
+                ThoughtMap revolutionizes online education with AI-powered branching conversations. Create personalized learning expeditions, explore knowledge trails, and master any subject with 300+ AI models including GPT-4, Claude, and Gemini.
               </p>
 
               <div className="flex flex-col sm:flex-row items-center gap-5 pt-4">
-                <Link href="/signup">
+                <Link href="/signup" aria-label="Start your free AI learning expedition">
                   <CTAButton variant="primary" size="lg" className="px-10">
                     Start Your Expedition
                     <Zap className="w-5 h-5 ml-2 fill-indigo-400 text-indigo-400" />
                   </CTAButton>
                 </Link>
-                <Link href="/demo">
+                <Link href="/demo" aria-label="Try interactive AI learning demo">
                   <CTAButton variant="secondary" size="lg" className="px-10">
                     <Sparkles className="w-5 h-5 mr-2" />
                     Try Interactive Demo
@@ -75,7 +75,7 @@ export default function LandingPage() {
                 </Link>
               </div>
 
-              <div className="flex items-center gap-8 pt-8 opacity-30">
+              <div className="flex items-center gap-8 pt-8 opacity-30" aria-label="Powered by leading AI providers">
                 <span className="text-2xl font-bold tracking-tighter text-slate-400">GOOGLE</span>
                 <span className="text-2xl font-bold tracking-tighter text-slate-400">MICROSOFT</span>
                 <span className="text-2xl font-bold tracking-tighter text-slate-400">OPENAI</span>
@@ -91,8 +91,8 @@ export default function LandingPage() {
               <div className="relative bg-white/40 dark:bg-slate-900/40 backdrop-blur-sm border border-white/50 dark:border-slate-800 rounded-[2.5rem] p-3 md:p-6 shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden">
                 <div className="bg-slate-950 rounded-[1.5rem] overflow-hidden aspect-[16/10] relative border border-slate-800">
                   <Image
-                    src="/images/dashboard_screenshot.png"
-                    alt="ThoughtMap Dashboard - Create and manage learning expeditions"
+                    src="/images/chat_interface_screenshot.png"
+                    alt="ThoughtMap AI learning platform interface showing branching conversations and personalized education tools"
                     fill
                     className="object-cover opacity-90 object-top"
                     priority
@@ -401,7 +401,7 @@ export default function LandingPage() {
           <div className="container mx-auto px-6">
             <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
               <h2 className="text-indigo-600 font-bold tracking-wider uppercase text-sm">See It In Action</h2>
-              <h3 className="text-3xl md:text-5xl font-bold text-slate-900 leading-tight">Features that make learning effortless</h3>
+              <h3 className="text-3xl md:text-5xl font-bold text-slate-900 leading-tight">Powerful tools for deeper understanding</h3>
             </div>
 
             {/* Feature Showcase */}
