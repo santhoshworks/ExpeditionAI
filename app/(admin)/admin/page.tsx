@@ -2,6 +2,7 @@ import { AdminOverview } from '@/components/admin/admin-overview'
 import { UserMetrics } from '@/components/admin/user-metrics'
 import { SubscriptionMetrics } from '@/components/admin/subscription-metrics'
 import { ActivityMetrics } from '@/components/admin/activity-metrics'
+import { DefaultTierConfig } from '@/components/admin/default-tier-config'
 
 export default function AdminDashboard() {
     return (
@@ -21,6 +22,8 @@ export default function AdminDashboard() {
                 <UserMetrics />
                 <SubscriptionMetrics />
             </div>
+
+            <DefaultTierConfig />
 
             <ActivityMetrics />
         </div>
