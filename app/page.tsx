@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { CTAButton } from "@/components/ui/cta-button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -12,11 +13,14 @@ import {
   Sparkles,
   Brain,
   ArrowRight,
-  Search,
   Cpu,
   Layers,
+  Zap,
+  Heart,
+  HelpCircle,
   FileText,
-  Zap
+  Target,
+  Lightbulb
 } from "lucide-react"
 import { SITE_CONFIG } from "@/lib/config"
 import { EmailSubscriptionPopup } from "@/components/email-subscription-popup"
@@ -42,18 +46,18 @@ export default function LandingPage() {
             <div className="flex flex-col items-center text-center max-w-5xl mx-auto space-y-10">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-50 border border-indigo-100/50 text-indigo-600 text-xs md:text-sm font-semibold tracking-wide uppercase animate-in fade-in slide-in-from-bottom-4">
                 <Sparkles className="w-4 h-4" />
-                <span>Next-Gen Visual Learning Platform</span>
+                <span>AI-Powered Learning Platform</span>
               </div>
 
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-slate-900 leading-[0.95] md:leading-[1.05]">
                 Master any topic with <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-br from-indigo-600 via-violet-600 to-fuchsia-600">
-                  Visual Intelligence.
+                  AI-Powered Learning.
                 </span>
               </h1>
 
               <p className="text-base md:text-xl text-slate-500 max-w-3xl leading-relaxed font-medium">
-                ThoughtMap transforms overwhelming information into a beautiful, interactive knowledge map. Visualize connections, deep-dive with AI, and master complex subjects in record time.
+                ThoughtMap lets you explore any topic through branching conversations with AI. Create learning expeditions, branch into new trails, and test your knowledge with AI-generated quizzes.
               </p>
 
               <div className="flex flex-col sm:flex-row items-center gap-5 pt-4">
@@ -80,19 +84,18 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Hero Video Demo */}
+          {/* Hero Screenshot */}
           <div className="container mx-auto px-6 mt-20 relative lg:mt-32" id="demo">
             <div className="relative max-w-6xl mx-auto">
               <div className="absolute -inset-4 bg-gradient-to-br from-indigo-500/20 to-fuchsia-500/20 blur-3xl rounded-[3rem] -z-10" />
               <div className="relative bg-white/40 dark:bg-slate-900/40 backdrop-blur-sm border border-white/50 dark:border-slate-800 rounded-[2.5rem] p-3 md:p-6 shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden">
                 <div className="bg-slate-950 rounded-[1.5rem] overflow-hidden aspect-[16/10] relative border border-slate-800">
-                  <video
-                    src="/videos/app_demo_recording.webp"
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    className="w-full h-full object-cover opacity-90 object-top"
+                  <Image
+                    src="/images/dashboard_screenshot.png"
+                    alt="ThoughtMap Dashboard - Create and manage learning expeditions"
+                    fill
+                    className="object-cover opacity-90 object-top"
+                    priority
                   />
                   {/* Overlay for professional feel */}
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 to-transparent pointer-events-none" />
@@ -104,8 +107,8 @@ export default function LandingPage() {
                         <Cpu className="w-5 h-5 text-white" />
                       </div>
                       <div>
-                        <p className="text-white font-bold text-sm">GPT-4 Omni Powered</p>
-                        <p className="text-white/60 text-xs">Processing global database...</p>
+                        <p className="text-white font-bold text-sm">300+ AI Models</p>
+                        <p className="text-white/60 text-xs">OpenRouter powered...</p>
                       </div>
                     </div>
                   </div>
@@ -120,92 +123,92 @@ export default function LandingPage() {
           <div className="container mx-auto px-6">
             <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
               <h2 className="text-indigo-600 font-bold tracking-wider uppercase text-sm">Engineered for Mastery</h2>
-              <h3 className="text-3xl md:text-5xl font-bold text-slate-900 leading-tight">Beyond traditional search. Dimensional learning.</h3>
+              <h3 className="text-3xl md:text-5xl font-bold text-slate-900 leading-tight">Beyond traditional learning. Branching conversations.</h3>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-6 lg:grid-cols-12 gap-6">
-              {/* Feature 1: Knowledge Mapping */}
+              {/* Feature 1: Branching Trails */}
               <Card className="md:col-span-12 lg:col-span-8 overflow-hidden bg-slate-50 border-0 shadow-lg group hover:shadow-2xl transition-all duration-500">
                 <CardContent className="h-full p-0 flex flex-col md:flex-row">
                   <div className="p-10 flex-1 flex flex-col justify-center space-y-5">
                     <div className="w-14 h-14 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-100">
                       <MapIcon className="w-7 h-7" />
                     </div>
-                    <h4 className="text-3xl font-bold text-slate-900 tracking-tight">Interactive Knowledge Mapping</h4>
+                    <h4 className="text-3xl font-bold text-slate-900 tracking-tight">Branching Trail System</h4>
                     <p className="text-slate-600 text-lg leading-relaxed">
-                      Visualize complex topics as a dynamic network. Every query branches into new nodes, helping you see the big picture and the deepest details simultaneously.
+                      Start with any topic and branch into new trails when you discover interesting concepts. Create a tree of connected learning paths that grow with your curiosity.
                     </p>
                     <div className="flex flex-wrap gap-2 pt-2">
-                      {["Spatial Memory", "Concept Clusters", "Infinite Canvas"].map(tag => (
+                      {["Trail Branching", "Visual Tree", "Flag Progress"].map(tag => (
                         <span key={tag} className="px-3 py-1 bg-white rounded-full text-xs font-bold text-indigo-600 border border-indigo-100">{tag}</span>
                       ))}
                     </div>
                   </div>
                   <div className="flex-1 bg-gradient-to-br from-indigo-100 to-slate-200 relative min-h-[300px] overflow-hidden">
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Network className="w-40 h-40 text-indigo-300 animate-pulse-slow" />
-                      {/* Simulation of nodes */}
-                      <div className="absolute top-1/4 left-1/4 w-3 h-3 bg-indigo-500 rounded-full animate-ping" />
-                      <div className="absolute bottom-1/3 right-1/4 w-2 h-2 bg-indigo-400 rounded-full animate-pulse" />
-                    </div>
+                    <Image
+                      src="/images/expedition_with_trails_example.jpeg"
+                      alt="Branching trail system showing connected learning paths"
+                      fill
+                      className="object-cover"
+                    />
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Feature 2: Smart Journaling */}
+              {/* Feature 2: AI Chat Interface */}
               <Card className="md:col-span-12 lg:col-span-4 bg-slate-900 text-white border-0 shadow-lg group hover:bg-slate-800 transition-all duration-500">
                 <CardContent className="p-10 h-full flex flex-col justify-between">
                   <div className="space-y-6">
                     <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-white backdrop-blur-md">
-                      <BookOpen className="w-7 h-7" />
+                      <Brain className="w-7 h-7" />
                     </div>
-                    <h4 className="text-3xl font-bold tracking-tight">Automated Study Journaling</h4>
+                    <h4 className="text-3xl font-bold tracking-tight">AI-Powered Conversations</h4>
                     <p className="text-slate-400 text-lg leading-relaxed">
-                      ThoughtMap synthesizes your entire learning session into a structured, exportable journal. No more messy notes.
+                      Chat with 300+ AI models including GPT-4, Claude, and Gemini. Get explanations tailored to your learning level with optional trivia and illustrations.
                     </p>
                   </div>
                   <div className="pt-10 flex items-center gap-4 text-indigo-400 font-bold group-hover:gap-6 transition-all">
-                    Explore Journaling <ArrowRight className="w-5 h-5" />
+                    Explore Models <ArrowRight className="w-5 h-5" />
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Feature 3: Deep Dives */}
+              {/* Feature 3: AI Quizzes */}
               <Card className="md:col-span-6 lg:col-span-4 bg-white border-slate-100 shadow-xl group hover:border-fuchsia-200 transition-all duration-500">
                 <CardContent className="p-8 space-y-5">
                   <div className="w-12 h-12 bg-fuchsia-50 rounded-xl flex items-center justify-center text-fuchsia-600">
                     <Layers className="w-6 h-6" />
                   </div>
-                  <h4 className="text-xl font-bold text-slate-900">Multidimensional Dives</h4>
+                  <h4 className="text-xl font-bold text-slate-900">AI-Generated Quizzes</h4>
                   <p className="text-slate-500 leading-relaxed">
-                    Switch between summaries, deep technical explanations, or analogies instantly based on your level.
+                    Test your understanding with personalized quizzes generated from your conversation history. Multiple choice questions with detailed explanations.
                   </p>
                 </CardContent>
               </Card>
 
-              {/* Feature 4: PDF Export */}
+              {/* Feature 4: Learning Journals */}
               <Card className="md:col-span-6 lg:col-span-4 bg-white border-slate-100 shadow-xl group hover:border-blue-200 transition-all duration-500">
                 <CardContent className="p-8 space-y-5">
                   <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
-                    <FileText className="w-6 h-6" />
+                    <BookOpen className="w-6 h-6" />
                   </div>
-                  <h4 className="text-xl font-bold text-slate-900">One-Click PDF Export</h4>
+                  <h4 className="text-xl font-bold text-slate-900">Smart Learning Journals</h4>
                   <p className="text-slate-500 leading-relaxed">
-                    Turn your knowledge maps and journals into beautiful, print-ready PDF studies for offline review.
+                    AI automatically generates comprehensive summaries of your entire learning expedition with key insights and takeaways.
                   </p>
                 </CardContent>
               </Card>
 
-              {/* Feature 5: AI Insights */}
+              {/* Feature 5: Visual Illustrations */}
               <Card className="md:col-span-12 lg:col-span-4 bg-indigo-600 text-white border-0 shadow-xl group overflow-hidden">
                 <CardContent className="p-8 space-y-5 relative">
                   <div className="relative z-10">
                     <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center text-white backdrop-blur-md mb-6">
                       <Sparkles className="w-6 h-6" />
                     </div>
-                    <h4 className="text-xl font-bold">Proactive Suggestions</h4>
+                    <h4 className="text-xl font-bold">AI Illustrations</h4>
                     <p className="text-indigo-100 leading-relaxed">
-                      AI that predicts your gaps in knowledge and suggests the most logical next step in your learning path.
+                      Generate visual illustrations for complex concepts to enhance understanding and make learning more engaging.
                     </p>
                   </div>
                   <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -tr-10" />
@@ -215,105 +218,386 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Methodology / How it works */}
-        <section id="methodology" className="py-32 bg-slate-50 relative overflow-hidden">
+        {/* Additional Features Section */}
+        <section className="py-32 bg-slate-50 relative">
           <div className="container mx-auto px-6">
-            <div className="flex flex-col lg:flex-row gap-20 items-center">
-              <div className="lg:w-1/2 space-y-10">
-                <div className="space-y-4">
-                  <h2 className="text-indigo-600 font-bold uppercase tracking-widest text-sm">Study Smarter</h2>
-                  <h3 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 leading-tight">
-                    The Science of <br />Dimensional Learning.
-                  </h3>
-                </div>
+            <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
+              <h2 className="text-indigo-600 font-bold tracking-wider uppercase text-sm">Complete Learning Toolkit</h2>
+              <h3 className="text-3xl md:text-5xl font-bold text-slate-900 leading-tight">Everything you need to master any subject</h3>
+            </div>
 
-                <div className="space-y-8">
-                  <div className="flex gap-6">
-                    <div className="flex-shrink-0 w-12 h-12 rounded-full bg-white shadow-md flex items-center justify-center text-indigo-600 font-black text-xl">1</div>
-                    <div className="space-y-2">
-                      <h4 className="text-xl font-bold text-slate-900">Plant the Seed</h4>
-                      <p className="text-slate-600 leading-relaxed">Enter any topic, question, or research paper to begin your expedition.</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
+              {/* Learning Wishlist */}
+              <Card className="bg-white border-slate-100 shadow-xl group hover:shadow-2xl transition-all duration-500 overflow-hidden">
+                <CardContent className="p-0">
+                  <div className="relative h-48 bg-gradient-to-br from-pink-100 to-rose-200">
+                    <Image
+                      src="/images/learning_wishlist.jpeg"
+                      alt="Learning wishlist feature for saving topics to explore later"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="p-6 space-y-4">
+                    <div className="w-12 h-12 bg-pink-50 rounded-xl flex items-center justify-center text-pink-600">
+                      <Heart className="w-6 h-6" />
+                    </div>
+                    <h4 className="text-xl font-bold text-slate-900">Learning Wishlist</h4>
+                    <p className="text-slate-500 leading-relaxed">
+                      Save interesting topics you discover during conversations to explore later. Never lose track of what you want to learn next.
+                    </p>
+                    <div className="flex flex-wrap gap-2 pt-2">
+                      {["Save Topics", "Organize Learning", "Never Forget"].map(tag => (
+                        <span key={tag} className="px-3 py-1 bg-pink-50 rounded-full text-xs font-bold text-pink-600 border border-pink-100">{tag}</span>
+                      ))}
                     </div>
                   </div>
-                  <div className="flex gap-6">
-                    <div className="flex-shrink-0 w-12 h-12 rounded-full bg-white shadow-md flex items-center justify-center text-indigo-600 font-black text-xl">2</div>
-                    <div className="space-y-2">
-                      <h4 className="text-xl font-bold text-slate-900">Map the Terrain</h4>
-                      <p className="text-slate-600 leading-relaxed">Our AI analyzes context and builds a spatial map of related concepts.</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-6">
-                    <div className="flex-shrink-0 w-12 h-12 rounded-full bg-white shadow-md flex items-center justify-center text-indigo-600 font-black text-xl">3</div>
-                    <div className="space-y-2">
-                      <h4 className="text-xl font-bold text-slate-900">Digest & Internalize</h4>
-                      <p className="text-slate-600 leading-relaxed">AI-guided pathways ensure you don&apos;t just read, but understand the &quot;why&quot; behind everything.</p>
-                    </div>
-                  </div>
-                </div>
+                </CardContent>
+              </Card>
 
-                <div className="pt-4">
-                  <Link href="/signup">
-                    <CTAButton variant="secondary" size="lg" className="px-10">
-                      Begin Your Learning Journey
-                      <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                    </CTAButton>
-                  </Link>
-                </div>
-              </div>
-
-              <div className="lg:w-1/2 relative">
-                <div className="relative z-10 bg-white p-10 rounded-[3rem] shadow-2xl border border-slate-100">
-                  <div className="aspect-square flex items-center justify-center relative overflow-hidden rounded-[2rem] bg-indigo-50/30">
-                    {/* Abstract learning brain/network graphic */}
-                    <div className="relative w-full h-full p-10 flex flex-col justify-between">
-                      <div className="flex justify-between">
-                        <Search className="w-10 h-10 text-indigo-600/20" />
-                        <Brain className="w-20 h-20 text-indigo-600 animate-pulse" />
-                        <Sparkles className="w-10 h-10 text-indigo-600/20" />
-                      </div>
-                      <div className="space-y-6">
-                        <div className="h-4 w-3/4 bg-indigo-200/50 rounded-full" />
-                        <div className="h-4 w-1/2 bg-indigo-200/50 rounded-full" />
-                        <div className="h-4 w-5/6 bg-indigo-200/50 rounded-full" />
-                      </div>
+              {/* Quick Check Tooltip */}
+              <Card className="bg-white border-slate-100 shadow-xl group hover:shadow-2xl transition-all duration-500 overflow-hidden">
+                <CardContent className="p-0">
+                  <div className="relative h-48 bg-gradient-to-br from-amber-100 to-orange-200">
+                    <Image
+                      src="/images/quick_check_tooltip.jpeg"
+                      alt="Quick check tooltip for instant understanding verification"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="p-6 space-y-4">
+                    <div className="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600">
+                      <HelpCircle className="w-6 h-6" />
+                    </div>
+                    <h4 className="text-xl font-bold text-slate-900">Quick Check Tooltip</h4>
+                    <p className="text-slate-500 leading-relaxed">
+                      Hover over any concept for instant clarification. Get quick definitions and explanations without interrupting your learning flow.
+                    </p>
+                    <div className="flex flex-wrap gap-2 pt-2">
+                      {["Instant Help", "Contextual", "Non-Disruptive"].map(tag => (
+                        <span key={tag} className="px-3 py-1 bg-amber-50 rounded-full text-xs font-bold text-amber-600 border border-amber-100">{tag}</span>
+                      ))}
                     </div>
                   </div>
-                  {/* Floating stats */}
-                  <div className="absolute -bottom-6 -right-6 bg-white p-6 rounded-2xl shadow-xl border border-slate-100">
-                    <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Efficiency Gain</p>
-                    <p className="text-4xl font-black text-indigo-600">3.5x</p>
+                </CardContent>
+              </Card>
+
+              {/* Learning Journals */}
+              <Card className="bg-white border-slate-100 shadow-xl group hover:shadow-2xl transition-all duration-500 overflow-hidden">
+                <CardContent className="p-0">
+                  <div className="relative h-48 bg-gradient-to-br from-emerald-100 to-teal-200">
+                    <Image
+                      src="/images/create_journal.jpeg"
+                      alt="AI-generated learning journals with comprehensive summaries"
+                      fill
+                      className="object-cover"
+                    />
                   </div>
-                  <div className="absolute -top-6 -left-6 bg-slate-900 text-white p-6 rounded-2xl shadow-xl">
-                    <p className="text-indigo-400 text-xs font-bold uppercase tracking-wider mb-1">Retention Rate</p>
-                    <p className="text-4xl font-black">92%</p>
+                  <div className="p-6 space-y-4">
+                    <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
+                      <FileText className="w-6 h-6" />
+                    </div>
+                    <h4 className="text-xl font-bold text-slate-900">AI Learning Journals</h4>
+                    <p className="text-slate-500 leading-relaxed">
+                      Automatically generate comprehensive summaries of your entire learning expedition with key insights and takeaways.
+                    </p>
+                    <div className="flex flex-wrap gap-2 pt-2">
+                      {["Auto-Generated", "Key Insights", "Comprehensive"].map(tag => (
+                        <span key={tag} className="px-3 py-1 bg-emerald-50 rounded-full text-xs font-bold text-emerald-600 border border-emerald-100">{tag}</span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-                {/* Background decorative circles */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-indigo-100/30 rounded-full -z-10 blur-3xl animate-pulse-slow" />
-              </div>
+                </CardContent>
+              </Card>
+
+              {/* Available Models */}
+              <Card className="bg-white border-slate-100 shadow-xl group hover:shadow-2xl transition-all duration-500 overflow-hidden">
+                <CardContent className="p-0">
+                  <div className="relative h-48 bg-gradient-to-br from-violet-100 to-purple-200">
+                    <Image
+                      src="/images/available_models.jpeg"
+                      alt="300+ AI models available including GPT-4, Claude, and Gemini"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="p-6 space-y-4">
+                    <div className="w-12 h-12 bg-violet-50 rounded-xl flex items-center justify-center text-violet-600">
+                      <Cpu className="w-6 h-6" />
+                    </div>
+                    <h4 className="text-xl font-bold text-slate-900">300+ AI Models</h4>
+                    <p className="text-slate-500 leading-relaxed">
+                      Access the latest AI models including GPT-4, Claude, Gemini, and more. Choose the perfect model for your learning style.
+                    </p>
+                    <div className="flex flex-wrap gap-2 pt-2">
+                      {["GPT-4", "Claude", "Gemini", "OpenRouter"].map(tag => (
+                        <span key={tag} className="px-3 py-1 bg-violet-50 rounded-full text-xs font-bold text-violet-600 border border-violet-100">{tag}</span>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Creating New Trails */}
+              <Card className="bg-white border-slate-100 shadow-xl group hover:shadow-2xl transition-all duration-500 overflow-hidden">
+                <CardContent className="p-0">
+                  <div className="relative h-48 bg-gradient-to-br from-cyan-100 to-blue-200">
+                    <Image
+                      src="/images/creating_new_trails.jpeg"
+                      alt="Creating new learning trails from any conversation point"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="p-6 space-y-4">
+                    <div className="w-12 h-12 bg-cyan-50 rounded-xl flex items-center justify-center text-cyan-600">
+                      <Target className="w-6 h-6" />
+                    </div>
+                    <h4 className="text-xl font-bold text-slate-900">Dynamic Trail Creation</h4>
+                    <p className="text-slate-500 leading-relaxed">
+                      Branch into new learning paths at any moment. Create focused trails for deep dives while maintaining your main learning thread.
+                    </p>
+                    <div className="flex flex-wrap gap-2 pt-2">
+                      {["Dynamic Branching", "Deep Dives", "Focused Learning"].map(tag => (
+                        <span key={tag} className="px-3 py-1 bg-cyan-50 rounded-full text-xs font-bold text-cyan-600 border border-cyan-100">{tag}</span>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Topic Generation */}
+              <Card className="bg-white border-slate-100 shadow-xl group hover:shadow-2xl transition-all duration-500 overflow-hidden">
+                <CardContent className="p-0">
+                  <div className="relative h-48 bg-gradient-to-br from-lime-100 to-green-200">
+                    <Image
+                      src="/images/GenerateTopics.jpeg"
+                      alt="AI-powered topic generation for discovering new learning paths"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="p-6 space-y-4">
+                    <div className="w-12 h-12 bg-lime-50 rounded-xl flex items-center justify-center text-lime-600">
+                      <Lightbulb className="w-6 h-6" />
+                    </div>
+                    <h4 className="text-xl font-bold text-slate-900">Smart Topic Discovery</h4>
+                    <p className="text-slate-500 leading-relaxed">
+                      AI suggests related topics and learning paths based on your current expedition, helping you discover new areas of interest.
+                    </p>
+                    <div className="flex flex-wrap gap-2 pt-2">
+                      {["AI Suggestions", "Related Topics", "Discovery"].map(tag => (
+                        <span key={tag} className="px-3 py-1 bg-lime-50 rounded-full text-xs font-bold text-lime-600 border border-lime-100">{tag}</span>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </section>
-
-        {/* CTA Section */}
-        <section className="py-40 relative">
-          <div className="container mx-auto px-6 text-center">
-            <div className="max-w-4xl mx-auto space-y-10 relative z-10">
-              <h2 className="text-4xl md:text-6xl font-bold text-slate-900 tracking-tight leading-tight">
-                Ready to transform the way you <span className="text-indigo-600 underline underline-offset-8 decoration-indigo-200">learn</span>?
-              </h2>
-              <p className="text-xl md:text-2xl text-slate-500 font-medium">
-                Join 10,000+ students and researchers mapping their minds with ThoughtMap.
-              </p>
-              <div className="flex flex-col sm:flex-row justify-center items-center gap-6 pt-6">
-                <Link href="/signup">
-                  <CTAButton variant="primary" size="xl" className="px-12">
-                    Start Your Expedition for Free
-                  </CTAButton>
-                </Link>
-                <p className="text-slate-400 font-medium text-sm">No credit card required. Free forever limit of 50 maps.</p>
-              </div>
+        <section className="py-32 bg-white relative">
+          <div className="container mx-auto px-6">
+            <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
+              <h2 className="text-indigo-600 font-bold tracking-wider uppercase text-sm">See It In Action</h2>
+              <h3 className="text-3xl md:text-5xl font-bold text-slate-900 leading-tight">Features that make learning effortless</h3>
             </div>
+
+            {/* Feature Showcase */}
+            <section className="py-32 bg-white relative">
+              <div className="container mx-auto px-6">
+                <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
+                  <h2 className="text-indigo-600 font-bold tracking-wider uppercase text-sm">See It In Action</h2>
+                  <h3 className="text-3xl md:text-5xl font-bold text-slate-900 leading-tight">Features that make learning effortless</h3>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-20">
+                  <div className="space-y-8">
+                    <div className="space-y-4">
+                      <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                        <Zap className="w-6 h-6 text-green-600" />
+                      </div>
+                      <h4 className="text-2xl font-bold text-slate-900">Generate Learning Topics</h4>
+                      <p className="text-slate-600 text-lg leading-relaxed">
+                        Stuck on what to explore next? AI suggests related topics and learning paths based on your current expedition, helping you discover new areas of interest.
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {["Topic Suggestions", "AI-Powered", "Personalized"].map(tag => (
+                        <span key={tag} className="px-3 py-1 bg-green-50 rounded-full text-xs font-bold text-green-600 border border-green-100">{tag}</span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="relative">
+                    <div className="bg-slate-50 rounded-2xl p-6 shadow-xl border border-slate-100">
+                      <Image
+                        src="/images/generate_new_topics.jpeg"
+                        alt="AI topic generation interface"
+                        width={600}
+                        height={400}
+                        className="w-full rounded-xl shadow-lg"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-20">
+                  <div className="relative order-2 lg:order-1">
+                    <div className="bg-slate-50 rounded-2xl p-6 shadow-xl border border-slate-100">
+                      <Image
+                        src="/images/generate_quiz.jpeg"
+                        alt="AI quiz generation interface"
+                        width={600}
+                        height={400}
+                        className="w-full rounded-xl shadow-lg"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-8 order-1 lg:order-2">
+                    <div className="space-y-4">
+                      <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                        <Brain className="w-6 h-6 text-purple-600" />
+                      </div>
+                      <h4 className="text-2xl font-bold text-slate-900">Test Your Knowledge</h4>
+                      <p className="text-slate-600 text-lg leading-relaxed">
+                        Generate personalized quizzes from your conversation history. Multiple choice questions with detailed explanations help reinforce your learning.
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {["Adaptive Quizzes", "Instant Feedback", "Progress Tracking"].map(tag => (
+                        <span key={tag} className="px-3 py-1 bg-purple-50 rounded-full text-xs font-bold text-purple-600 border border-purple-100">{tag}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                  <div className="space-y-8">
+                    <div className="space-y-4">
+                      <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                        <MapIcon className="w-6 h-6 text-blue-600" />
+                      </div>
+                      <h4 className="text-2xl font-bold text-slate-900">Track Your Progress</h4>
+                      <p className="text-slate-600 text-lg leading-relaxed">
+                        Flag trails as you explore them - mark topics as understood, need review, or want to explore further. Visual indicators help you track your learning journey.
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {["Visual Flags", "Progress Tracking", "Learning Path"].map(tag => (
+                        <span key={tag} className="px-3 py-1 bg-blue-50 rounded-full text-xs font-bold text-blue-600 border border-blue-100">{tag}</span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="relative">
+                    <div className="bg-slate-50 rounded-2xl p-6 shadow-xl border border-slate-100">
+                      <Image
+                        src="/images/flags_to_track_progress.jpeg"
+                        alt="Progress tracking with visual flags"
+                        width={600}
+                        height={400}
+                        className="w-full rounded-xl shadow-lg"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Methodology / How it works */}
+            <section id="methodology" className="py-32 bg-slate-50 relative overflow-hidden">
+              <div className="container mx-auto px-6">
+                <div className="flex flex-col lg:flex-row gap-20 items-center">
+                  <div className="lg:w-1/2 space-y-10">
+                    <div className="space-y-4">
+                      <h2 className="text-indigo-600 font-bold uppercase tracking-widest text-sm">Study Smarter</h2>
+                      <h3 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 leading-tight">
+                        The Science of <br />Branching Learning.
+                      </h3>
+                    </div>
+
+                    <div className="space-y-8">
+                      <div className="flex gap-6">
+                        <div className="flex-shrink-0 w-12 h-12 rounded-full bg-white shadow-md flex items-center justify-center text-indigo-600 font-black text-xl">1</div>
+                        <div className="space-y-2">
+                          <h4 className="text-xl font-bold text-slate-900">Start Your Expedition</h4>
+                          <p className="text-slate-600 leading-relaxed">Create a learning expedition on any topic and begin chatting with AI in your base camp trail.</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-6">
+                        <div className="flex-shrink-0 w-12 h-12 rounded-full bg-white shadow-md flex items-center justify-center text-indigo-600 font-black text-xl">2</div>
+                        <div className="space-y-2">
+                          <h4 className="text-xl font-bold text-slate-900">Branch Into New Trails</h4>
+                          <p className="text-slate-600 leading-relaxed">When you discover interesting concepts, branch into new trails to explore them deeply without losing your main thread.</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-6">
+                        <div className="flex-shrink-0 w-12 h-12 rounded-full bg-white shadow-md flex items-center justify-center text-indigo-600 font-black text-xl">3</div>
+                        <div className="space-y-2">
+                          <h4 className="text-xl font-bold text-slate-900">Test & Reinforce</h4>
+                          <p className="text-slate-600 leading-relaxed">Generate quizzes from your conversations and create learning journals to solidify your understanding.</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-4">
+                      <Link href="/signup">
+                        <CTAButton variant="secondary" size="lg" className="px-10">
+                          Begin Your Learning Journey
+                          <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                        </CTAButton>
+                      </Link>
+                    </div>
+                  </div>
+
+                  <div className="lg:w-1/2 relative">
+                    <div className="relative z-10 bg-white p-6 rounded-[3rem] shadow-2xl border border-slate-100">
+                      <div className="aspect-square flex items-center justify-center relative overflow-hidden rounded-[2rem] bg-indigo-50/30">
+                        <Image
+                          src="/images/start_new_exploration.jpeg"
+                          alt="AI chat interface with branching trails"
+                          fill
+                          className="object-cover rounded-[2rem]"
+                        />
+                      </div>
+                      {/* Floating stats */}
+                      <div className="absolute -bottom-6 -right-6 bg-white p-6 rounded-2xl shadow-xl border border-slate-100">
+                        <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Models Available</p>
+                        <p className="text-4xl font-black text-indigo-600">300+</p>
+                      </div>
+                      <div className="absolute -top-6 -left-6 bg-slate-900 text-white p-6 rounded-2xl shadow-xl">
+                        <p className="text-indigo-400 text-xs font-bold uppercase tracking-wider mb-1">Learning Paths</p>
+                        <p className="text-4xl font-black">∞</p>
+                      </div>
+                    </div>
+                    {/* Background decorative circles */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-indigo-100/30 rounded-full -z-10 blur-3xl animate-pulse-slow" />
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* CTA Section */}
+            <section className="py-40 relative">
+              <div className="container mx-auto px-6 text-center">
+                <div className="max-w-4xl mx-auto space-y-10 relative z-10">
+                  <h2 className="text-4xl md:text-6xl font-bold text-slate-900 tracking-tight leading-tight">
+                    Ready to transform the way you <span className="text-indigo-600 underline underline-offset-8 decoration-indigo-200">learn</span>?
+                  </h2>
+                  <p className="text-xl md:text-2xl text-slate-500 font-medium">
+                    Join thousands of learners exploring knowledge through AI-powered branching conversations.
+                  </p>
+                  <div className="flex flex-col sm:flex-row justify-center items-center gap-6 pt-6">
+                    <Link href="/signup">
+                      <CTAButton variant="primary" size="xl" className="px-12">
+                        Start Your Expedition for Free
+                      </CTAButton>
+                    </Link>
+                    <p className="text-slate-400 font-medium text-sm">No credit card required. Free tier with 4 AI models available.</p>
+                  </div>
+                </div>
+              </div>
+            </section>
           </div>
         </section>
       </main>
@@ -330,7 +614,7 @@ export default function LandingPage() {
                 <span className="text-2xl font-bold tracking-tighter">{SITE_CONFIG.name}</span>
               </Link>
               <p className="text-slate-400 text-lg leading-relaxed">
-                The ultimate visual exploration tool for lifelong learners, students, and obsessive deep-divers.
+                The ultimate AI-powered learning platform for curious minds, students, and lifelong learners.
               </p>
               <div className="flex gap-5">
                 {[Share2, MapIcon, Network].map((Icon, i) => (
