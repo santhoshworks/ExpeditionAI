@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useExploreStore } from "@/lib/store"
 import { useCreateTrail, useExpedition, useCreateWishlistItem } from "@/lib/queries"
+import { toast } from "sonner"
 import { Compass, X, Loader2, BookmarkPlus, ChevronDown } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
@@ -190,6 +191,11 @@ export function ExploreButton({ expeditionId, parentTrailId }: ExploreButtonProp
         tags: null,
       })
 
+      // Show success feedback
+      toast.success("Added to wishlist", {
+        description: `"${wishlistTitle}" has been added to your learning wishlist.`,
+      })
+
       // Clear the selection/input state
       setShowInput(false)
       setDefinition(null)
@@ -197,7 +203,9 @@ export function ExploreButton({ expeditionId, parentTrailId }: ExploreButtonProp
       setSelectedText(null)
     } catch (error) {
       console.error("Failed to add to wishlist:", error)
-      alert("Failed to add to wishlist. Please try again.")
+      toast.error("Failed to add to wishlist", {
+        description: "Please try again.",
+      })
     }
   }
 
