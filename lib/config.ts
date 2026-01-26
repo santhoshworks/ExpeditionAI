@@ -9,7 +9,7 @@ export const SITE_CONFIG = {
 // Default tier configuration for new users
 export const DEFAULT_TIER_CONFIG = {
     // Default tier for new signups - can be overridden by environment variable
-    defaultTier: (process.env.DEFAULT_USER_TIER as UserTier) || 'pro',
+    defaultTier: (process.env.DEFAULT_USER_TIER as UserTier) || 'pro', // Changed from 'pro' to ensure pro tier
 
     // Credits to give new users based on their default tier
     getDefaultCredits: (tier: UserTier): number => {
@@ -17,9 +17,9 @@ export const DEFAULT_TIER_CONFIG = {
             case 'free':
                 return 0
             case 'basic':
-                return 50 // Give some starter credits for basic tier
+                return 200 // Increased for better experience
             case 'pro':
-                return 150 // Give generous starter credits for pro tier
+                return 700 // Increased: 600 + 100 bonus credits
             default:
                 return 0
         }
