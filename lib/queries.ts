@@ -16,9 +16,15 @@ export function useExpeditions() {
     queryKey: ["expeditions"],
     queryFn: async () => {
       const supabase = createClient()
+
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error("Not authenticated")
+
       const { data, error } = await supabase
         .from("expeditions_with_stats")
         .select("*")
+        .eq("user_id", user.id) // Filter by current user
         .eq("is_archived", false)
         .order("updated_at", { ascending: false })
 
@@ -56,6 +62,11 @@ export function useTrails(expeditionId: string) {
     queryKey: ["trails", expeditionId],
     queryFn: async () => {
       const supabase = createClient()
+
+      // Get current user for additional security
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error("Not authenticated")
+
       const { data, error } = await supabase
         .from("trails_with_counts")
         .select("*")
@@ -454,9 +465,15 @@ export function useLearningWishlist() {
     queryKey: ["learningWishlist"],
     queryFn: async () => {
       const supabase = createClient()
+
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error("Not authenticated")
+
       const { data, error } = await supabase
         .from("learning_wishlist")
         .select("*")
+        .eq("user_id", user.id) // Filter by current user
         .order("priority", { ascending: true })
         .order("created_at", { ascending: false })
         .limit(100) // Limit wishlist items for performance

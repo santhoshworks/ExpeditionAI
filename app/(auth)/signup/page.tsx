@@ -10,6 +10,28 @@ import { createClient } from "@/lib/supabase/client"
 import type { Provider } from "@supabase/supabase-js"
 import { Github } from "lucide-react"
 
+function mapAuthError(errorMessage: string): string {
+  // Map technical Supabase errors to user-friendly messages
+  const errorMappings: Record<string, string> = {
+    "Database error saving new user": "Unable to create your account. Please try again or contact support if the issue persists.",
+    "User already registered": "An account with this email already exists. Try signing in instead.",
+    "Password should be at least 6 characters": "Password must be at least 6 characters long.",
+    "Unable to validate email address: invalid format": "Please enter a valid email address.",
+    "Email rate limit exceeded": "Too many signup attempts. Please wait a few minutes and try again.",
+    "Signups not allowed for this instance": "Account registration is currently disabled. Please contact support.",
+  }
+
+  // Check for partial matches
+  for (const [key, friendlyMessage] of Object.entries(errorMappings)) {
+    if (errorMessage.toLowerCase().includes(key.toLowerCase())) {
+      return friendlyMessage
+    }
+  }
+
+  // Return original message if no mapping found
+  return errorMessage
+}
+
 export default function SignupPage() {
   const router = useRouter()
   const [email, setEmail] = useState("")
@@ -62,7 +84,9 @@ export default function SignupPage() {
       })
 
       if (signUpError) {
-        setError(signUpError.message)
+        // Map technical errors to user-friendly messages
+        const errorMessage = mapAuthError(signUpError.message)
+        setError(errorMessage)
         return
       }
 

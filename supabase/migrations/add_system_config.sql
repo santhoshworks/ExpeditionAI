@@ -55,36 +55,47 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 CREATE OR REPLACE FUNCTION public.handle_new_user_credits()
 RETURNS TRIGGER AS $$
 DECLARE
-  default_tier TEXT;
+  default_tier TEXT := 'free';  -- Fallback default
   default_credits JSONB;
-  tier_credits INTEGER;
+  tier_credits INTEGER := 0;    -- Fallback default
+  config_exists BOOLEAN;
 BEGIN
-  -- Get default tier from system config
-  SELECT value::text INTO default_tier
-  FROM system_config
-  WHERE key = 'default_user_tier';
-  
-  -- Remove quotes from JSON string
-  default_tier := TRIM(BOTH '"' FROM COALESCE(default_tier, '"free"'));
-  
-  -- Get default credits configuration
-  SELECT value INTO default_credits
-  FROM system_config
-  WHERE key = 'default_tier_credits';
-  
-  -- Extract credits for the default tier
-  tier_credits := COALESCE((default_credits->>default_tier)::INTEGER, 0);
-  
+  -- Check if system_config table exists and has our config
+  SELECT EXISTS (
+    SELECT 1 FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = 'system_config'
+  ) INTO config_exists;
+
+  IF config_exists THEN
+    -- Get default tier from system config
+    SELECT TRIM(BOTH '"' FROM value::text) INTO default_tier
+    FROM system_config
+    WHERE key = 'default_user_tier';
+
+    -- Use fallback if not found
+    default_tier := COALESCE(default_tier, 'free');
+
+    -- Get default credits configuration
+    SELECT value INTO default_credits
+    FROM system_config
+    WHERE key = 'default_tier_credits';
+
+    -- Extract credits for the default tier (with fallback)
+    IF default_credits IS NOT NULL THEN
+      tier_credits := COALESCE((default_credits->>default_tier)::INTEGER, 0);
+    END IF;
+  END IF;
+
   -- Insert user credits with configurable defaults
   INSERT INTO public.user_credits (user_id, credits, tier, trails_today)
   VALUES (NEW.id, tier_credits, default_tier::user_tier, 0);
-  
+
   -- Log the user creation with tier assignment
   INSERT INTO credit_transactions (
-    user_id, 
-    amount, 
-    type, 
-    description, 
+    user_id,
+    amount,
+    type,
+    description,
     balance_after
   ) VALUES (
     NEW.id,
@@ -93,8 +104,22 @@ BEGIN
     'Welcome bonus for ' || default_tier || ' tier signup',
     tier_credits
   );
-  
+
   RETURN NEW;
+EXCEPTION
+  WHEN OTHERS THEN
+    -- If anything fails, still create the user with basic defaults
+    -- This ensures user signup doesn't fail due to credit system issues
+    BEGIN
+      INSERT INTO public.user_credits (user_id, credits, tier, trails_today)
+      VALUES (NEW.id, 0, 'free', 0)
+      ON CONFLICT (user_id) DO NOTHING;
+    EXCEPTION
+      WHEN OTHERS THEN
+        -- Log but don't fail - user creation is more important
+        RAISE WARNING 'Failed to create user credits for %: %', NEW.id, SQLERRM;
+    END;
+    RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
