@@ -14,7 +14,6 @@ import {
     X,
     BookOpen,
     ArrowLeft,
-    Search,
     User,
     Moon,
     Sun,
@@ -50,7 +49,6 @@ export function Sidebar() {
     const isExpeditionPage = pathname.includes("/expedition/")
     const [collapsed, setCollapsed] = useState(isExpeditionPage)
     const [mobileOpen, setMobileOpen] = useState(false)
-    const [searchQuery, setSearchQuery] = useState("")
     const [user, setUser] = useState<any>(null)
     const router = useRouter()
     const queryClient = useQueryClient()
@@ -176,31 +174,6 @@ export function Sidebar() {
                         <span className="text-xl font-bold tracking-tighter text-slate-900 dark:text-white">
                             {SITE_CONFIG.name}
                         </span>
-                    )}
-                </div>
-
-                {/* Search Bar */}
-                <div className="px-5 pb-6">
-                    {collapsed ? (
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="w-full h-12 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-900"
-                            title="Quick Search"
-                        >
-                            <Search className="w-5 h-5 text-slate-400" />
-                        </Button>
-                    ) : (
-                        <div className="flex items-center gap-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl px-4 py-3 group focus-within:ring-2 ring-indigo-500/20 focus-within:border-indigo-500/50 transition-all">
-                            <Search className="w-4 h-4 text-slate-400 group-focus-within:text-indigo-600 transition-colors shrink-0" />
-                            <input
-                                type="text"
-                                placeholder="Quick search..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="bg-transparent border-none text-sm focus:outline-none w-full placeholder:text-slate-400 font-medium"
-                            />
-                        </div>
                     )}
                 </div>
 

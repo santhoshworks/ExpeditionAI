@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/admin'
 
@@ -43,26 +44,26 @@ export async function GET(request: NextRequest) {
             const { data: userCredits } = await supabase
                 .from('user_credits')
                 .select('credits, tier, trails_today, last_trail_date')
-                .eq('user_id', user.id)
+                .eq('user_id', (user as any).id)
                 .single()
 
             // Get user streaks
             const { data: userStreaks } = await supabase
                 .from('user_learning_streaks')
                 .select('current_streak, longest_streak, total_active_days')
-                .eq('user_id', user.id)
+                .eq('user_id', (user as any).id)
                 .single()
 
             // Get admin status
             const { data: adminData } = await supabase
                 .from('admin_users')
                 .select('role, is_active')
-                .eq('user_id', user.id)
+                .eq('user_id', (user as any).id)
                 .eq('is_active', true)
                 .single()
 
             enrichedUsers.push({
-                ...user,
+                ...(user as any), // Type assertion to fix spread operator issue
                 user_credits: userCredits ? [userCredits] : [],
                 user_learning_streaks: userStreaks ? [userStreaks] : [],
                 admin_users: adminData ? [adminData] : []
@@ -107,7 +108,7 @@ export async function PATCH(request: NextRequest) {
 
         switch (action) {
             case 'updateTier':
-                const { error: tierError } = await supabase
+                const { error: tierError } = await (supabase as any)
                     .from('user_credits')
                     .update({ tier: value })
                     .eq('user_id', userId)
@@ -125,9 +126,9 @@ export async function PATCH(request: NextRequest) {
                     .single()
 
                 if (currentCredits) {
-                    const newCredits = parseFloat(currentCredits.credits.toString()) + parseFloat(value)
+                    const newCredits = parseFloat((currentCredits as any).credits.toString()) + parseFloat(value)
 
-                    const { error: creditsError } = await supabase
+                    const { error: creditsError } = await (supabase as any)
                         .from('user_credits')
                         .update({ credits: newCredits })
                         .eq('user_id', userId)
@@ -137,7 +138,7 @@ export async function PATCH(request: NextRequest) {
                     }
 
                     // Log transaction
-                    await supabase
+                    await (supabase as any)
                         .from('credit_transactions')
                         .insert({
                             user_id: userId,
@@ -166,6 +167,16 @@ export async function DELETE(request: NextRequest) {
         await requireAdmin()
 
         const supabase = await createClient()
+        // Create admin client for user deletion
+        let adminClient
+        try {
+            adminClient = createAdminClient()
+        } catch (error) {
+            console.error('Failed to create admin client:', error)
+            return NextResponse.json({
+                error: 'Admin configuration error. Please check SUPABASE_SERVICE_ROLE_KEY environment variable.'
+            }, { status: 500 })
+        }
         const { userId } = await request.json()
 
         if (!userId) {
@@ -191,29 +202,46 @@ export async function DELETE(request: NextRequest) {
             const { data: currentAdminCheck } = await supabase
                 .from('admin_users')
                 .select('role')
-                .eq('user_id', currentUser?.id)
+                .eq('user_id', currentUser?.id || '')
                 .eq('is_active', true)
                 .single()
 
-            if (!currentAdminCheck || currentAdminCheck.role !== 'super_admin') {
+            if (!currentAdminCheck || (currentAdminCheck as any).role !== 'super_admin') {
                 return NextResponse.json({
                     error: 'Only super admins can delete admin users'
                 }, { status: 403 })
             }
         }
 
-        // Delete user from auth.users (this will cascade delete all related data due to foreign key constraints)
-        const { error: deleteError } = await supabase.auth.admin.deleteUser(userId)
+        // Delete user from auth.users using admin client (this will cascade delete all related data)
+        const { error: deleteError } = await adminClient.auth.admin.deleteUser(userId)
 
         if (deleteError) {
             console.error('Failed to delete user:', deleteError)
-            return NextResponse.json({ error: 'Failed to delete user' }, { status: 500 })
+            return NextResponse.json({
+                error: `Failed to delete user: ${deleteError.message}`
+            }, { status: 500 })
         }
 
         return NextResponse.json({ success: true, message: 'User deleted successfully' })
 
     } catch (error) {
         console.error('Delete user error:', error)
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+
+        // Provide more specific error messages
+        if (error instanceof Error) {
+            if (error.message.includes('Missing Supabase admin credentials')) {
+                return NextResponse.json({
+                    error: 'Admin configuration error. Please set SUPABASE_SERVICE_ROLE_KEY environment variable.'
+                }, { status: 500 })
+            }
+            return NextResponse.json({
+                error: `Delete user failed: ${error.message}`
+            }, { status: 500 })
+        }
+
+        return NextResponse.json({
+            error: 'Internal server error'
+        }, { status: 500 })
     }
 }
