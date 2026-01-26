@@ -51,10 +51,49 @@ export function Sidebar() {
     const [collapsed, setCollapsed] = useState(isExpeditionPage)
     const [mobileOpen, setMobileOpen] = useState(false)
     const [searchQuery, setSearchQuery] = useState("")
+    const [user, setUser] = useState<any>(null)
     const router = useRouter()
     const queryClient = useQueryClient()
     const { data: expeditions } = useExpeditions()
     const { setTheme, theme } = useTheme()
+
+    // Get user information
+    useEffect(() => {
+        const getUser = async () => {
+            const supabase = createClient()
+            const { data: { user } } = await supabase.auth.getUser()
+            if (user) {
+                // Get user profile and credits for full info
+                const [profileResult, creditsResult] = await Promise.all([
+                    supabase
+                        .from('profiles')
+                        .select('full_name, email')
+                        .eq('id', user.id)
+                        .single(),
+                    supabase
+                        .from('user_credits')
+                        .select('tier')
+                        .eq('user_id', user.id)
+                        .single()
+                ])
+
+                setUser({
+                    ...user,
+                    full_name: profileResult.data?.full_name,
+                    email: profileResult.data?.email || user.email,
+                    tier: creditsResult.data?.tier || 'free'
+                })
+            }
+        }
+        getUser()
+    }, [])
+
+    // Auto-collapse on expedition pages
+    useEffect(() => {
+        if (isExpeditionPage && !collapsed) {
+            setCollapsed(true)
+        }
+    }, [isExpeditionPage, collapsed])
 
     // Check if we're on an expedition page
     const expeditionId = pathname.split("/expedition/")[1]?.split("/")[0]
@@ -238,8 +277,12 @@ export function Sidebar() {
                                 </div>
                                 {!collapsed && (
                                     <div className="text-left overflow-hidden">
-                                        <p className="font-bold text-sm text-slate-900 dark:text-white truncate tracking-tight">User Account</p>
-                                        <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-widest">Premium Plan</p>
+                                        <p className="font-bold text-sm text-slate-900 dark:text-white truncate tracking-tight">
+                                            {user?.full_name || user?.email?.split('@')[0] || 'User Account'}
+                                        </p>
+                                        <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-widest">
+                                            {user?.tier ? `${user.tier} Plan` : 'Premium Plan'}
+                                        </p>
                                     </div>
                                 )}
                             </Button>

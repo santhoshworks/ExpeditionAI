@@ -53,10 +53,19 @@ export async function GET(request: NextRequest) {
                 .eq('user_id', user.id)
                 .single()
 
+            // Get admin status
+            const { data: adminData } = await supabase
+                .from('admin_users')
+                .select('role, is_active')
+                .eq('user_id', user.id)
+                .eq('is_active', true)
+                .single()
+
             enrichedUsers.push({
                 ...user,
                 user_credits: userCredits ? [userCredits] : [],
-                user_learning_streaks: userStreaks ? [userStreaks] : []
+                user_learning_streaks: userStreaks ? [userStreaks] : [],
+                admin_users: adminData ? [adminData] : []
             })
         }
 
@@ -147,6 +156,64 @@ export async function PATCH(request: NextRequest) {
         return NextResponse.json({ success: true })
 
     } catch (error) {
+        return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    }
+}
+
+export async function DELETE(request: NextRequest) {
+    try {
+        // Check admin access
+        await requireAdmin()
+
+        const supabase = await createClient()
+        const { userId } = await request.json()
+
+        if (!userId) {
+            return NextResponse.json({ error: 'User ID is required' }, { status: 400 })
+        }
+
+        // Get current admin user to prevent self-deletion
+        const { data: { user: currentUser } } = await supabase.auth.getUser()
+        if (currentUser?.id === userId) {
+            return NextResponse.json({ error: 'Cannot delete your own account' }, { status: 400 })
+        }
+
+        // Check if target user is an admin (optional safety check)
+        const { data: targetAdminCheck } = await supabase
+            .from('admin_users')
+            .select('role, is_active')
+            .eq('user_id', userId)
+            .eq('is_active', true)
+            .single()
+
+        if (targetAdminCheck) {
+            // Only super_admin can delete other admins
+            const { data: currentAdminCheck } = await supabase
+                .from('admin_users')
+                .select('role')
+                .eq('user_id', currentUser?.id)
+                .eq('is_active', true)
+                .single()
+
+            if (!currentAdminCheck || currentAdminCheck.role !== 'super_admin') {
+                return NextResponse.json({
+                    error: 'Only super admins can delete admin users'
+                }, { status: 403 })
+            }
+        }
+
+        // Delete user from auth.users (this will cascade delete all related data due to foreign key constraints)
+        const { error: deleteError } = await supabase.auth.admin.deleteUser(userId)
+
+        if (deleteError) {
+            console.error('Failed to delete user:', deleteError)
+            return NextResponse.json({ error: 'Failed to delete user' }, { status: 500 })
+        }
+
+        return NextResponse.json({ success: true, message: 'User deleted successfully' })
+
+    } catch (error) {
+        console.error('Delete user error:', error)
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
     }
 }

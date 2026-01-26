@@ -6,9 +6,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
-import { Search, Plus, Edit } from 'lucide-react'
+import { Search, Plus, Edit, Trash2, AlertTriangle } from 'lucide-react'
+import { toast } from 'sonner'
 
 interface User {
     id: string
@@ -25,6 +26,10 @@ interface User {
         current_streak: number
         longest_streak: number
         total_active_days: number
+    }[]
+    admin_users?: {
+        role: string
+        is_active: boolean
     }[]
 }
 
@@ -46,6 +51,9 @@ export function UserManagement() {
     const [page, setPage] = useState(1)
     const [selectedUser, setSelectedUser] = useState<User | null>(null)
     const [editDialogOpen, setEditDialogOpen] = useState(false)
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+    const [userToDelete, setUserToDelete] = useState<User | null>(null)
+    const [deleting, setDeleting] = useState(false)
 
     useEffect(() => {
         fetchUsers()
@@ -83,11 +91,39 @@ export function UserManagement() {
             })
 
             if (response.ok) {
+                toast.success('User updated successfully')
                 fetchUsers() // Refresh the list
                 setEditDialogOpen(false)
+            } else {
+                toast.error('Failed to update user')
             }
         } catch (error) {
-            // Error handling - could add user-friendly error display here
+            toast.error('Failed to update user')
+        }
+    }
+
+    const deleteUser = async (userId: string) => {
+        setDeleting(true)
+        try {
+            const response = await fetch('/api/admin/users', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId })
+            })
+
+            if (response.ok) {
+                toast.success('User deleted successfully')
+                fetchUsers() // Refresh the list
+                setDeleteDialogOpen(false)
+                setUserToDelete(null)
+            } else {
+                const errorData = await response.json()
+                toast.error(errorData.error || 'Failed to delete user')
+            }
+        } catch (error) {
+            toast.error('Failed to delete user')
+        } finally {
+            setDeleting(false)
         }
     }
 
@@ -161,9 +197,16 @@ export function UserManagement() {
                                                 <div className="font-medium">{user.full_name || 'No name'}</div>
                                                 <div className="text-sm text-gray-500">{user.email}</div>
                                             </div>
-                                            <Badge variant={getTierBadgeVariant(credits?.tier || 'free')}>
-                                                {credits?.tier || 'free'}
-                                            </Badge>
+                                            <div className="flex gap-2">
+                                                <Badge variant={getTierBadgeVariant(credits?.tier || 'free')}>
+                                                    {credits?.tier || 'free'}
+                                                </Badge>
+                                                {user.admin_users && user.admin_users.length > 0 && user.admin_users[0].is_active && (
+                                                    <Badge variant="outline" className="text-purple-600 border-purple-200">
+                                                        {user.admin_users[0].role}
+                                                    </Badge>
+                                                )}
+                                            </div>
                                         </div>
                                         <div className="mt-2 text-sm text-gray-600">
                                             Credits: {credits?.credits || 0} |
@@ -230,6 +273,20 @@ export function UserManagement() {
                                                 </div>
                                             </DialogContent>
                                         </Dialog>
+
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => {
+                                                setUserToDelete(user)
+                                                setDeleteDialogOpen(true)
+                                            }}
+                                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                            disabled={user.admin_users && user.admin_users.length > 0 && user.admin_users[0].is_active}
+                                            title={user.admin_users && user.admin_users.length > 0 && user.admin_users[0].is_active ? 'Cannot delete admin users' : 'Delete user'}
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
                                     </div>
                                 </div>
                             )
@@ -260,6 +317,60 @@ export function UserManagement() {
                     )}
                 </CardContent>
             </Card>
+
+            {/* Delete Confirmation Dialog */}
+            <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2 text-red-600">
+                            <AlertTriangle className="h-5 w-5" />
+                            Delete User
+                        </DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                        <p className="text-sm text-gray-600">
+                            Are you sure you want to delete this user? This action cannot be undone.
+                        </p>
+                        {userToDelete && (
+                            <div className="p-3 bg-gray-50 rounded-lg">
+                                <div className="font-medium">{userToDelete.full_name || 'No name'}</div>
+                                <div className="text-sm text-gray-500">{userToDelete.email}</div>
+                            </div>
+                        )}
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                            <p className="text-sm text-red-800">
+                                <strong>Warning:</strong> This will permanently delete:
+                            </p>
+                            <ul className="text-sm text-red-700 mt-1 ml-4 list-disc">
+                                <li>User account and profile</li>
+                                <li>All expeditions and trails</li>
+                                <li>All messages and learning data</li>
+                                <li>Credit history and transactions</li>
+                                <li>Learning analytics and streaks</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            onClick={() => {
+                                setDeleteDialogOpen(false)
+                                setUserToDelete(null)
+                            }}
+                            disabled={deleting}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            onClick={() => userToDelete && deleteUser(userToDelete.id)}
+                            disabled={deleting}
+                        >
+                            {deleting ? 'Deleting...' : 'Delete User'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }
