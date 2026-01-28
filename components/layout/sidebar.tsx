@@ -101,7 +101,7 @@ export function Sidebar() {
         const supabase = createClient()
         await supabase.auth.signOut()
         queryClient.clear()
-        router.push("/login")
+        router.push("/")
     }
 
     const getThemeIcon = () => {
