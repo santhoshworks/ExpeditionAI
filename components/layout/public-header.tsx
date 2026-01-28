@@ -87,7 +87,7 @@ export function PublicHeader({ currentPage }: PublicHeaderProps) {
                         className={`hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors ${currentPage === 'blog' ? 'text-indigo-600 dark:text-indigo-400' : ''
                             }`}
                     >
-                        Resources
+                        Blog
                     </Link>
                 </nav>
 
@@ -125,7 +125,7 @@ export function PublicHeader({ currentPage }: PublicHeaderProps) {
                     <Link href="/#methodology" className="text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400" onClick={() => setMobileMenuOpen(false)}>Methodology</Link>
                     <Link href="/about" className="text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400" onClick={() => setMobileMenuOpen(false)}>About</Link>
                     <Link href="/pricing" className="text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400" onClick={() => setMobileMenuOpen(false)}>Pricing</Link>
-                    <Link href="/blog" className="text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400" onClick={() => setMobileMenuOpen(false)}>Resources</Link>
+                    <Link href="/blog" className="text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400" onClick={() => setMobileMenuOpen(false)}>Blog</Link>
                     <Link href="/login" className="text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400" onClick={() => setMobileMenuOpen(false)}>Sign in</Link>
                     <Button className="w-full rounded-xl bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-500 h-12 text-lg font-bold">Start Learning</Button>
                 </nav>

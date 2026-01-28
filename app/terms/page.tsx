@@ -1,6 +1,25 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, Scale } from "lucide-react"
+import { Metadata } from "next"
+import { generateSEOMetadata } from "@/lib/seo"
+
+export const metadata: Metadata = generateSEOMetadata({
+    title: "Terms of Service",
+    description: "Read ThoughtMap's Terms of Service. Understand your rights, obligations, and the rules governing your use of our AI-powered learning platform.",
+    keywords: [
+        "terms of service",
+        "terms and conditions",
+        "user agreement",
+        "service terms",
+        "usage policy",
+        "learning platform terms",
+        "AI learning terms",
+        "user rights",
+        "service agreement"
+    ],
+    url: "/terms"
+})
 
 export default function TermsPage() {
     const lastUpdated = "January 10, 2026"

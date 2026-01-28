@@ -57,7 +57,7 @@ export function HomePageContent() {
               </h1>
 
               <p className="text-base md:text-xl text-slate-500 max-w-3xl leading-relaxed font-medium">
-                ThoughtMap revolutionizes online education with AI-powered branching conversations. Create personalized learning expeditions, explore knowledge trails, and master any subject with 300+ AI models including GPT-4, Claude, and Gemini.
+                Learn any subject by chatting with AI. Unlike endless Google searches, our platform keeps your learning organized in a visual map. Access 300+ AI models including GPT-4, Claude, and Gemini—switch anytime to find the best explanation.
               </p>
 
               <div className="flex flex-col sm:flex-row items-center gap-5 pt-4">
@@ -122,8 +122,8 @@ export function HomePageContent() {
         <section id="features" className="py-32 bg-white relative">
           <div className="container mx-auto px-6">
             <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
-              <h2 className="text-indigo-600 font-bold tracking-wider uppercase text-sm">Engineered for Mastery</h2>
-              <h3 className="text-3xl md:text-5xl font-bold text-slate-900 leading-tight">Beyond traditional learning. Branching conversations.</h3>
+              <h2 className="text-indigo-600 font-bold tracking-wider uppercase text-sm">Powerful Features</h2>
+              <h3 className="text-3xl md:text-5xl font-bold text-slate-900 leading-tight">Everything you need to learn faster.</h3>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-6 lg:grid-cols-12 gap-6">
@@ -134,9 +134,9 @@ export function HomePageContent() {
                     <div className="w-14 h-14 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-100">
                       <MapIcon className="w-7 h-7" />
                     </div>
-                    <h4 className="text-3xl font-bold text-slate-900 tracking-tight">Branching Trail System</h4>
+                    <h4 className="text-3xl font-bold text-slate-900 tracking-tight">Explore and Organize</h4>
                     <p className="text-slate-600 text-lg leading-relaxed">
-                      Start with any topic and branch into new trails when you discover interesting concepts. Create a tree of connected learning paths that grow with your curiosity.
+                      As you learn about a topic, you'll discover related concepts worth exploring. Our visual map keeps everything organized so you don't lose track of what you've learned.
                     </p>
                     <div className="flex flex-wrap gap-2 pt-2">
                       {["Trail Branching", "Visual Tree", "Flag Progress"].map(tag => (
@@ -162,9 +162,9 @@ export function HomePageContent() {
                     <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-white backdrop-blur-md">
                       <Brain className="w-7 h-7" />
                     </div>
-                    <h4 className="text-3xl font-bold tracking-tight">AI-Powered Conversations</h4>
+                    <h4 className="text-3xl font-bold tracking-tight">Pick the Perfect AI</h4>
                     <p className="text-slate-400 text-lg leading-relaxed">
-                      Chat with 300+ AI models including GPT-4, Claude, and Gemini. Get explanations tailored to your learning level with optional trivia and illustrations.
+                      Different topics need different approaches. Switch between ChatGPT, Claude, Gemini, and 297 other models to find the best explanation style for what you're learning.
                     </p>
                   </div>
                   <div className="pt-10 flex items-center gap-4 text-indigo-400 font-bold group-hover:gap-6 transition-all">
@@ -179,9 +179,9 @@ export function HomePageContent() {
                   <div className="w-12 h-12 bg-fuchsia-50 rounded-xl flex items-center justify-center text-fuchsia-600">
                     <Layers className="w-6 h-6" />
                   </div>
-                  <h4 className="text-xl font-bold text-slate-900">AI-Generated Quizzes</h4>
+                  <h4 className="text-xl font-bold text-slate-900">Test Your Knowledge</h4>
                   <p className="text-slate-500 leading-relaxed">
-                    Test your understanding with personalized quizzes generated from your conversation history. Multiple choice questions with detailed explanations.
+                    Personalized quizzes generated from what you've learned. Get instant feedback with detailed explanations to fill any gaps in understanding.
                   </p>
                 </CardContent>
               </Card>
@@ -192,9 +192,9 @@ export function HomePageContent() {
                   <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
                     <BookOpen className="w-6 h-6" />
                   </div>
-                  <h4 className="text-xl font-bold text-slate-900">Smart Learning Journals</h4>
+                  <h4 className="text-xl font-bold text-slate-900">Auto-Generated Summaries</h4>
                   <p className="text-slate-500 leading-relaxed">
-                    AI automatically generates comprehensive summaries of your entire learning expedition with key insights and takeaways.
+                    Get AI-powered summaries of everything you've learned. Export as PDF or notes to review key insights anytime.
                   </p>
                 </CardContent>
               </Card>
@@ -630,18 +630,17 @@ export function HomePageContent() {
               <ul className="space-y-4 text-slate-400 font-medium">
                 <li><Link href="#features" className="hover:text-white transition-colors">Features</Link></li>
                 <li><Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link></li>
+                <li><Link href="/about" className="hover:text-white transition-colors">About</Link></li>
                 <li><Link href="/blog" className="hover:text-white transition-colors">Blog</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Apps</Link></li>
               </ul>
             </div>
 
             <div className="md:col-span-2 space-y-6">
               <h4 className="text-sm font-black uppercase tracking-widest text-indigo-400">Resources</h4>
               <ul className="space-y-4 text-slate-400 font-medium">
-                <li><Link href="#" className="hover:text-white transition-colors">Help Center</Link></li>
+                <li><Link href="/faq" className="hover:text-white transition-colors">Help Center</Link></li>
                 <li><Link href="/faq" className="hover:text-white transition-colors">FAQ</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Tutorials</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Community</Link></li>
+                <li><Link href="/blog" className="hover:text-white transition-colors">Tutorials</Link></li>
               </ul>
             </div>
 
