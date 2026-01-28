@@ -222,3 +222,15 @@ CREATE TRIGGER courses_update_timestamp
 BEFORE UPDATE ON courses
 FOR EACH ROW
 EXECUTE FUNCTION update_courses_timestamp();
+
+-- Course-Skills Junction Table
+CREATE TABLE course_skills (
+  course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+  skill_id UUID NOT NULL REFERENCES skills(id) ON DELETE CASCADE,
+  proficiency_level VARCHAR(50),
+
+  PRIMARY KEY (course_id, skill_id)
+);
+
+-- Indexes
+CREATE INDEX idx_course_skills_skill_id ON course_skills(skill_id);
