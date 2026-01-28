@@ -289,3 +289,41 @@ CREATE TRIGGER modules_update_timestamp
 BEFORE UPDATE ON modules
 FOR EACH ROW
 EXECUTE FUNCTION update_modules_timestamp();
+
+-- Assessments table (quizzes for modules or overall courses)
+CREATE TABLE assessments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+  module_id UUID REFERENCES modules(id) ON DELETE CASCADE,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  assessment_type VARCHAR(50) CHECK (assessment_type IN ('quiz', 'survey', 'exam', 'practical')),
+  passing_score INTEGER DEFAULT 70,
+  max_attempts INTEGER,
+  time_limit_minutes INTEGER,
+  randomize_questions BOOLEAN DEFAULT FALSE,
+  show_correct_answers BOOLEAN DEFAULT TRUE,
+
+  -- Metadata
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Indexes
+CREATE INDEX idx_assessments_course_id ON assessments(course_id);
+CREATE INDEX idx_assessments_module_id ON assessments(module_id);
+CREATE INDEX idx_assessments_type ON assessments(assessment_type);
+
+-- Trigger for updated_at
+CREATE OR REPLACE FUNCTION update_assessments_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER assessments_update_timestamp
+BEFORE UPDATE ON assessments
+FOR EACH ROW
+EXECUTE FUNCTION update_assessments_timestamp();
