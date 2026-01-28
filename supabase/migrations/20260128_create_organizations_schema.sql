@@ -327,3 +327,129 @@ CREATE TRIGGER assessments_update_timestamp
 BEFORE UPDATE ON assessments
 FOR EACH ROW
 EXECUTE FUNCTION update_assessments_timestamp();
+
+-- Questions table
+CREATE TABLE questions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  assessment_id UUID NOT NULL REFERENCES assessments(id) ON DELETE CASCADE,
+  question_text TEXT NOT NULL,
+  question_type VARCHAR(50) CHECK (question_type IN ('mcq', 'true_false', 'short_answer', 'essay')),
+  pool_tag VARCHAR(100),
+  explanation TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX idx_questions_assessment_id ON questions(assessment_id);
+CREATE INDEX idx_questions_pool_tag ON questions(pool_tag);
+
+-- Answer Options table
+CREATE TABLE answer_options (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  question_id UUID NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
+  option_text TEXT NOT NULL,
+  is_correct BOOLEAN DEFAULT FALSE,
+  display_order INTEGER,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX idx_answer_options_question_id ON answer_options(question_id);
+
+-- Course Assignments table
+CREATE TABLE course_assignments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+  member_id UUID NOT NULL REFERENCES members(id) ON DELETE CASCADE,
+  assigned_by UUID REFERENCES members(id) ON DELETE SET NULL,
+  due_date DATE,
+  status VARCHAR(50) CHECK (status IN ('pending', 'in_progress', 'completed', 'overdue')) DEFAULT 'pending',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+
+  CONSTRAINT unique_course_assignment UNIQUE(course_id, member_id)
+);
+
+CREATE INDEX idx_course_assignments_course_id ON course_assignments(course_id);
+CREATE INDEX idx_course_assignments_member_id ON course_assignments(member_id);
+CREATE INDEX idx_course_assignments_status ON course_assignments(status);
+
+CREATE OR REPLACE FUNCTION update_course_assignments_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER course_assignments_update_timestamp
+BEFORE UPDATE ON course_assignments
+FOR EACH ROW
+EXECUTE FUNCTION update_course_assignments_timestamp();
+
+-- Enrollments table
+CREATE TABLE enrollments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+  member_id UUID NOT NULL REFERENCES members(id) ON DELETE CASCADE,
+  progress_percentage INTEGER DEFAULT 0 CHECK (progress_percentage BETWEEN 0 AND 100),
+  is_completed BOOLEAN DEFAULT FALSE,
+  completion_date TIMESTAMP WITH TIME ZONE,
+  last_accessed TIMESTAMP WITH TIME ZONE,
+  needs_recertification BOOLEAN DEFAULT FALSE,
+  recertification_date TIMESTAMP WITH TIME ZONE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+
+  CONSTRAINT unique_enrollment UNIQUE(course_id, member_id)
+);
+
+CREATE INDEX idx_enrollments_course_id ON enrollments(course_id);
+CREATE INDEX idx_enrollments_member_id ON enrollments(member_id);
+CREATE INDEX idx_enrollments_is_completed ON enrollments(is_completed);
+CREATE INDEX idx_enrollments_progress ON enrollments(progress_percentage);
+
+CREATE OR REPLACE FUNCTION update_enrollments_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER enrollments_update_timestamp
+BEFORE UPDATE ON enrollments
+FOR EACH ROW
+EXECUTE FUNCTION update_enrollments_timestamp();
+
+-- Module Progress table
+CREATE TABLE module_progress (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  enrollment_id UUID NOT NULL REFERENCES enrollments(id) ON DELETE CASCADE,
+  module_id UUID NOT NULL REFERENCES modules(id) ON DELETE CASCADE,
+  progress_percentage INTEGER DEFAULT 0 CHECK (progress_percentage BETWEEN 0 AND 100),
+  is_completed BOOLEAN DEFAULT FALSE,
+  completion_date TIMESTAMP WITH TIME ZONE,
+  last_accessed TIMESTAMP WITH TIME ZONE,
+  video_watch_time_seconds INTEGER DEFAULT 0,
+  video_total_duration_seconds INTEGER,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+
+  CONSTRAINT unique_module_progress UNIQUE(enrollment_id, module_id)
+);
+
+CREATE INDEX idx_module_progress_enrollment_id ON module_progress(enrollment_id);
+CREATE INDEX idx_module_progress_module_id ON module_progress(module_id);
+CREATE INDEX idx_module_progress_is_completed ON module_progress(is_completed);
+
+CREATE OR REPLACE FUNCTION update_module_progress_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER module_progress_update_timestamp
+BEFORE UPDATE ON module_progress
+FOR EACH ROW
+EXECUTE FUNCTION update_module_progress_timestamp();
