@@ -1,6 +1,26 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, ShieldCheck } from "lucide-react"
+import { Metadata } from "next"
+import { generateSEOMetadata } from "@/lib/seo"
+
+export const metadata: Metadata = generateSEOMetadata({
+    title: "Privacy Policy",
+    description: "Learn about how ThoughtMap protects your personal information and privacy. Our comprehensive privacy policy covers data collection, usage, security, and your rights as a user.",
+    keywords: [
+        "privacy policy",
+        "data protection",
+        "GDPR compliance",
+        "user privacy",
+        "data security",
+        "privacy rights",
+        "CCPA compliance",
+        "personal information",
+        "learning platform privacy",
+        "AI learning privacy"
+    ],
+    url: "/privacy"
+})
 
 export default function PrivacyPage() {
     const lastUpdated = "January 10, 2026"

@@ -69,6 +69,13 @@ export function PublicHeader({ currentPage }: PublicHeaderProps) {
                         Methodology
                     </Link>
                     <Link
+                        href="/about"
+                        className={`hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors ${currentPage === 'about' ? 'text-indigo-600 dark:text-indigo-400' : ''
+                            }`}
+                    >
+                        About
+                    </Link>
+                    <Link
                         href="/pricing"
                         className={`hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors ${currentPage === 'pricing' ? 'text-indigo-600 dark:text-indigo-400' : ''
                             }`}
@@ -116,6 +123,7 @@ export function PublicHeader({ currentPage }: PublicHeaderProps) {
                 <nav className="container mx-auto px-6 py-8 flex flex-col gap-6 relative z-10">
                     <Link href="/#features" className="text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400" onClick={() => setMobileMenuOpen(false)}>Features</Link>
                     <Link href="/#methodology" className="text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400" onClick={() => setMobileMenuOpen(false)}>Methodology</Link>
+                    <Link href="/about" className="text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400" onClick={() => setMobileMenuOpen(false)}>About</Link>
                     <Link href="/pricing" className="text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400" onClick={() => setMobileMenuOpen(false)}>Pricing</Link>
                     <Link href="/blog" className="text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400" onClick={() => setMobileMenuOpen(false)}>Resources</Link>
                     <Link href="/login" className="text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400" onClick={() => setMobileMenuOpen(false)}>Sign in</Link>
