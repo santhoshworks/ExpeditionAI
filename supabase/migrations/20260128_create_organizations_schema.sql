@@ -588,3 +588,113 @@ CREATE TABLE notifications (
 CREATE INDEX idx_notifications_member_id ON notifications(member_id);
 CREATE INDEX idx_notifications_is_read ON notifications(is_read);
 CREATE INDEX idx_notifications_created_at ON notifications(created_at);
+
+-- Audit Log table (immutable)
+CREATE TABLE audit_log (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  org_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  member_id UUID REFERENCES members(id) ON DELETE SET NULL,
+  action VARCHAR(255),
+  resource_type VARCHAR(100),
+  resource_id UUID,
+  details JSONB,
+  ip_address INET,
+  user_agent TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX idx_audit_log_org_id ON audit_log(org_id);
+CREATE INDEX idx_audit_log_member_id ON audit_log(member_id);
+CREATE INDEX idx_audit_log_resource_type ON audit_log(resource_type);
+CREATE INDEX idx_audit_log_created_at ON audit_log(created_at);
+
+-- Add immutability rules (no update/delete allowed)
+ALTER TABLE audit_log ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY audit_log_no_update ON audit_log
+  AS (UPDATE) WITH CHECK (FALSE);
+
+CREATE POLICY audit_log_no_delete ON audit_log
+  AS (DELETE) WITH CHECK (FALSE);
+
+-- Scheduled Assignments table
+CREATE TABLE scheduled_assignments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+  org_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  schedule_type VARCHAR(50),
+  start_date DATE,
+  recurrence_pattern VARCHAR(255),
+  is_active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX idx_scheduled_assignments_course_id ON scheduled_assignments(course_id);
+CREATE INDEX idx_scheduled_assignments_org_id ON scheduled_assignments(org_id);
+
+CREATE OR REPLACE FUNCTION update_scheduled_assignments_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER scheduled_assignments_update_timestamp
+BEFORE UPDATE ON scheduled_assignments
+FOR EACH ROW
+EXECUTE FUNCTION update_scheduled_assignments_timestamp();
+
+-- Data Exports table (GDPR)
+CREATE TABLE data_exports (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  org_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  member_id UUID REFERENCES members(id) ON DELETE CASCADE,
+  export_type VARCHAR(100),
+  status VARCHAR(50) CHECK (status IN ('pending', 'processing', 'completed', 'failed')) DEFAULT 'pending',
+  file_url TEXT,
+  requested_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  completed_at TIMESTAMP WITH TIME ZONE
+);
+
+CREATE INDEX idx_data_exports_org_id ON data_exports(org_id);
+CREATE INDEX idx_data_exports_member_id ON data_exports(member_id);
+CREATE INDEX idx_data_exports_status ON data_exports(status);
+
+-- SSO Configuration table
+CREATE TABLE sso_config (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  org_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  provider VARCHAR(50),
+  is_enabled BOOLEAN DEFAULT TRUE,
+
+  -- SAML fields
+  saml_entity_id TEXT,
+  saml_sso_url TEXT,
+  saml_certificate TEXT,
+
+  -- OAuth fields
+  oauth_client_id TEXT,
+  oauth_client_secret TEXT,
+  oauth_redirect_uri TEXT,
+
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX idx_sso_config_org_id ON sso_config(org_id);
+CREATE INDEX idx_sso_config_provider ON sso_config(provider);
+
+CREATE OR REPLACE FUNCTION update_sso_config_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER sso_config_update_timestamp
+BEFORE UPDATE ON sso_config
+FOR EACH ROW
+EXECUTE FUNCTION update_sso_config_timestamp();
