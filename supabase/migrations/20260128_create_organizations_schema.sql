@@ -135,3 +135,40 @@ CREATE TRIGGER skills_update_timestamp
 BEFORE UPDATE ON skills
 FOR EACH ROW
 EXECUTE FUNCTION update_skills_timestamp();
+
+-- Learning Paths table (multi-course sequences)
+CREATE TABLE learning_paths (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  org_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  name VARCHAR(255) NOT NULL,
+  description TEXT,
+  difficulty_level VARCHAR(50),
+  estimated_duration_hours INTEGER,
+  created_by UUID NOT NULL REFERENCES members(id) ON DELETE SET NULL,
+  is_active BOOLEAN DEFAULT TRUE,
+
+  -- Metadata
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+
+  CONSTRAINT unique_learning_path_per_org UNIQUE(org_id, name)
+);
+
+-- Indexes
+CREATE INDEX idx_learning_paths_org_id ON learning_paths(org_id);
+CREATE INDEX idx_learning_paths_created_by ON learning_paths(created_by);
+CREATE INDEX idx_learning_paths_is_active ON learning_paths(is_active);
+
+-- Trigger for updated_at
+CREATE OR REPLACE FUNCTION update_learning_paths_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER learning_paths_update_timestamp
+BEFORE UPDATE ON learning_paths
+FOR EACH ROW
+EXECUTE FUNCTION update_learning_paths_timestamp();
