@@ -1,0 +1,91 @@
+# ExpeditionAI/ThoughtMap - Claude Code Context
+# Use this file as reference for project context when working in this repo
+
+## PROJECT OVERVIEW
+This is the ExpeditionAI/ThoughtMap project - a NEW Business L&D platform completely separate from the existing D2C product.
+
+### Architecture Separation
+- Database schema: `organizations` (Business L&D) + `public` (D2C)
+- Routes: `app/(business)/` for Business L&D, other routes for D2C
+- Components: `components/business/` for Business L&D, others for D2C
+- Utilities: `lib/business/` for Business L&D helpers
+- **CRITICAL**: Never mix D2C and Business L&D code
+
+## TECHNOLOGY STACK
+- **Frontend**: Next.js 14 (App Router), TypeScript, React
+- **Styling**: Tailwind CSS, shadcn/ui
+- **Database**: Supabase (PostgreSQL) with two schemas
+- **Auth**: Supabase Auth
+- **Storage**: AWS S3
+- **AI/LLM**: OpenRouter AI SDK
+- **State Management**: React Query
+- **Migrations**: supabase/migrations/
+
+## AUTONOMOUS TASK EXECUTION SYSTEM
+Task tracker location: `docs/plans/business-lnd-task-tracker.json`
+- 300+ micro-tasks (5-15 minutes each)
+- Multiple phases for structured development
+- Each task has clear steps and success criteria
+
+### Task Execution Protocol
+1. Read `docs/plans/business-lnd-task-tracker.json`
+2. Find task with `status=pending` and all dependencies completed
+3. Update task `status` to `in_progress` with `assignedTo` and `startedAt`
+4. Execute exact steps from task definition
+5. Verify success criteria
+6. Create git commit with message from task
+7. Update task `status` to `completed` with `completedAt`
+8. Update stats in tracker
+9. Save tracker file
+10. Report progress and ask to continue
+
+## CODING CONVENTIONS
+- **Model Choice**: Haiku for task execution (saves 90% credits), Sonnet for planning/debugging
+- **Commit Strategy**: Commit after each completed task
+- **Success Criteria**: Never skip verification - always confirm success criteria met
+- **Terminology**:
+  - Learning Paths (not Expeditions)
+  - Sessions (not Trails)
+  - Interactions (not Messages)
+- **File Organization**:
+  - Routes: `app/(business)/`
+  - Components: `components/business/`
+  - Utilities: `lib/business/`
+  - Migrations: `supabase/migrations/`
+
+## QUICK COMMANDS
+```bash
+npm run task:status      # Show current progress
+npm run task:next        # Show next available task
+npm run task:list        # List all tasks
+npm run task:complete <id>    # Mark task as done
+npm run task:block <id> <reason>   # Mark task as blocked
+```
+
+## MAIN DOCUMENTATION FILES
+- `docs/plans/2026-01-28-business-lnd-design.md` - Full design document
+- `docs/plans/AUTONOMOUS-EXECUTION.md` - Task execution system guide
+- `docs/plans/QUICK-START.md` - Getting started guide
+- `docs/plans/business-lnd-task-tracker.json` - Task definitions and status
+
+## SPECIALIZED SKILLS FOR THIS PROJECT
+Available skills to use when executing relevant tasks:
+- `supabase-expert` - Database schema, RLS policies, auth, functions
+- `database-schema` - Schema design and migrations
+- `api-designer` - REST API design
+- `nextjs-development` - Next.js patterns and App Router
+- `oauth-implementation` - SSO/SAML integration
+- `test-driven-development` - TDD workflow
+- `systematic-debugging` - Debugging methodology
+
+## CURRENT IMPLEMENTATION STATUS
+- **Phase**: 1 (Foundation - Database & Auth)
+- **Total Tasks in Phase 1**: 30
+- **Completed**: 0/30
+- **Next Task**: 1.1 - Create organizations schema file
+- **Estimated Time for Phase 1**: 4.9 hours
+- **Strategy**: Use autonomous execution with Haiku model for credit efficiency
+
+## MEMORY NOTES
+This file serves as the persistent context reference. Update the "CURRENT IMPLEMENTATION STATUS"
+section as progress is made on tasks. Keep this file synced with actual project state.
