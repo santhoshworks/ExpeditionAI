@@ -101,3 +101,37 @@ CREATE TRIGGER members_update_timestamp
 BEFORE UPDATE ON members
 FOR EACH ROW
 EXECUTE FUNCTION update_members_timestamp();
+
+-- Skills table (catalog of competencies)
+CREATE TABLE skills (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  org_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  name VARCHAR(255) NOT NULL,
+  description TEXT,
+  category VARCHAR(100),
+  level VARCHAR(50) DEFAULT 'intermediate',
+
+  -- Metadata
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+
+  CONSTRAINT unique_skill_per_org UNIQUE(org_id, name)
+);
+
+-- Indexes
+CREATE INDEX idx_skills_org_id ON skills(org_id);
+CREATE INDEX idx_skills_category ON skills(category);
+
+-- Trigger for updated_at
+CREATE OR REPLACE FUNCTION update_skills_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER skills_update_timestamp
+BEFORE UPDATE ON skills
+FOR EACH ROW
+EXECUTE FUNCTION update_skills_timestamp();
