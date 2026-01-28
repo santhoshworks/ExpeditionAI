@@ -58,3 +58,46 @@ CREATE TRIGGER organizations_update_timestamp
 BEFORE UPDATE ON organizations
 FOR EACH ROW
 EXECUTE FUNCTION update_organizations_timestamp();
+
+-- Members table (org users with roles)
+CREATE TABLE members (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  org_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  auth_user_id UUID NOT NULL,
+  first_name VARCHAR(100),
+  last_name VARCHAR(100),
+  email VARCHAR(255) NOT NULL,
+  role VARCHAR(50) CHECK (role IN ('admin', 'content_creator', 'learner')) DEFAULT 'learner',
+  status VARCHAR(50) CHECK (status IN ('active', 'inactive', 'suspended')) DEFAULT 'active',
+  job_title VARCHAR(100),
+  department VARCHAR(100),
+
+  -- Metadata
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  deleted_at TIMESTAMP WITH TIME ZONE,
+
+  CONSTRAINT unique_member_per_org UNIQUE(org_id, auth_user_id),
+  CONSTRAINT unique_email_per_org UNIQUE(org_id, email)
+);
+
+-- Indexes
+CREATE INDEX idx_members_org_id ON members(org_id);
+CREATE INDEX idx_members_auth_user_id ON members(auth_user_id);
+CREATE INDEX idx_members_status ON members(status);
+CREATE INDEX idx_members_role ON members(role);
+CREATE INDEX idx_members_deleted_at ON members(deleted_at) WHERE deleted_at IS NULL;
+
+-- Trigger for updated_at
+CREATE OR REPLACE FUNCTION update_members_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER members_update_timestamp
+BEFORE UPDATE ON members
+FOR EACH ROW
+EXECUTE FUNCTION update_members_timestamp();
