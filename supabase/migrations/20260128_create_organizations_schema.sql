@@ -234,3 +234,15 @@ CREATE TABLE course_skills (
 
 -- Indexes
 CREATE INDEX idx_course_skills_skill_id ON course_skills(skill_id);
+
+-- Course Prerequisites Table
+CREATE TABLE course_prerequisites (
+  course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+  prerequisite_course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+
+  PRIMARY KEY (course_id, prerequisite_course_id),
+  CONSTRAINT no_self_reference CHECK (course_id != prerequisite_course_id)
+);
+
+-- Indexes
+CREATE INDEX idx_course_prerequisites_prerequisite_id ON course_prerequisites(prerequisite_course_id);
