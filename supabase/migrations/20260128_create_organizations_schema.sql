@@ -246,3 +246,46 @@ CREATE TABLE course_prerequisites (
 
 -- Indexes
 CREATE INDEX idx_course_prerequisites_prerequisite_id ON course_prerequisites(prerequisite_course_id);
+
+-- Modules table (learning units within courses)
+CREATE TABLE modules (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  module_order INTEGER NOT NULL,
+  duration_minutes INTEGER,
+  content TEXT,
+  content_type VARCHAR(50) CHECK (content_type IN ('video', 'text', 'interactive', 'mixed')),
+
+  -- Video fields
+  video_url TEXT,
+  video_duration_seconds INTEGER,
+  video_thumbnail_url TEXT,
+  transcription TEXT,
+
+  -- Metadata
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+
+  CONSTRAINT unique_module_order_per_course UNIQUE(course_id, module_order)
+);
+
+-- Indexes
+CREATE INDEX idx_modules_course_id ON modules(course_id);
+CREATE INDEX idx_modules_content_type ON modules(content_type);
+CREATE INDEX idx_modules_order ON modules(course_id, module_order);
+
+-- Trigger for updated_at
+CREATE OR REPLACE FUNCTION update_modules_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER modules_update_timestamp
+BEFORE UPDATE ON modules
+FOR EACH ROW
+EXECUTE FUNCTION update_modules_timestamp();
