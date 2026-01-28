@@ -1,0 +1,696 @@
+{
+  "project": "Business L&D Platform",
+  "version": "1.0.0",
+  "lastUpdated": "2026-01-28T00:00:00Z",
+  "phases": [
+    {
+      "id": 1,
+      "name": "Foundation (Database & Auth)",
+      "estimatedWeeks": 3,
+      "status": "pending"
+    },
+    {
+      "id": 2,
+      "name": "Content & AI Generation",
+      "estimatedWeeks": 3,
+      "status": "pending"
+    },
+    {
+      "id": 3,
+      "name": "Learning Experience",
+      "estimatedWeeks": 3,
+      "status": "pending"
+    },
+    {
+      "id": 4,
+      "name": "Assignments & Progress",
+      "estimatedWeeks": 2,
+      "status": "pending"
+    },
+    {
+      "id": 5,
+      "name": "Advanced Features",
+      "estimatedWeeks": 3,
+      "status": "pending"
+    },
+    {
+      "id": 6,
+      "name": "Integrations & Polish",
+      "estimatedWeeks": 2,
+      "status": "pending"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "1.1",
+      "title": "Create organizations schema file",
+      "phase": 1,
+      "category": "db",
+      "status": "pending",
+      "dependencies": [],
+      "estimatedMinutes": 10,
+      "files": {
+        "create": ["supabase/migrations/20260128_create_organizations_schema.sql"]
+      },
+      "description": "Create initial migration file with organizations schema",
+      "successCriteria": [
+        "File created with valid SQL",
+        "No syntax errors",
+        "Committed to git"
+      ],
+      "assignedTo": null,
+      "startedAt": null,
+      "completedAt": null,
+      "blockedReason": null
+    },
+    {
+      "id": "1.2",
+      "title": "Create organizations table",
+      "phase": 1,
+      "category": "db",
+      "status": "pending",
+      "dependencies": ["1.1"],
+      "estimatedMinutes": 15,
+      "files": {
+        "modify": ["supabase/migrations/20260128_create_organizations_schema.sql"]
+      },
+      "description": "Add organizations table with branding, subscription, and settings",
+      "successCriteria": [
+        "Table created successfully",
+        "Indexes present",
+        "Trigger working",
+        "Migration applies cleanly"
+      ],
+      "assignedTo": null,
+      "startedAt": null,
+      "completedAt": null,
+      "blockedReason": null
+    },
+    {
+      "id": "1.3",
+      "title": "Create members table",
+      "phase": 1,
+      "category": "db",
+      "status": "pending",
+      "dependencies": ["1.2"],
+      "estimatedMinutes": 12,
+      "files": {
+        "modify": ["supabase/migrations/20260128_create_organizations_schema.sql"]
+      },
+      "description": "Add members table with roles (admin, content_creator, learner)",
+      "successCriteria": [
+        "Table created with constraints",
+        "Foreign keys working",
+        "Unique constraints enforced",
+        "Test data insertable"
+      ],
+      "assignedTo": null,
+      "startedAt": null,
+      "completedAt": null,
+      "blockedReason": null
+    },
+    {
+      "id": "1.4",
+      "title": "Create skills table",
+      "phase": 1,
+      "category": "db",
+      "status": "pending",
+      "dependencies": ["1.2"],
+      "estimatedMinutes": 8,
+      "files": {
+        "modify": ["supabase/migrations/20260128_create_organizations_schema.sql"]
+      },
+      "description": "Add skills catalog table for competency tracking",
+      "successCriteria": [
+        "Table created successfully",
+        "Unique constraint on org_id + name works"
+      ],
+      "assignedTo": null,
+      "startedAt": null,
+      "completedAt": null,
+      "blockedReason": null
+    },
+    {
+      "id": "1.5",
+      "title": "Create learning_paths table",
+      "phase": 1,
+      "category": "db",
+      "status": "pending",
+      "dependencies": ["1.3"],
+      "estimatedMinutes": 10,
+      "files": {
+        "modify": ["supabase/migrations/20260128_create_organizations_schema.sql"]
+      },
+      "description": "Add learning paths table for multi-course sequences",
+      "successCriteria": [
+        "Table created successfully",
+        "Foreign key to members working"
+      ],
+      "assignedTo": null,
+      "startedAt": null,
+      "completedAt": null,
+      "blockedReason": null
+    },
+    {
+      "id": "1.6",
+      "title": "Create courses table",
+      "phase": 1,
+      "category": "db",
+      "status": "pending",
+      "dependencies": ["1.5"],
+      "estimatedMinutes": 15,
+      "files": {
+        "modify": ["supabase/migrations/20260128_create_organizations_schema.sql"]
+      },
+      "description": "Add courses table with AI generation tracking and full-text search",
+      "successCriteria": [
+        "Table created with all fields",
+        "Search vector trigger working",
+        "All indexes created"
+      ],
+      "assignedTo": null,
+      "startedAt": null,
+      "completedAt": null,
+      "blockedReason": null
+    },
+    {
+      "id": "1.7",
+      "title": "Create course_skills junction table",
+      "phase": 1,
+      "category": "db",
+      "status": "pending",
+      "dependencies": ["1.4", "1.6"],
+      "estimatedMinutes": 7,
+      "files": {
+        "modify": ["supabase/migrations/20260128_create_organizations_schema.sql"]
+      },
+      "description": "Link courses to skills they teach",
+      "successCriteria": [
+        "Junction table created",
+        "Composite primary key working"
+      ],
+      "assignedTo": null,
+      "startedAt": null,
+      "completedAt": null,
+      "blockedReason": null
+    },
+    {
+      "id": "1.8",
+      "title": "Create course_prerequisites table",
+      "phase": 1,
+      "category": "db",
+      "status": "pending",
+      "dependencies": ["1.6"],
+      "estimatedMinutes": 8,
+      "files": {
+        "modify": ["supabase/migrations/20260128_create_organizations_schema.sql"]
+      },
+      "description": "Define course prerequisites and learning sequences",
+      "successCriteria": [
+        "Table created",
+        "Self-referencing check constraint works"
+      ],
+      "assignedTo": null,
+      "startedAt": null,
+      "completedAt": null,
+      "blockedReason": null
+    },
+    {
+      "id": "1.9",
+      "title": "Create modules table",
+      "phase": 1,
+      "category": "db",
+      "status": "pending",
+      "dependencies": ["1.6"],
+      "estimatedMinutes": 12,
+      "files": {
+        "modify": ["supabase/migrations/20260128_create_organizations_schema.sql"]
+      },
+      "description": "Add modules table for AI-generated learning units",
+      "successCriteria": [
+        "Table created with content fields",
+        "Order index working",
+        "Video timestamp fields present"
+      ],
+      "assignedTo": null,
+      "startedAt": null,
+      "completedAt": null,
+      "blockedReason": null
+    },
+    {
+      "id": "1.10",
+      "title": "Create assessments table",
+      "phase": 1,
+      "category": "db",
+      "status": "pending",
+      "dependencies": ["1.6", "1.9"],
+      "estimatedMinutes": 10,
+      "files": {
+        "modify": ["supabase/migrations/20260128_create_organizations_schema.sql"]
+      },
+      "description": "Add assessments table for quizzes (module and overall)",
+      "successCriteria": [
+        "Table created",
+        "Module_id can be null (for overall assessments)"
+      ],
+      "assignedTo": null,
+      "startedAt": null,
+      "completedAt": null,
+      "blockedReason": null
+    },
+    {
+      "id": "1.11",
+      "title": "Create questions table",
+      "phase": 1,
+      "category": "db",
+      "status": "pending",
+      "dependencies": ["1.10"],
+      "estimatedMinutes": 10,
+      "files": {
+        "modify": ["supabase/migrations/20260128_create_organizations_schema.sql"]
+      },
+      "description": "Add questions table with pool tagging for randomization",
+      "successCriteria": [
+        "Table created",
+        "Pool tag indexing works"
+      ],
+      "assignedTo": null,
+      "startedAt": null,
+      "completedAt": null,
+      "blockedReason": null
+    },
+    {
+      "id": "1.12",
+      "title": "Create answer_options table",
+      "phase": 1,
+      "category": "db",
+      "status": "pending",
+      "dependencies": ["1.11"],
+      "estimatedMinutes": 8,
+      "files": {
+        "modify": ["supabase/migrations/20260128_create_organizations_schema.sql"]
+      },
+      "description": "Add answer options for MCQ questions",
+      "successCriteria": [
+        "Table created",
+        "is_correct boolean field present"
+      ],
+      "assignedTo": null,
+      "startedAt": null,
+      "completedAt": null,
+      "blockedReason": null
+    },
+    {
+      "id": "1.13",
+      "title": "Create course_assignments table",
+      "phase": 1,
+      "category": "db",
+      "status": "pending",
+      "dependencies": ["1.6", "1.3"],
+      "estimatedMinutes": 10,
+      "files": {
+        "modify": ["supabase/migrations/20260128_create_organizations_schema.sql"]
+      },
+      "description": "Track course assignments with due dates",
+      "successCriteria": [
+        "Table created",
+        "Unique constraint on course_id + member_id"
+      ],
+      "assignedTo": null,
+      "startedAt": null,
+      "completedAt": null,
+      "blockedReason": null
+    },
+    {
+      "id": "1.14",
+      "title": "Create enrollments table",
+      "phase": 1,
+      "category": "db",
+      "status": "pending",
+      "dependencies": ["1.6", "1.3"],
+      "estimatedMinutes": 12,
+      "files": {
+        "modify": ["supabase/migrations/20260128_create_organizations_schema.sql"]
+      },
+      "description": "Track learner progress and completion",
+      "successCriteria": [
+        "Table created",
+        "Progress fields present",
+        "Recertification fields present"
+      ],
+      "assignedTo": null,
+      "startedAt": null,
+      "completedAt": null,
+      "blockedReason": null
+    },
+    {
+      "id": "1.15",
+      "title": "Create module_progress table",
+      "phase": 1,
+      "category": "db",
+      "status": "pending",
+      "dependencies": ["1.14", "1.9"],
+      "estimatedMinutes": 10,
+      "files": {
+        "modify": ["supabase/migrations/20260128_create_organizations_schema.sql"]
+      },
+      "description": "Track module-level progress and video watch time",
+      "successCriteria": [
+        "Table created",
+        "Video progress fields present"
+      ],
+      "assignedTo": null,
+      "startedAt": null,
+      "completedAt": null,
+      "blockedReason": null
+    },
+    {
+      "id": "1.16",
+      "title": "Create video_bookmarks table",
+      "phase": 1,
+      "category": "db",
+      "status": "pending",
+      "dependencies": ["1.15"],
+      "estimatedMinutes": 8,
+      "files": {
+        "modify": ["supabase/migrations/20260128_create_organizations_schema.sql"]
+      },
+      "description": "Allow learners to bookmark video timestamps with notes",
+      "successCriteria": [
+        "Table created",
+        "Timestamp and note fields present"
+      ],
+      "assignedTo": null,
+      "startedAt": null,
+      "completedAt": null,
+      "blockedReason": null
+    },
+    {
+      "id": "1.17",
+      "title": "Create assessment_attempts table",
+      "phase": 1,
+      "category": "db",
+      "status": "pending",
+      "dependencies": ["1.14", "1.10"],
+      "estimatedMinutes": 10,
+      "files": {
+        "modify": ["supabase/migrations/20260128_create_organizations_schema.sql"]
+      },
+      "description": "Track assessment attempts with scores and timing",
+      "successCriteria": [
+        "Table created",
+        "Unique constraint on enrollment + assessment + attempt_number"
+      ],
+      "assignedTo": null,
+      "startedAt": null,
+      "completedAt": null,
+      "blockedReason": null
+    },
+    {
+      "id": "1.18",
+      "title": "Create user_answers table",
+      "phase": 1,
+      "category": "db",
+      "status": "pending",
+      "dependencies": ["1.17", "1.12"],
+      "estimatedMinutes": 8,
+      "files": {
+        "modify": ["supabase/migrations/20260128_create_organizations_schema.sql"]
+      },
+      "description": "Store individual answers to questions",
+      "successCriteria": [
+        "Table created",
+        "selected_option_ids array field present"
+      ],
+      "assignedTo": null,
+      "startedAt": null,
+      "completedAt": null,
+      "blockedReason": null
+    },
+    {
+      "id": "1.19",
+      "title": "Create certificates table",
+      "phase": 1,
+      "category": "db",
+      "status": "pending",
+      "dependencies": ["1.14"],
+      "estimatedMinutes": 10,
+      "files": {
+        "modify": ["supabase/migrations/20260128_create_organizations_schema.sql"]
+      },
+      "description": "Store certificate metadata with verification hashes",
+      "successCriteria": [
+        "Table created",
+        "Unique certificate_number",
+        "Verification hash field present"
+      ],
+      "assignedTo": null,
+      "startedAt": null,
+      "completedAt": null,
+      "blockedReason": null
+    },
+    {
+      "id": "1.20",
+      "title": "Create member_skills table",
+      "phase": 1,
+      "category": "db",
+      "status": "pending",
+      "dependencies": ["1.3", "1.4"],
+      "estimatedMinutes": 8,
+      "files": {
+        "modify": ["supabase/migrations/20260128_create_organizations_schema.sql"]
+      },
+      "description": "Track skills earned by members from courses",
+      "successCriteria": [
+        "Table created",
+        "Composite primary key on member_id + skill_id"
+      ],
+      "assignedTo": null,
+      "startedAt": null,
+      "completedAt": null,
+      "blockedReason": null
+    },
+    {
+      "id": "1.21",
+      "title": "Create badges table",
+      "phase": 1,
+      "category": "db",
+      "status": "pending",
+      "dependencies": ["1.2"],
+      "estimatedMinutes": 10,
+      "files": {
+        "modify": ["supabase/migrations/20260128_create_organizations_schema.sql"]
+      },
+      "description": "Define gamification badges with criteria",
+      "successCriteria": [
+        "Table created",
+        "JSONB criteria field present"
+      ],
+      "assignedTo": null,
+      "startedAt": null,
+      "completedAt": null,
+      "blockedReason": null
+    },
+    {
+      "id": "1.22",
+      "title": "Create member_badges table",
+      "phase": 1,
+      "category": "db",
+      "status": "pending",
+      "dependencies": ["1.21", "1.3"],
+      "estimatedMinutes": 7,
+      "files": {
+        "modify": ["supabase/migrations/20260128_create_organizations_schema.sql"]
+      },
+      "description": "Track badges earned by members",
+      "successCriteria": [
+        "Table created",
+        "Unique constraint on member_id + badge_id"
+      ],
+      "assignedTo": null,
+      "startedAt": null,
+      "completedAt": null,
+      "blockedReason": null
+    },
+    {
+      "id": "1.23",
+      "title": "Create member_points table",
+      "phase": 1,
+      "category": "db",
+      "status": "pending",
+      "dependencies": ["1.3"],
+      "estimatedMinutes": 8,
+      "files": {
+        "modify": ["supabase/migrations/20260128_create_organizations_schema.sql"]
+      },
+      "description": "Track gamification points and streaks",
+      "successCriteria": [
+        "Table created",
+        "Streak tracking fields present"
+      ],
+      "assignedTo": null,
+      "startedAt": null,
+      "completedAt": null,
+      "blockedReason": null
+    },
+    {
+      "id": "1.24",
+      "title": "Create course_feedback table",
+      "phase": 1,
+      "category": "db",
+      "status": "pending",
+      "dependencies": ["1.14"],
+      "estimatedMinutes": 8,
+      "files": {
+        "modify": ["supabase/migrations/20260128_create_organizations_schema.sql"]
+      },
+      "description": "Store course ratings and feedback from learners",
+      "successCriteria": [
+        "Table created",
+        "Rating constraint 1-5"
+      ],
+      "assignedTo": null,
+      "startedAt": null,
+      "completedAt": null,
+      "blockedReason": null
+    },
+    {
+      "id": "1.25",
+      "title": "Create notifications table",
+      "phase": 1,
+      "category": "db",
+      "status": "pending",
+      "dependencies": ["1.3"],
+      "estimatedMinutes": 10,
+      "files": {
+        "modify": ["supabase/migrations/20260128_create_organizations_schema.sql"]
+      },
+      "description": "Store in-app and email notifications",
+      "successCriteria": [
+        "Table created",
+        "Type and priority fields present"
+      ],
+      "assignedTo": null,
+      "startedAt": null,
+      "completedAt": null,
+      "blockedReason": null
+    },
+    {
+      "id": "1.26",
+      "title": "Create audit_log table",
+      "phase": 1,
+      "category": "db",
+      "status": "pending",
+      "dependencies": ["1.3"],
+      "estimatedMinutes": 12,
+      "files": {
+        "modify": ["supabase/migrations/20260128_create_organizations_schema.sql"]
+      },
+      "description": "Comprehensive immutable audit trail for compliance",
+      "successCriteria": [
+        "Table created",
+        "Immutable rules added (no update/delete)",
+        "JSONB details field present"
+      ],
+      "assignedTo": null,
+      "startedAt": null,
+      "completedAt": null,
+      "blockedReason": null
+    },
+    {
+      "id": "1.27",
+      "title": "Create scheduled_assignments table",
+      "phase": 1,
+      "category": "db",
+      "status": "pending",
+      "dependencies": ["1.6"],
+      "estimatedMinutes": 10,
+      "files": {
+        "modify": ["supabase/migrations/20260128_create_organizations_schema.sql"]
+      },
+      "description": "Automated course assignments (on hire, recurring, etc.)",
+      "successCriteria": [
+        "Table created",
+        "Schedule type enum present"
+      ],
+      "assignedTo": null,
+      "startedAt": null,
+      "completedAt": null,
+      "blockedReason": null
+    },
+    {
+      "id": "1.28",
+      "title": "Create data_exports table",
+      "phase": 1,
+      "category": "db",
+      "status": "pending",
+      "dependencies": ["1.2"],
+      "estimatedMinutes": 8,
+      "files": {
+        "modify": ["supabase/migrations/20260128_create_organizations_schema.sql"]
+      },
+      "description": "Track GDPR data export requests",
+      "successCriteria": [
+        "Table created",
+        "Status tracking fields present"
+      ],
+      "assignedTo": null,
+      "startedAt": null,
+      "completedAt": null,
+      "blockedReason": null
+    },
+    {
+      "id": "1.29",
+      "title": "Create sso_config table",
+      "phase": 1,
+      "category": "db",
+      "status": "pending",
+      "dependencies": ["1.2"],
+      "estimatedMinutes": 10,
+      "files": {
+        "modify": ["supabase/migrations/20260128_create_organizations_schema.sql"]
+      },
+      "description": "SSO/SAML configuration per organization",
+      "successCriteria": [
+        "Table created",
+        "Provider and SAML fields present"
+      ],
+      "assignedTo": null,
+      "startedAt": null,
+      "completedAt": null,
+      "blockedReason": null
+    },
+    {
+      "id": "1.30",
+      "title": "Add RLS policies for organizations table",
+      "phase": 1,
+      "category": "db",
+      "status": "pending",
+      "dependencies": ["1.2"],
+      "estimatedMinutes": 15,
+      "files": {
+        "create": ["supabase/migrations/20260128_rls_policies.sql"]
+      },
+      "description": "Enable RLS and create policies for org data isolation",
+      "successCriteria": [
+        "RLS enabled",
+        "Members can only see their org",
+        "Policies tested"
+      ],
+      "assignedTo": null,
+      "startedAt": null,
+      "completedAt": null,
+      "blockedReason": null
+    }
+  ],
+  "stats": {
+    "totalTasks": 30,
+    "pendingTasks": 30,
+    "inProgressTasks": 0,
+    "completedTasks": 0,
+    "blockedTasks": 0,
+    "skippedTasks": 0,
+    "totalEstimatedMinutes": 295,
+    "completedMinutes": 0
+  }
+}

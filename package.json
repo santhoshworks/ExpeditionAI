@@ -60,6 +60,13 @@
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "test:supabase": "node scripts/check-supabase.js",
-    "setup:db": "node scripts/check-supabase.js"
+    "setup:db": "node scripts/check-supabase.js",
+    "task:status": "tsx scripts/task-cli.ts status",
+    "task:next": "tsx scripts/task-cli.ts next",
+    "task:list": "tsx scripts/task-cli.ts list",
+    "task:list:pending": "tsx scripts/task-cli.ts list --pending",
+    "task:list:completed": "tsx scripts/task-cli.ts list --completed",
+    "task:complete": "tsx scripts/task-cli.ts complete",
+    "task:block": "tsx scripts/task-cli.ts block"
   }
 }
