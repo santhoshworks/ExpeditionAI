@@ -453,3 +453,138 @@ CREATE TRIGGER module_progress_update_timestamp
 BEFORE UPDATE ON module_progress
 FOR EACH ROW
 EXECUTE FUNCTION update_module_progress_timestamp();
+
+-- Video Bookmarks table
+CREATE TABLE video_bookmarks (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  module_progress_id UUID NOT NULL REFERENCES module_progress(id) ON DELETE CASCADE,
+  timestamp_seconds INTEGER NOT NULL,
+  note TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX idx_video_bookmarks_module_progress_id ON video_bookmarks(module_progress_id);
+
+-- Assessment Attempts table
+CREATE TABLE assessment_attempts (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  enrollment_id UUID NOT NULL REFERENCES enrollments(id) ON DELETE CASCADE,
+  assessment_id UUID NOT NULL REFERENCES assessments(id) ON DELETE CASCADE,
+  attempt_number INTEGER NOT NULL,
+  score INTEGER,
+  max_score INTEGER,
+  time_spent_seconds INTEGER,
+  started_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  completed_at TIMESTAMP WITH TIME ZONE,
+
+  CONSTRAINT unique_assessment_attempt UNIQUE(enrollment_id, assessment_id, attempt_number)
+);
+
+CREATE INDEX idx_assessment_attempts_enrollment_id ON assessment_attempts(enrollment_id);
+CREATE INDEX idx_assessment_attempts_assessment_id ON assessment_attempts(assessment_id);
+
+-- User Answers table
+CREATE TABLE user_answers (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  assessment_attempt_id UUID NOT NULL REFERENCES assessment_attempts(id) ON DELETE CASCADE,
+  question_id UUID NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
+  selected_option_ids UUID[] DEFAULT ARRAY[]::UUID[],
+  text_answer TEXT,
+  is_correct BOOLEAN,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX idx_user_answers_assessment_attempt_id ON user_answers(assessment_attempt_id);
+CREATE INDEX idx_user_answers_question_id ON user_answers(question_id);
+
+-- Certificates table
+CREATE TABLE certificates (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  enrollment_id UUID NOT NULL REFERENCES enrollments(id) ON DELETE CASCADE,
+  certificate_number VARCHAR(255) NOT NULL UNIQUE,
+  issue_date TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  expiry_date TIMESTAMP WITH TIME ZONE,
+  verification_hash VARCHAR(255),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX idx_certificates_enrollment_id ON certificates(enrollment_id);
+CREATE INDEX idx_certificates_certificate_number ON certificates(certificate_number);
+
+-- Member Skills table
+CREATE TABLE member_skills (
+  member_id UUID NOT NULL REFERENCES members(id) ON DELETE CASCADE,
+  skill_id UUID NOT NULL REFERENCES skills(id) ON DELETE CASCADE,
+  proficiency_level VARCHAR(50),
+  acquired_date TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+
+  PRIMARY KEY (member_id, skill_id)
+);
+
+CREATE INDEX idx_member_skills_skill_id ON member_skills(skill_id);
+
+-- Badges table
+CREATE TABLE badges (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  org_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  name VARCHAR(255) NOT NULL,
+  description TEXT,
+  icon_url TEXT,
+  criteria JSONB,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX idx_badges_org_id ON badges(org_id);
+
+-- Member Badges table
+CREATE TABLE member_badges (
+  member_id UUID NOT NULL REFERENCES members(id) ON DELETE CASCADE,
+  badge_id UUID NOT NULL REFERENCES badges(id) ON DELETE CASCADE,
+  awarded_date TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+
+  CONSTRAINT unique_member_badge UNIQUE(member_id, badge_id)
+);
+
+CREATE INDEX idx_member_badges_badge_id ON member_badges(badge_id);
+
+-- Member Points table
+CREATE TABLE member_points (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  member_id UUID NOT NULL REFERENCES members(id) ON DELETE CASCADE,
+  points INTEGER DEFAULT 0,
+  current_streak_days INTEGER DEFAULT 0,
+  longest_streak_days INTEGER DEFAULT 0,
+  last_activity_date DATE,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX idx_member_points_member_id ON member_points(member_id);
+
+-- Course Feedback table
+CREATE TABLE course_feedback (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  enrollment_id UUID NOT NULL REFERENCES enrollments(id) ON DELETE CASCADE,
+  rating INTEGER CHECK (rating BETWEEN 1 AND 5),
+  feedback_text TEXT,
+  submitted_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX idx_course_feedback_enrollment_id ON course_feedback(enrollment_id);
+CREATE INDEX idx_course_feedback_rating ON course_feedback(rating);
+
+-- Notifications table
+CREATE TABLE notifications (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  member_id UUID NOT NULL REFERENCES members(id) ON DELETE CASCADE,
+  notification_type VARCHAR(100),
+  title VARCHAR(255),
+  message TEXT,
+  priority VARCHAR(50) DEFAULT 'normal',
+  is_read BOOLEAN DEFAULT FALSE,
+  action_url TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX idx_notifications_member_id ON notifications(member_id);
+CREATE INDEX idx_notifications_is_read ON notifications(is_read);
+CREATE INDEX idx_notifications_created_at ON notifications(created_at);
