@@ -46,7 +46,7 @@
       "title": "Create organizations schema file",
       "phase": 1,
       "category": "db",
-      "status": "pending",
+      "status": "in_progress",
       "dependencies": [],
       "estimatedMinutes": 10,
       "files": {
@@ -58,10 +58,11 @@
         "No syntax errors",
         "Committed to git"
       ],
-      "assignedTo": null,
-      "startedAt": null,
+      "assignedTo": "haiku-session-20260128",
+      "startedAt": "2026-01-28T00:00:00Z",
       "completedAt": null,
-      "blockedReason": null
+      "blockedReason": null,
+      "progress": "File created with schema and search path. Ready to continue."
     },
     {
       "id": "1.2",
