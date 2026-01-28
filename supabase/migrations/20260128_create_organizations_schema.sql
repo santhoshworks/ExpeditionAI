@@ -172,3 +172,53 @@ CREATE TRIGGER learning_paths_update_timestamp
 BEFORE UPDATE ON learning_paths
 FOR EACH ROW
 EXECUTE FUNCTION update_learning_paths_timestamp();
+
+-- Courses table
+CREATE TABLE courses (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  org_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  learning_path_id UUID REFERENCES learning_paths(id) ON DELETE SET NULL,
+  name VARCHAR(255) NOT NULL,
+  description TEXT,
+  created_by UUID NOT NULL REFERENCES members(id) ON DELETE SET NULL,
+  instructor_name VARCHAR(255),
+  duration_minutes INTEGER,
+  difficulty_level VARCHAR(50),
+  status VARCHAR(50) CHECK (status IN ('draft', 'published', 'archived')) DEFAULT 'draft',
+  ai_generated BOOLEAN DEFAULT FALSE,
+  ai_generation_date TIMESTAMP WITH TIME ZONE,
+  thumbnail_url TEXT,
+
+  -- Full-text search
+  search_vector TSVECTOR GENERATED ALWAYS AS (
+    to_tsvector('english', COALESCE(name, '') || ' ' || COALESCE(description, ''))
+  ) STORED,
+
+  -- Metadata
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+
+  CONSTRAINT unique_course_per_org UNIQUE(org_id, name)
+);
+
+-- Indexes
+CREATE INDEX idx_courses_org_id ON courses(org_id);
+CREATE INDEX idx_courses_learning_path_id ON courses(learning_path_id);
+CREATE INDEX idx_courses_status ON courses(status);
+CREATE INDEX idx_courses_created_by ON courses(created_by);
+CREATE INDEX idx_courses_ai_generated ON courses(ai_generated);
+CREATE INDEX idx_courses_search ON courses USING GIN (search_vector);
+
+-- Trigger for updated_at
+CREATE OR REPLACE FUNCTION update_courses_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER courses_update_timestamp
+BEFORE UPDATE ON courses
+FOR EACH ROW
+EXECUTE FUNCTION update_courses_timestamp();
