@@ -69,7 +69,7 @@
       "title": "Create organizations table",
       "phase": 1,
       "category": "db",
-      "status": "in_progress",
+      "status": "completed",
       "dependencies": ["1.1"],
       "estimatedMinutes": 15,
       "files": {
@@ -84,16 +84,16 @@
       ],
       "assignedTo": "haiku-session-20260128",
       "startedAt": "2026-01-28T12:30:00Z",
-      "completedAt": null,
+      "completedAt": "2026-01-28T12:35:00Z",
       "blockedReason": null,
-      "progress": "Starting task execution..."
+      "progress": "✓ Completed - Table created with indexes and timestamp trigger. Committed."
     },
     {
       "id": "1.3",
       "title": "Create members table",
       "phase": 1,
       "category": "db",
-      "status": "pending",
+      "status": "in_progress",
       "dependencies": ["1.2"],
       "estimatedMinutes": 12,
       "files": {
@@ -106,10 +106,11 @@
         "Unique constraints enforced",
         "Test data insertable"
       ],
-      "assignedTo": null,
-      "startedAt": null,
+      "assignedTo": "haiku-session-20260128",
+      "startedAt": "2026-01-28T12:35:00Z",
       "completedAt": null,
-      "blockedReason": null
+      "blockedReason": null,
+      "progress": "Starting task execution..."
     },
     {
       "id": "1.4",
@@ -687,12 +688,12 @@
   ],
   "stats": {
     "totalTasks": 30,
-    "pendingTasks": 30,
-    "inProgressTasks": 0,
-    "completedTasks": 0,
+    "pendingTasks": 28,
+    "inProgressTasks": 1,
+    "completedTasks": 2,
     "blockedTasks": 0,
     "skippedTasks": 0,
     "totalEstimatedMinutes": 295,
-    "completedMinutes": 0
+    "completedMinutes": 25
   }
 }
