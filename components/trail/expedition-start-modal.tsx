@@ -33,10 +33,24 @@ export function ExpeditionStartModal({
   trails,
 }: ExpeditionStartModalProps) {
   const [mode, setMode] = useState<StartMode>("choose")
+  const [pdfModalOpen, setPdfModalOpen] = useState(false)
+  const [manualModalOpen, setManualModalOpen] = useState(false)
 
   const handleClose = () => {
+    setPdfModalOpen(false)
+    setManualModalOpen(false)
     onOpenChange(false)
     setTimeout(() => setMode("choose"), 200)
+  }
+
+  const handlePDFMode = () => {
+    setMode("pdf")
+    setPdfModalOpen(true)
+  }
+
+  const handleManualMode = () => {
+    setMode("manual")
+    setManualModalOpen(true)
   }
 
   const handlePDFSuccess = (newExpeditionId: string) => {
@@ -45,64 +59,81 @@ export function ExpeditionStartModal({
     window.location.href = `/explore/${newExpeditionId}`
   }
 
-  if (mode === "manual") {
-    return (
-      <GenerateTopicsModal
-        open={open}
-        onOpenChange={onOpenChange}
-        expeditionId={expeditionId}
-        expeditionTitle={expeditionTitle}
-        trails={trails}
-      />
-    )
+  const handlePDFOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      setPdfModalOpen(false)
+      setMode("choose")
+    }
   }
 
-  if (mode === "pdf") {
-    return (
-      <PDFUploadModal
-        open={open}
-        onOpenChange={onOpenChange}
-        onSuccess={handlePDFSuccess}
-      />
-    )
+  const handleManualOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      setManualModalOpen(false)
+      setMode("choose")
+    }
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>Start Learning</DialogTitle>
-          <DialogDescription>
-            How would you like to explore?
-          </DialogDescription>
-        </DialogHeader>
+    <>
+      {/* Choose Mode - Main Dialog */}
+      {mode === "choose" && (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Start Learning</DialogTitle>
+              <DialogDescription>
+                How would you like to explore?
+              </DialogDescription>
+            </DialogHeader>
 
-        <div className="grid grid-cols-2 gap-3 py-4">
-          <Button
-            variant="outline"
-            onClick={() => setMode("manual")}
-            className="h-24 flex flex-col items-center justify-center gap-2"
-          >
-            <Sparkles className="h-6 w-6" />
-            <span className="text-sm">Generate Topics</span>
-          </Button>
+            <div className="grid grid-cols-2 gap-3 py-4">
+              <Button
+                variant="outline"
+                onClick={handleManualMode}
+                className="h-24 flex flex-col items-center justify-center gap-2"
+              >
+                <Sparkles className="h-6 w-6" />
+                <span className="text-sm">Generate Topics</span>
+              </Button>
 
-          <Button
-            variant="outline"
-            onClick={() => setMode("pdf")}
-            className="h-24 flex flex-col items-center justify-center gap-2"
-          >
-            <FileText className="h-6 w-6" />
-            <span className="text-sm">Upload PDF</span>
-          </Button>
-        </div>
+              <Button
+                variant="outline"
+                onClick={handlePDFMode}
+                className="h-24 flex flex-col items-center justify-center gap-2"
+              >
+                <FileText className="h-6 w-6" />
+                <span className="text-sm">Upload PDF</span>
+              </Button>
+            </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={handleClose}>
-            Cancel
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+            <DialogFooter>
+              <Button variant="outline" onClick={handleClose}>
+                Cancel
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* PDF Upload Modal */}
+      {mode === "pdf" && (
+        <PDFUploadModal
+          open={pdfModalOpen}
+          onOpenChange={handlePDFOpenChange}
+          onSuccess={handlePDFSuccess}
+        />
+      )}
+
+      {/* Generate Topics Modal */}
+      {mode === "manual" && (
+        <GenerateTopicsModal
+          open={manualModalOpen}
+          onOpenChange={handleManualOpenChange}
+          expeditionId={expeditionId}
+          expeditionTitle={expeditionTitle}
+          trails={trails}
+        />
+      )}
+    </>
   )
 }
