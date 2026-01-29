@@ -9,7 +9,7 @@ import { ChatInterface } from "@/components/chat/chat-interface"
 import { ModelSelector } from "@/components/chat/model-selector"
 import { ExploreButton } from "@/components/chat/explore-button"
 import { MultiFlagButton } from "@/components/trail/multi-flag-button"
-import { GenerateTopicsModal } from "@/components/trail/generate-topics-modal"
+import { ExpeditionStartModal } from "@/components/trail/expedition-start-modal"
 import { MobileTrailSelector } from "@/components/trail/mobile-trail-selector"
 import { TrailTree } from "@/components/trail/trail-tree"
 import { useTextSelection } from "@/hooks/use-text-selection"
@@ -140,7 +140,7 @@ export default function ExpeditionPage() {
               onClick={() => setGenerateModalOpen(true)}
             >
               <Wand2 className="h-3.5 w-3.5 text-indigo-400" />
-              Generate Dives
+              New Trail
             </Button>
           </div>
         </aside>
@@ -254,8 +254,8 @@ export default function ExpeditionPage() {
         </main>
       </div>
 
-      {/* Generate Topics Modal */}
-      <GenerateTopicsModal
+      {/* Expedition Start Modal - Choose between Manual or PDF */}
+      <ExpeditionStartModal
         open={generateModalOpen}
         onOpenChange={setGenerateModalOpen}
         expeditionId={expeditionId}
