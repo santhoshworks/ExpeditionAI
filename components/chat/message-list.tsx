@@ -1,5 +1,6 @@
 "use client"
 
+import { Compass } from "lucide-react"
 import { Message } from "./message"
 import type { TriviaData } from "./trivia-indicator"
 
@@ -59,13 +60,9 @@ export function MessageList({ messages, isLoading, error, onUpdateMessage, aiRes
         )
       })}
       {isLoading && (
-        <div className="flex items-center gap-2 text-muted-foreground px-2">
-          <div className="flex gap-1">
-            <div className="h-2 w-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-            <div className="h-2 w-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-            <div className="h-2 w-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
-          </div>
-          <span className="text-sm">AI is thinking...</span>
+        <div className="flex items-center gap-3 text-muted-foreground px-2 py-2">
+          <Compass className="h-5 w-5 animate-spin text-indigo-500" />
+          <span className="text-sm font-medium">Charting your path...</span>
         </div>
       )}
     </div>

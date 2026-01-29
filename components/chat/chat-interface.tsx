@@ -185,13 +185,27 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
   // Memoize formatted messages to avoid re-parsing JSON on every render
   const formattedExistingMessages = useMemo(() => {
     if (!existingMessages || existingMessages.length === 0) return []
-    return existingMessages.map((m: DBMessage) => ({
-      id: m.id,
-      role: m.role as "user" | "assistant" | "system" | "illustration",
-      content: m.content,
-      metadata: m.metadata ? JSON.parse(m.metadata) : undefined,
-    }))
-  }, [existingMessages])
+    return existingMessages.map((m: DBMessage) => {
+      // For assistant messages, parse JSON if trivia is enabled
+      if (m.role === "assistant" && triviaEnabled) {
+        const { content, trivia } = parseTriviaResponse(m.content, triviaEnabled)
+        return {
+          id: m.id,
+          role: m.role as "user" | "assistant" | "system" | "illustration",
+          content,
+          trivia,
+          metadata: m.metadata ? JSON.parse(m.metadata) : undefined,
+        }
+      }
+      // For other messages, use content as-is
+      return {
+        id: m.id,
+        role: m.role as "user" | "assistant" | "system" | "illustration",
+        content: m.content,
+        metadata: m.metadata ? JSON.parse(m.metadata) : undefined,
+      }
+    })
+  }, [existingMessages, triviaEnabled])
 
   // Update current trail ref and reset UI state when switching trails
   useEffect(() => {
