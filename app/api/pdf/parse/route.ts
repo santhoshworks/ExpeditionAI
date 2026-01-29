@@ -89,13 +89,23 @@ export async function POST(req: Request) {
     }
 
     const parsedData = await parserResponse.json()
-    const pdfContent = parsedData.content as string
+    console.log("Parser response keys:", Object.keys(parsedData))
+    console.log("Parser response content type:", typeof parsedData.content)
 
-    if (!pdfContent || pdfContent.trim().length === 0) {
+    const pdfContent = parsedData.content
+
+    // Validate pdfContent is a string
+    if (typeof pdfContent !== 'string' || !pdfContent || pdfContent.trim().length === 0) {
+      console.error("Invalid pdfContent:", {
+        type: typeof pdfContent,
+        isString: typeof pdfContent === 'string',
+        value: typeof pdfContent === 'string' ? pdfContent.substring(0, 100) : pdfContent
+      })
       return new Response(
         JSON.stringify({
           error: "No text content found in PDF. The file may be empty, image-based, or corrupted.",
-          suggestion: "Try a PDF with selectable text content."
+          suggestion: "Try a PDF with selectable text content.",
+          debug: `Expected string, got ${typeof pdfContent}`
         }),
         { status: 400, headers: { "Content-Type": "application/json" } }
       )
