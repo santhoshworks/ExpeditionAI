@@ -40,70 +40,118 @@ interface ChatMessage {
   }
 }
 
-// Helper function to parse trivia response from LLM using marker-based format
+// Helper function to parse JSON trivia response from LLM
 function parseTriviaResponse(rawContent: string, triviaEnabled: boolean): { content: string; trivia: TriviaData | null } {
-  const triviaMarkerStart = '---TRIVIA---'
-  const triviaMarkerEnd = '---END_TRIVIA---'
-
-  const startIndex = rawContent.indexOf(triviaMarkerStart)
-
-  // No trivia section found
-  if (startIndex === -1) {
+  // If trivia is disabled, return content as-is
+  if (!triviaEnabled) {
     return { content: rawContent, trivia: null }
   }
 
-  const endIndex = rawContent.indexOf(triviaMarkerEnd, startIndex)
+  // Trim any leading/trailing whitespace
+  let trimmed = rawContent.trim()
 
-  // Incomplete trivia section (still streaming)
-  if (endIndex === -1) {
-    // Return content before trivia marker
-    return { content: rawContent.substring(0, startIndex).trim(), trivia: null }
+  // Strip markdown code block wrapper if present (```json ... ```)
+  if (trimmed.startsWith('```')) {
+    // Remove opening ```json or ```
+    trimmed = trimmed.replace(/^```(?:json)?\n?/, '')
+    // Remove closing ```
+    trimmed = trimmed.replace(/\n?```$/, '')
+    trimmed = trimmed.trim()
   }
 
-  // Extract main content (everything before trivia) - ALWAYS remove trivia section from display
-  const content = rawContent.substring(0, startIndex).trim()
+  try {
+    // Try to parse as JSON
+    const parsed = JSON.parse(trimmed)
 
-  // If trivia feature is disabled, just return content without trivia
-  if (!triviaEnabled) {
-    return { content, trivia: null }
-  }
+    if (parsed.content && typeof parsed.content === 'string') {
+      // Extract trivia if it exists and has values
+      let trivia: TriviaData | null = null
 
-  // Extract trivia section
-  const triviaText = rawContent.substring(startIndex + triviaMarkerStart.length, endIndex).trim()
+      if (parsed.trivia && typeof parsed.trivia === 'object') {
+        const t = parsed.trivia
+        // Only create trivia object if at least one field has a value
+        if (t.whyItMatters || t.realWorldUse || t.whenYouNeed || t.didYouKnow) {
+          trivia = {
+            whyItMatters: t.whyItMatters || '',
+            realWorldUse: t.realWorldUse || '',
+            whenYouNeed: t.whenYouNeed || '',
+            didYouKnow: t.didYouKnow || ''
+          }
+        }
+      }
 
-  // Parse trivia fields - handle both single-line and multi-line formats
-  const whyMatch = triviaText.match(/WHY_IT_MATTERS:\s*(.+?)(?=(?:REAL_WORLD_USE|WHEN_YOU_NEED|DID_YOU_KNOW|$))/s)
-  const realWorldMatch = triviaText.match(/REAL_WORLD_USE:\s*(.+?)(?=(?:WHEN_YOU_NEED|DID_YOU_KNOW|$))/s)
-  const whenMatch = triviaText.match(/WHEN_YOU_NEED:\s*(.+?)(?=(?:DID_YOU_KNOW|$))/s)
-  const didYouKnowMatch = triviaText.match(/DID_YOU_KNOW:\s*(.+?)$/s)
-
-  // Only create trivia object if we have all fields
-  if (whyMatch && realWorldMatch && whenMatch && didYouKnowMatch) {
-    const trivia: TriviaData = {
-      whyItMatters: whyMatch[1].trim(),
-      realWorldUse: realWorldMatch[1].trim(),
-      whenYouNeed: whenMatch[1].trim(),
-      didYouKnow: didYouKnowMatch[1].trim()
+      console.log('Successfully parsed JSON response')
+      return { content: parsed.content, trivia }
+    } else {
+      console.log('JSON parsed but missing content field:', { hasContent: !!parsed.content, triviaType: typeof parsed.trivia })
     }
-    return { content, trivia }
+  } catch (e) {
+    console.log('JSON parsing failed:', (e as Error).message)
+    // JSON parsing failed - check if we should attempt alternative parsing
   }
 
-  // Trivia section incomplete or malformed - return content without trivia
-  return { content, trivia: null }
+  // Fallback: if not valid JSON or doesn't have expected structure, return raw content
+  console.log('Returning raw content as fallback')
+  return { content: rawContent, trivia: null }
 }
 
-// Helper to extract displayable content during streaming
+// Helper to extract displayable content during streaming (attempt to parse partial JSON)
 function extractStreamingContent(rawContent: string): string {
-  const triviaMarkerStart = '---TRIVIA---'
-  const startIndex = rawContent.indexOf(triviaMarkerStart)
-
-  // If trivia section started, only show content before it
-  if (startIndex !== -1) {
-    return rawContent.substring(0, startIndex).trim()
+  // Strip markdown code block wrapper if present
+  let content = rawContent
+  if (content.startsWith('```')) {
+    // Skip the markdown code block opening
+    const newlineIndex = content.indexOf('\n')
+    if (newlineIndex !== -1) {
+      content = content.substring(newlineIndex + 1)
+    }
   }
 
-  // No trivia section yet, show all content
-  return rawContent
+  // First, try to parse as complete JSON
+  try {
+    const parsed = JSON.parse(content)
+    if (parsed.content && typeof parsed.content === 'string') {
+      return parsed.content
+    }
+  } catch (e) {
+    // Not complete JSON yet, continue below
+  }
+
+  // For incomplete JSON, manually parse the content field
+  // Look for "content": " pattern and extract until closing quote
+  const contentIndex = content.indexOf('"content"')
+  if (contentIndex === -1) return ''
+
+  // Find the opening quote of the content value
+  let quoteIndex = content.indexOf('"', contentIndex + 10)
+  if (quoteIndex === -1) return ''
+
+  // Extract content until we find the closing quote (handling escapes)
+  let result = ''
+  let i = quoteIndex + 1
+
+  while (i < content.length) {
+    if (content[i] === '\\' && i + 1 < content.length) {
+      // Handle escaped character
+      const nextChar = content[i + 1]
+      if (nextChar === '"') result += '"'
+      else if (nextChar === '\\') result += '\\'
+      else if (nextChar === 'n') result += '\n'
+      else if (nextChar === 't') result += '\t'
+      else result += nextChar
+      i += 2
+    } else if (content[i] === '"') {
+      // Found closing quote
+      return result
+    } else {
+      result += content[i]
+      i++
+    }
+  }
+
+  // If we have a substantial partial result, return it
+  // (we might be in the middle of an unclosed string during streaming)
+  return result.length > 50 ? result : ''
 }
 
 interface ChatInterfaceProps {
@@ -288,6 +336,7 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
 
           // During streaming, extract displayable content using helper
           const displayContent = extractStreamingContent(assistantContent)
+          console.log('Stream chunk:', { chunkLength: chunk.length, totalLength: assistantContent.length, displayContent: displayContent.substring(0, 100) })
 
           // Only update UI if still on the same trail
           if (currentTrailIdRef.current === requestTrailId) {
@@ -301,7 +350,17 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
       }
 
       // After streaming completes, parse the full response to extract trivia
+      console.log('Full response received:')
+      console.log('  Length:', assistantContent.length)
+      console.log('  First 300 chars:', assistantContent.substring(0, 300))
+      console.log('  Last 100 chars:', assistantContent.substring(Math.max(0, assistantContent.length - 100)))
+
       const { content: finalContent, trivia } = parseTriviaResponse(assistantContent, triviaEnabled)
+      console.log('Parsed result:', {
+        contentLength: finalContent.length,
+        hasTrivia: !!trivia,
+        contentPreview: finalContent.substring(0, 100)
+      })
 
       // Update with final parsed content and trivia
       if (currentTrailIdRef.current === requestTrailId) {

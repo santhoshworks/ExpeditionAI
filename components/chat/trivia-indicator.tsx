@@ -1,7 +1,6 @@
 "use client"
 
-import { useState } from "react"
-import { Lightbulb } from "lucide-react"
+import { Target, Globe, Clock, Sparkles } from "lucide-react"
 import {
   Tooltip,
   TooltipContent,
@@ -21,89 +20,88 @@ interface TriviaIndicatorProps {
   trivia: TriviaData
 }
 
-export function TriviaIndicator({ trivia }: TriviaIndicatorProps) {
-  const [isOpen, setIsOpen] = useState(false)
+const triviaItems = [
+  {
+    key: "whyItMatters",
+    label: "Why This Matters",
+    icon: Target,
+    color: "text-blue-500 bg-blue-500/10 hover:bg-blue-500/20",
+    tooltip: "Why This Matters",
+  },
+  {
+    key: "realWorldUse",
+    label: "Real-World Use",
+    icon: Globe,
+    color: "text-green-500 bg-green-500/10 hover:bg-green-500/20",
+    tooltip: "Real-World Use",
+  },
+  {
+    key: "whenYouNeed",
+    label: "When You'd Need This",
+    icon: Clock,
+    color: "text-purple-500 bg-purple-500/10 hover:bg-purple-500/20",
+    tooltip: "When You'd Need This",
+  },
+  {
+    key: "didYouKnow",
+    label: "Did You Know?",
+    icon: Sparkles,
+    color: "text-amber-500 bg-amber-500/10 hover:bg-amber-500/20",
+    tooltip: "Fun Fact",
+  },
+]
 
+export function TriviaIndicator({ trivia }: TriviaIndicatorProps) {
   return (
     <TooltipProvider delayDuration={200}>
-      <Tooltip open={isOpen} onOpenChange={setIsOpen}>
-        <TooltipTrigger asChild>
-          <button
-            className={cn(
-              "absolute -right-8 md:-right-10 top-2 p-1.5 rounded-full",
-              "bg-amber-500/10 hover:bg-amber-500/20",
-              "transition-all duration-300 ease-in-out",
-              "group cursor-pointer",
-              "focus:outline-none focus:ring-2 focus:ring-amber-500/50"
-            )}
-            onClick={() => setIsOpen(!isOpen)}
-            aria-label="View trivia"
-          >
-            <Lightbulb
-              className={cn(
-                "w-4 h-4 md:w-5 md:h-5 text-amber-500",
-                "trivia-glow"
-              )}
-            />
-          </button>
-        </TooltipTrigger>
-        <TooltipContent
-          side="right"
-          align="start"
-          className="w-80 p-0 bg-card border shadow-lg"
-          sideOffset={8}
-        >
-          <div className="p-4 space-y-3">
-            <div className="flex items-center gap-2 text-amber-500 font-medium border-b pb-2">
-              <Lightbulb className="w-4 h-4" />
-              <span>Did You Know?</span>
-            </div>
+      <div className="absolute -right-16 md:-right-20 top-2 flex flex-col gap-1">
+        {triviaItems.map((item) => {
+          const content = trivia[item.key as keyof TriviaData]
 
-            <div className="space-y-3 text-sm">
-              <TriviaItem
-                icon="🎯"
-                label="Why This Matters"
-                content={trivia.whyItMatters}
-              />
-              <TriviaItem
-                icon="🌍"
-                label="Real-World Use"
-                content={trivia.realWorldUse}
-              />
-              <TriviaItem
-                icon="⏰"
-                label="When You'd Need This"
-                content={trivia.whenYouNeed}
-              />
-              <TriviaItem
-                icon="💡"
-                label="Did You Know?"
-                content={trivia.didYouKnow}
-              />
-            </div>
-          </div>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  )
-}
+          // Skip if content is empty
+          if (!content || content.trim() === '') {
+            return null
+          }
 
-function TriviaItem({
-  icon,
-  label,
-  content,
-}: {
-  icon: string
-  label: string
-  content: string
-}) {
-  return (
-    <div className="space-y-1">
-      <div className="flex items-center gap-1.5 text-muted-foreground font-medium">
-        <span>{icon}</span>
-        <span className="text-xs uppercase tracking-wide">{label}</span>
+          const Icon = item.icon
+
+          return (
+            <Tooltip key={item.key}>
+              <TooltipTrigger asChild>
+                <button
+                  className={cn(
+                    "p-1.5 rounded-full",
+                    item.color,
+                    "transition-all duration-300 ease-in-out",
+                    "cursor-pointer",
+                    "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background"
+                  )}
+                  aria-label={item.tooltip}
+                  title={item.tooltip}
+                >
+                  <Icon className="w-4 h-4 md:w-5 md:h-5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent
+                side="left"
+                align="center"
+                className="w-72 p-0 bg-card border shadow-lg"
+                sideOffset={8}
+              >
+                <div className="p-4 space-y-2">
+                  <div className="flex items-center gap-2 font-semibold border-b pb-2">
+                    <Icon className="w-4 h-4" />
+                    <span>{item.label}</span>
+                  </div>
+                  <p className="text-sm leading-relaxed text-foreground">
+                    {content}
+                  </p>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          )
+        })}
       </div>
-      <p className="text-foreground leading-relaxed pl-5">{content}</p>
-    </div>
+    </TooltipProvider>
   )
 }

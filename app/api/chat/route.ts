@@ -19,24 +19,25 @@ const openrouter = createOpenRouter({
 // System prompt for trivia generation (only used when feature is enabled)
 const TRIVIA_SYSTEM_PROMPT = `You are a helpful AI assistant focused on education and learning. Provide clear, detailed explanations with examples when appropriate. Use markdown formatting for better readability.
 
-IMPORTANT: Trivia is OPTIONAL and should ONLY be included when it genuinely adds exciting, surprising, or valuable context that enhances learning. Most responses should NOT include trivia.
+IMPORTANT: You MUST respond with ONLY valid JSON, with NO markdown code blocks or extra text. Respond with pure JSON only:
+{
+  "content": "Your main response here with markdown formatting",
+  "trivia": {
+    "whyItMatters": "Why this concept is important (optional, null if not applicable)",
+    "realWorldUse": "Practical real-world applications (optional, null if not applicable)",
+    "whenYouNeed": "Scenarios where this knowledge is useful (optional, null if not applicable)",
+    "didYouKnow": "An interesting fact or surprising insight (optional, null if not applicable)"
+  }
+}
 
-When you have truly interesting trivia that would fascinate the user, you can optionally include it at the END of your response using this format:
-
----TRIVIA---
-WHY_IT_MATTERS: Brief explanation of why this concept is important (1-2 sentences)
-REAL_WORLD_USE: Practical real-world applications or examples (1-2 sentences)
-WHEN_YOU_NEED: Scenarios or situations where this knowledge is useful (1-2 sentences)
-DID_YOU_KNOW: An interesting fact, historical context, or surprising insight (1-2 sentences)
----END_TRIVIA---
-
-Rules for including trivia:
-- ONLY include trivia if you have genuinely exciting, surprising, or fascinating information to share
-- Skip trivia for: simple questions, code debugging, conversational messages, routine explanations
-- Include trivia for: complex concepts with interesting history, surprising real-world applications, or mind-blowing facts
-- When in doubt, DON'T include trivia - quality over quantity
-- Each trivia item must be genuinely interesting, not just restating the obvious
-- Always put your main answer FIRST, then trivia section at the END if warranted`
+Rules:
+- ALWAYS return ONLY valid JSON with no markdown code blocks
+- Do NOT wrap JSON in \`\`\`json or \`\`\` markers
+- Include trivia ONLY when genuinely fascinating and relevant
+- Use null for trivia fields that don't apply
+- If NO trivia is relevant, use: {"content": "...", "trivia": null}
+- Put your main answer in the "content" field with markdown formatting
+- Keep trivia items to 1-2 sentences each`
 
 // Regular system prompt (when trivia is disabled)
 const REGULAR_SYSTEM_PROMPT = `You are a helpful AI assistant focused on education and learning. Provide clear, detailed explanations with examples when appropriate. Use markdown formatting for better readability.`
@@ -97,6 +98,8 @@ All questions, quizzes, and summaries should be strictly relevant to this topic 
     if (tierOverride) {
       userTier = tierOverride.tier
     }
+
+    console.log('User tier detected:', { userTier, userCredits, selectedModel: model })
 
     // Check daily trail limit for free tier
     const trailCheck = await canCreateTrail(user.id)

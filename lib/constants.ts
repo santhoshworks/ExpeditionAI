@@ -18,49 +18,6 @@ export interface ModelOption {
 
 // All available models with tier restrictions
 export const MODELS: ModelOption[] = [
-  // Free Tier Models - Quick & Fast models with 0 cost
-  {
-    id: 'mistralai/devstral-2512:free',
-    name: 'Mistral Devstral 2512',
-    provider: 'Mistral',
-    costPerTrail: 0,
-    speed: 'Very Fast',
-    tier: 'free',
-    recommended: true,
-    badge: 'Free',
-    description: 'Best free model for learning and coding',
-  },
-  {
-    id: 'xiaomi/mimo-v2-flash:free',
-    name: 'Xiaomi MiMo V2 Flash',
-    provider: 'Xiaomi',
-    costPerTrail: 0,
-    speed: 'Very Fast',
-    tier: 'free',
-    badge: 'Free',
-    description: 'Fast and efficient free model',
-  },
-  {
-    id: 'nvidia/nemotron-3-nano-30b-a3b:free',
-    name: 'NVIDIA Nemotron 3 Nano',
-    provider: 'NVIDIA',
-    costPerTrail: 0,
-    speed: 'Fast',
-    tier: 'free',
-    badge: 'Free',
-    description: 'Powerful 30B parameter free model',
-  },
-  {
-    id: 'deepseek/deepseek-r1-0528:free',
-    name: 'DeepSeek R1',
-    provider: 'DeepSeek',
-    costPerTrail: 0,
-    speed: 'Fast',
-    tier: 'free',
-    badge: 'Free',
-    description: 'Advanced reasoning model',
-  },
-
   // Basic Tier Models (Budget-friendly for beta)
   {
     id: 'google/gemini-2.0-flash-001',
@@ -144,7 +101,7 @@ export const MODELS: ModelOption[] = [
 
 // Default model for each tier
 export const DEFAULT_MODELS: Record<UserTier, string> = {
-  free: 'mistralai/devstral-2512:free',
+  free: 'google/gemini-2.0-flash-lite-001',
   basic: 'google/gemini-2.0-flash-001',
   pro: 'google/gemini-2.0-flash-001',
 }
