@@ -173,3 +173,16 @@ export interface EmailSubscription {
   created_at: string;
   updated_at: string;
 }
+
+export interface PDFSource {
+  id: string;
+  expedition_id: string;
+  trail_id: string;
+  pdf_filename: string;
+  page_start: number | null;
+  page_end: number | null;
+  section_title: string | null;
+  extracted_content: string;
+  created_at: string;
+  updated_at: string;
+}
