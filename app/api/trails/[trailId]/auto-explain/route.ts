@@ -43,19 +43,29 @@ export async function POST(
       )
     }
 
-    // 2. Get the pdf_sources content for this trail
-    const { data: pdfSource, error: sourcesError } = await supabase
+    // 2. Get the pdf_sources content for this trail (handle multiple sources)
+    const { data: pdfSources, error: sourcesError } = await supabase
       .from("pdf_sources")
       .select("extracted_content")
       .eq("trail_id", trailId)
-      .single()
+      .order("created_at", { ascending: false })
 
-    if (sourcesError || !pdfSource) {
+    if (sourcesError) {
+      console.error("Error fetching PDF sources:", sourcesError)
       return new Response(
-        JSON.stringify({ error: "PDF source content not found" }),
+        JSON.stringify({ error: "Failed to fetch PDF content" }),
+        { status: 500, headers: { "Content-Type": "application/json" } }
+      )
+    }
+
+    if (!pdfSources || pdfSources.length === 0) {
+      return new Response(
+        JSON.stringify({ error: "No PDF source found for this trail" }),
         { status: 404, headers: { "Content-Type": "application/json" } }
       )
     }
+
+    const pdfSource = pdfSources[0] // Take most recent if multiple exist
 
     // 3. Generate explanation with LLM
     const explanation = await generateText({

@@ -2,22 +2,34 @@ import { createClient } from "@/lib/supabase/server"
 import { z } from "zod"
 import { nanoid } from "nanoid"
 
+const SectionData = z.object({
+  chapterId: z.string(),
+  sectionId: z.string(),
+  sectionTitle: z.string(),
+  extractedContent: z.string(),
+  startPos: z.number(),
+  endPos: z.number(),
+})
+
 const createExpeditionSchema = z.object({
   expeditionTitle: z.string().min(1),
-  selectedSections: z.array(
-    z.object({
-      chapterId: z.string(),
-      sectionId: z.string(),
-      sectionTitle: z.string(),
-      extractedContent: z.string(),
-    })
-  ).min(1),
+  selectedSections: z.array(SectionData).min(1),
   pdfFileName: z.string(),
   totalPages: z.number().optional(),
 })
 
 export async function POST(req: Request) {
   try {
+    // Validate environment
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL
+    if (!appUrl) {
+      console.error("NEXT_PUBLIC_APP_URL not configured")
+      return new Response(
+        JSON.stringify({ error: "Server configuration error" }),
+        { status: 500, headers: { "Content-Type": "application/json" } }
+      )
+    }
+
     const supabase = await createClient()
     const {
       data: { user },
@@ -34,6 +46,14 @@ export async function POST(req: Request) {
       pdfFileName,
       totalPages,
     } = createExpeditionSchema.parse(body)
+
+    // Validate sections
+    if (!Array.isArray(selectedSections) || selectedSections.length === 0) {
+      return new Response(
+        JSON.stringify({ error: "No sections selected. Please select at least one section." }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      )
+    }
 
     // 1. Create expedition
     const { data: expedition, error: expeditionError } = await supabase
@@ -99,13 +119,15 @@ export async function POST(req: Request) {
 
       trailIds.push(trail.id)
 
-      // Create pdf_sources entry
+      // Create pdf_sources entry with position tracking
       pdfSourceEntries.push({
         expedition_id: expedition.id,
         trail_id: trail.id,
         pdf_filename: pdfFileName,
         section_title: section.sectionTitle,
         extracted_content: section.extractedContent,
+        page_start: section.startPos,
+        page_end: section.endPos,
       })
     }
 
@@ -125,7 +147,7 @@ export async function POST(req: Request) {
     // For now, we'll call the endpoint directly, but in production use a job queue
     const explanationJobs = trailIds.map(async (trailId) => {
       try {
-        await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/trails/${trailId}/auto-explain`, {
+        await fetch(`${appUrl}/api/trails/${trailId}/auto-explain`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ expeditionId: expedition.id }),

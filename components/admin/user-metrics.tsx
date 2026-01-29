@@ -2,28 +2,77 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
+import { useEffect, useState } from 'react'
+
+interface UserMetricsData {
+    userEngagement: {
+        dailyActiveUsers: number
+        weeklyActiveUsers: number
+        monthlyActiveUsers: number
+        averageSessionTime: string
+    }
+    learningMetrics: {
+        averageStreakLength: number
+        completionRate: number
+        topicsExplored: number
+        averageTrailsPerUser: string
+    }
+    retentionRates: {
+        day1: number
+        day7: number
+        day30: number
+        day90: number
+    }
+}
 
 export function UserMetrics() {
-    // This would typically fetch real data from your API
-    const metrics = {
-        userEngagement: {
-            dailyActiveUsers: 1250,
-            weeklyActiveUsers: 3400,
-            monthlyActiveUsers: 8900,
-            averageSessionTime: '12.5 min'
-        },
-        learningMetrics: {
-            averageStreakLength: 4.2,
-            completionRate: 78,
-            topicsExplored: 156,
-            averageTrailsPerUser: 8.3
-        },
-        retentionRates: {
-            day1: 85,
-            day7: 62,
-            day30: 34,
-            day90: 18
+    const [metrics, setMetrics] = useState<UserMetricsData | null>(null)
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
+
+    useEffect(() => {
+        const fetchMetrics = async () => {
+            try {
+                const response = await fetch('/api/admin/metrics/user-metrics')
+                if (!response.ok) {
+                    throw new Error('Failed to fetch user metrics')
+                }
+                const data = await response.json()
+                setMetrics(data)
+            } catch (err) {
+                setError(err instanceof Error ? err.message : 'An error occurred')
+            } finally {
+                setLoading(false)
+            }
         }
+
+        fetchMetrics()
+    }, [])
+
+    if (loading) {
+        return (
+            <Card>
+                <CardHeader>
+                    <CardTitle>User Engagement Metrics</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="text-center text-sm text-gray-500">Loading metrics...</div>
+                </CardContent>
+            </Card>
+        )
+    }
+
+    if (error || !metrics) {
+        return (
+            <Card>
+                <CardHeader>
+                    <CardTitle>User Engagement Metrics</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="text-center text-sm text-red-500">{error || 'Failed to load metrics'}</div>
+                </CardContent>
+            </Card>
+        )
     }
 
     return (

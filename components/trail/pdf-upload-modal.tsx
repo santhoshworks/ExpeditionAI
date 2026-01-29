@@ -24,16 +24,20 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-interface PDFChapter {
-  id: string
-  title: string
-  sections?: PDFSection[]
-}
-
 interface PDFSection {
   id: string
   title: string
   summary: string
+  startPos: number
+  endPos: number
+}
+
+interface PDFChapter {
+  id: string
+  title: string
+  startPos: number
+  endPos: number
+  sections?: PDFSection[]
 }
 
 interface PDFUploadModalProps {
@@ -55,7 +59,7 @@ export function PDFUploadModal({
   const [expeditionTitle, setExpeditionTitle] = useState("")
   const [selectedSections, setSelectedSections] = useState<Set<string>>(new Set())
   const [error, setError] = useState<string | null>(null)
-  const [extractedContent, setExtractedContent] = useState<Record<string, string>>({})
+  const [fullContent, setFullContent] = useState<string>("")
 
   const resetModal = useCallback(() => {
     setStep("upload")
@@ -64,7 +68,7 @@ export function PDFUploadModal({
     setExpeditionTitle("")
     setSelectedSections(new Set())
     setError(null)
-    setExtractedContent({})
+    setFullContent("")
   }, [])
 
   const handleClose = useCallback(() => {
@@ -79,8 +83,9 @@ export function PDFUploadModal({
         setError("Please select a PDF file")
         return
       }
-      if (selectedFile.size > 50 * 1024 * 1024) {
-        setError("File too large (max 50MB)")
+      const MAX_FILE_SIZE = 3 * 1024 * 1024 // 3MB
+      if (selectedFile.size > MAX_FILE_SIZE) {
+        setError("File too large (max 3MB). Please upload individual chapters rather than full textbooks.")
         return
       }
       setFile(selectedFile)
@@ -104,14 +109,16 @@ export function PDFUploadModal({
       })
 
       if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.error || "Failed to parse PDF")
+        const errorData = await response.json()
+        const errorMsg = errorData.error || "Failed to parse PDF"
+        const fullMsg = errorData.suggestion ? `${errorMsg}\n\n${errorData.suggestion}` : errorMsg
+        throw new Error(fullMsg)
       }
 
       const data = await response.json()
       setChapters(data.chapters)
       setExpeditionTitle(file.name.replace(".pdf", ""))
-      setExtractedContent(data.extractedContent)
+      setFullContent(data.fullContent)
 
       // Auto-select all sections by default
       const allSectionIds = new Set<string>()
@@ -172,7 +179,7 @@ export function PDFUploadModal({
     setError(null)
 
     try {
-      // Build selected sections data
+      // Build selected sections data with section-specific content
       const selectedData = []
       for (const sectionId of selectedSections) {
         const [chapterId, secId] = sectionId.split(":")
@@ -184,7 +191,9 @@ export function PDFUploadModal({
             chapterId,
             sectionId: secId,
             sectionTitle: section.title,
-            extractedContent: extractedContent, // Full content (simplified for this task)
+            extractedContent: fullContent.substring(section.startPos, section.endPos),
+            startPos: section.startPos,
+            endPos: section.endPos,
           })
         }
       }
@@ -212,7 +221,7 @@ export function PDFUploadModal({
       setError(err instanceof Error ? err.message : "Failed to create expedition")
       setStep("error")
     }
-  }, [expeditionTitle, selectedSections, chapters, extractedContent, file, handleClose, onSuccess])
+  }, [expeditionTitle, selectedSections, chapters, fullContent, file, handleClose, onSuccess])
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -238,7 +247,7 @@ export function PDFUploadModal({
                 <Label htmlFor="pdf-input" className="cursor-pointer">
                   <Upload className="h-8 w-8 mx-auto mb-2 text-gray-400" />
                   <p className="font-medium">Click to upload PDF or drag and drop</p>
-                  <p className="text-sm text-gray-500 mt-1">Max 50MB</p>
+                  <p className="text-xs text-muted-foreground mt-1">PDF · Max 3MB</p>
                 </Label>
               </div>
 
@@ -257,9 +266,12 @@ export function PDFUploadModal({
               )}
 
               {error && (
-                <div className="flex items-center gap-2 p-3 bg-red-50 rounded-lg">
-                  <AlertCircle className="h-5 w-5 text-red-600" />
-                  <span className="text-sm text-red-700">{error}</span>
+                <div className="flex flex-col gap-2 p-4 bg-red-50 rounded-lg border border-red-200">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
+                    <span className="text-sm font-medium text-red-700">Error</span>
+                  </div>
+                  <p className="text-sm text-red-600 whitespace-pre-line">{error}</p>
                 </div>
               )}
             </div>

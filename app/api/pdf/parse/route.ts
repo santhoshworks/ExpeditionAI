@@ -9,18 +9,22 @@ const openrouter = createOpenRouter({
   apiKey: process.env.OPENROUTER_API_KEY!,
 })
 
-// Schema for parsed PDF structure
+// Schema for parsed PDF structure with position tracking
+const SectionSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  summary: z.string(),
+  startPos: z.number(),
+  endPos: z.number(),
+})
+
 const PDFStructureSchema = z.array(
   z.object({
     id: z.string(),
     title: z.string(),
-    sections: z.array(
-      z.object({
-        id: z.string(),
-        title: z.string(),
-        summary: z.string(),
-      })
-    ).optional(),
+    startPos: z.number(),
+    endPos: z.number(),
+    sections: z.array(SectionSchema).optional(),
   })
 )
 
@@ -48,9 +52,14 @@ export async function POST(req: Request) {
       )
     }
 
-    if (file.size > 50 * 1024 * 1024) { // 50MB limit
+    const MAX_FILE_SIZE = 3 * 1024 * 1024 // 3MB limit
+
+    if (file.size > MAX_FILE_SIZE) {
       return new Response(
-        JSON.stringify({ error: "File too large (max 50MB)" }),
+        JSON.stringify({
+          error: "File too large (max 3MB)",
+          suggestion: "For better performance, please upload individual chapters rather than entire textbooks."
+        }),
         { status: 400, headers: { "Content-Type": "application/json" } }
       )
     }
@@ -82,37 +91,56 @@ export async function POST(req: Request) {
     const parsedData = await parserResponse.json()
     const pdfContent = parsedData.content as string
 
-    if (!pdfContent) {
+    if (!pdfContent || pdfContent.trim().length === 0) {
       return new Response(
-        JSON.stringify({ error: "No text content extracted from PDF" }),
+        JSON.stringify({
+          error: "No text content found in PDF. The file may be empty, image-based, or corrupted.",
+          suggestion: "Try a PDF with selectable text content."
+        }),
         { status: 400, headers: { "Content-Type": "application/json" } }
       )
     }
 
-    // Use LLM to analyze structure
+    // Check minimum content length
+    if (pdfContent.length < 100) {
+      return new Response(
+        JSON.stringify({
+          error: "PDF content too short. Expected textbook content but found minimal text.",
+          contentLength: pdfContent.length
+        }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      )
+    }
+
+    // Use LLM to analyze structure and estimate content positions
     const structureAnalysis = await generateText({
       model: openrouter("google/gemini-2.0-flash-lite-001"),
-      prompt: `Analyze this PDF textbook content and identify the main structure (chapters, sections, topics).
+      prompt: `Analyze this PDF textbook content and identify the main structure with content positions.
 
 Return ONLY valid JSON array (no markdown, no code blocks) in this format:
 [
   {
     "id": "ch1",
     "title": "Chapter 1: Topic Name",
+    "startPos": 0,
+    "endPos": 5000,
     "sections": [
       {
         "id": "ch1_s1",
         "title": "1.1 Section Name",
-        "summary": "Brief description of what this section covers"
+        "summary": "Brief description",
+        "startPos": 0,
+        "endPos": 2500
       }
     ]
   }
 ]
 
-If the document has no clear chapter structure, treat major sections as chapters.
+Estimate character positions (startPos/endPos) based on section titles found in the text.
+If no clear boundaries, divide content proportionally among sections.
 
 PDF Content:
-${pdfContent.substring(0, 8000)} ${pdfContent.length > 8000 ? "... [content truncated]" : ""}`,
+${pdfContent}`,
     })
 
     // Parse and validate structure
@@ -122,24 +150,36 @@ ${pdfContent.substring(0, 8000)} ${pdfContent.length > 8000 ? "... [content trun
       // Remove markdown code blocks if present
       const cleanText = text.replace(/```(?:json)?\n?|\n?```/g, "").trim()
       structure = PDFStructureSchema.parse(JSON.parse(cleanText))
+
+      // Validate structure has content
+      if (structure.length === 0) {
+        throw new Error("No chapters or sections identified in PDF")
+      }
     } catch (parseError) {
       console.error("Structure parsing failed:", parseError)
+
+      const errorMessage = parseError instanceof Error ? parseError.message : String(parseError)
+      const isZodError = errorMessage.includes("validation") || errorMessage.includes("expected")
+
       return new Response(
         JSON.stringify({
-          error: "Failed to parse PDF structure. Please ensure it's a valid textbook.",
-          details: parseError instanceof Error ? parseError.message : String(parseError),
+          error: isZodError
+            ? "PDF structure format invalid. The document may not be a standard textbook."
+            : "Failed to identify textbook structure. Please ensure it has clear chapters/sections.",
+          details: errorMessage,
+          suggestion: "Try a PDF with clear chapter headings and section structure."
         }),
         { status: 400, headers: { "Content-Type": "application/json" } }
       )
     }
 
-    // Return with original content for later use
+    // Return structure with positions and full content for segmentation
     return new Response(
       JSON.stringify({
         fileName: file.name,
         pageCount: parsedData.pages || 0,
         chapters: structure,
-        extractedContent: pdfContent, // Full content for trail creation
+        fullContent: pdfContent, // Full content for section-specific extraction
         metadata: {
           wordCount: parsedData.word_count || 0,
           uploadedAt: new Date().toISOString(),
