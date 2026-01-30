@@ -168,17 +168,64 @@ export async function hasEnoughCredits(
 }
 
 /**
+ * Log credit usage for audit trail
+ */
+export async function logCreditUsage(
+  userId: string,
+  modelId: string,
+  inputTokens: number,
+  outputTokens: number,
+  creditsDeducted: number,
+  balanceAfter: number,
+  feature: string = 'chat',
+  requestId?: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = await createClient()
+
+    const { error } = await supabase.from('credit_usage_logs').insert({
+      user_id: userId,
+      model_id: modelId,
+      input_tokens: inputTokens,
+      output_tokens: outputTokens,
+      credits_deducted: creditsDeducted,
+      balance_after: balanceAfter,
+      feature,
+      request_id: requestId,
+    })
+
+    if (error) {
+      console.error('Error logging credit usage:', error)
+      // Don't fail the request if logging fails
+      return { success: false, error: error.message }
+    }
+
+    return { success: true }
+  } catch (error) {
+    console.error('Error logging credit usage:', error)
+    // Fail gracefully - log the error but don't block the request
+    return { success: false, error: String(error) }
+  }
+}
+
+/**
  * Deduct credits after a chat completion or other service usage
+ * Now uses actual token counts with per-token pricing
  */
 export async function deductCredits(
   userId: string,
   modelId: string,
   inputTokens: number,
-  outputTokens: number
+  outputTokens: number,
+  feature: string = 'chat',
+  requestId?: string
 ): Promise<CreditDeductionResult> {
-  // Handle illustration generation
+  // Import at usage point to avoid circular deps
+  const { calculateCreditsFromTokens: calcCredits, isModelPriced } = await import('./model-pricing')
+
+  // Handle illustration generation (special case - fixed 2 credits)
   if (modelId === 'illustration') {
-    const creditsToDeduct = 2 // Fixed cost for illustrations
+    const creditsToDeduct = 2
 
     const supabase = await createClient()
 
@@ -188,7 +235,7 @@ export async function deductCredits(
     })
 
     const { data, error } = result as {
-      data: { success: boolean; remaining_credits: number; error?: string } | null;
+      data: { success: boolean; remaining_credits: number; error?: string } | null
       error: any
     }
 
@@ -197,7 +244,7 @@ export async function deductCredits(
       return {
         success: false,
         creditsUsed: 0,
-        error: 'Failed to deduct credits'
+        error: 'Failed to deduct credits',
       }
     }
 
@@ -205,9 +252,12 @@ export async function deductCredits(
       return {
         success: false,
         creditsUsed: 0,
-        error: data?.error || 'Insufficient credits'
+        error: data?.error || 'Insufficient credits',
       }
     }
+
+    // Log the usage
+    await logCreditUsage(userId, modelId, 0, 0, creditsToDeduct, data.remaining_credits, feature, requestId)
 
     return {
       success: true,
@@ -219,11 +269,12 @@ export async function deductCredits(
   const model = getModelById(modelId)
 
   // Free models don't cost credits
-  if (!model || model.costPerTrail === 0) {
+  if (!model || !isModelPriced(modelId)) {
     return { success: true, creditsUsed: 0 }
   }
 
-  const creditsToDeduct = calculateCreditsFromTokens(modelId, inputTokens, outputTokens)
+  // Calculate credits based on actual tokens used
+  const creditsToDeduct = calcCredits(modelId, inputTokens, outputTokens)
 
   if (creditsToDeduct === 0) {
     return { success: true, creditsUsed: 0 }
@@ -238,7 +289,7 @@ export async function deductCredits(
   })
 
   const { data, error } = result as {
-    data: { success: boolean; remaining_credits: number; error?: string } | null;
+    data: { success: boolean; remaining_credits: number; error?: string } | null
     error: any
   }
 
@@ -247,7 +298,7 @@ export async function deductCredits(
     return {
       success: false,
       creditsUsed: 0,
-      error: 'Failed to deduct credits'
+      error: 'Failed to deduct credits',
     }
   }
 
@@ -255,9 +306,21 @@ export async function deductCredits(
     return {
       success: false,
       creditsUsed: 0,
-      error: data?.error || 'Insufficient credits'
+      error: data?.error || 'Insufficient credits',
     }
   }
+
+  // Log the usage
+  await logCreditUsage(
+    userId,
+    modelId,
+    inputTokens,
+    outputTokens,
+    creditsToDeduct,
+    data.remaining_credits,
+    feature,
+    requestId
+  )
 
   return {
     success: true,
