@@ -23,18 +23,7 @@ export const MODELS: ModelOption[] = [
     // ============================================
     // FREE TIER MODELS (0 cost)
     // ============================================
-    {
-        id: 'mistralai/devstral-2512:free',
-        name: 'Mistral Devstral 2512',
-        provider: 'Mistral',
-        costPerTrail: 0,
-        speed: 'Very Fast',
-        tier: 'free',
-        recommended: true,
-        badge: 'Free',
-        description: 'Best free model for learning and coding',
-        contextLength: 262144,
-    },
+    // Note: mistralai/devstral-2512:free was removed as OpenRouter now requires higher tier access
     {
         id: 'xiaomi/mimo-v2-flash:free',
         name: 'Xiaomi MiMo V2 Flash',
@@ -90,9 +79,10 @@ export const MODELS: ModelOption[] = [
         provider: 'Google',
         costPerTrail: 0.25,
         speed: 'Very Fast',
-        tier: 'basic',
-        badge: 'Fast',
-        description: 'Ultra-fast and cost-efficient',
+        tier: 'free',
+        recommended: true,
+        badge: 'Best Value',
+        description: 'Recommended for new users - ultra-fast and cost-efficient',
         contextLength: 1048576,
     },
     {
@@ -250,7 +240,7 @@ export const MODELS: ModelOption[] = [
 
 // Default model for each tier
 export const DEFAULT_MODELS: Record<UserTier, string> = {
-    free: 'mistralai/devstral-2512:free',
+    free: 'google/gemini-2.0-flash-lite-001', // Default for new users - recommended and cost-efficient
     basic: 'google/gemini-2.0-flash-001',
     pro: 'deepseek/deepseek-v3.1-terminus',
 }
