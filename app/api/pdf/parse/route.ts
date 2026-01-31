@@ -31,6 +31,17 @@ const PDFStructureSchema = z.array(
 type PDFStructure = z.infer<typeof PDFStructureSchema>
 
 export async function POST(req: Request) {
+  // Check if PDF parsing is enabled via environment flag
+  if (process.env.ENABLE_PDF_PARSING !== "true") {
+    return new Response(
+      JSON.stringify({
+        error: "PDF parsing feature is currently disabled",
+        message: "This feature can be enabled via the ENABLE_PDF_PARSING environment variable"
+      }),
+      { status: 503, headers: { "Content-Type": "application/json" } }
+    )
+  }
+
   try {
     const supabase = await createClient()
     const {

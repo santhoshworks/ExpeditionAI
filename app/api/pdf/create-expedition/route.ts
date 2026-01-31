@@ -19,6 +19,17 @@ const createExpeditionSchema = z.object({
 })
 
 export async function POST(req: Request) {
+  // Check if PDF parsing is enabled via environment flag
+  if (process.env.ENABLE_PDF_PARSING !== "true") {
+    return new Response(
+      JSON.stringify({
+        error: "PDF parsing feature is currently disabled",
+        message: "This feature can be enabled via the ENABLE_PDF_PARSING environment variable"
+      }),
+      { status: 503, headers: { "Content-Type": "application/json" } }
+    )
+  }
+
   try {
     // Validate environment
     const appUrl = process.env.NEXT_PUBLIC_APP_URL

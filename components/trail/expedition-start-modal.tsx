@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { GenerateTopicsModal } from "./generate-topics-modal"
 import { PDFUploadModal } from "./pdf-upload-modal"
 import { TrailWithCounts } from "@/types/database"
@@ -35,6 +35,28 @@ export function ExpeditionStartModal({
   const [mode, setMode] = useState<StartMode>("choose")
   const [pdfModalOpen, setPdfModalOpen] = useState(false)
   const [manualModalOpen, setManualModalOpen] = useState(false)
+  const [pdfParsingEnabled, setPdfParsingEnabled] = useState(false)
+
+  useEffect(() => {
+    const checkFeatures = async () => {
+      try {
+        const response = await fetch("/api/features/check")
+        if (response.ok) {
+          const data = await response.json()
+          setPdfParsingEnabled(data.pdfParsingEnabled)
+
+          // If PDF parsing is disabled, skip choice and go directly to manual mode
+          if (!data.pdfParsingEnabled) {
+            setMode("manual")
+            setManualModalOpen(true)
+          }
+        }
+      } catch (error) {
+        console.error("Failed to check feature flags:", error)
+      }
+    }
+    checkFeatures()
+  }, [open])
 
   const handleClose = () => {
     setPdfModalOpen(false)
@@ -86,7 +108,7 @@ export function ExpeditionStartModal({
               </DialogDescription>
             </DialogHeader>
 
-            <div className="grid grid-cols-2 gap-3 py-4">
+            <div className={`grid gap-3 py-4 ${pdfParsingEnabled ? "grid-cols-2" : "grid-cols-1"}`}>
               <Button
                 variant="outline"
                 onClick={handleManualMode}
@@ -96,14 +118,16 @@ export function ExpeditionStartModal({
                 <span className="text-sm">Generate Topics</span>
               </Button>
 
-              <Button
-                variant="outline"
-                onClick={handlePDFMode}
-                className="h-24 flex flex-col items-center justify-center gap-2"
-              >
-                <FileText className="h-6 w-6" />
-                <span className="text-sm">Upload PDF</span>
-              </Button>
+              {pdfParsingEnabled && (
+                <Button
+                  variant="outline"
+                  onClick={handlePDFMode}
+                  className="h-24 flex flex-col items-center justify-center gap-2"
+                >
+                  <FileText className="h-6 w-6" />
+                  <span className="text-sm">Upload PDF</span>
+                </Button>
+              )}
             </div>
 
             <DialogFooter>
