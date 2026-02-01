@@ -9,6 +9,10 @@ import { post as studySchedulePost } from './study-schedule-template'
 import { post as thoughtmapVsChatgptPost } from './thoughtmap-vs-chatgpt-for-learning'
 import { post as thoughtmapVsQuizletPost } from './thoughtmap-vs-quizlet'
 import { post as thoughtmapVsKhanAcademyPost } from './thoughtmap-vs-khan-academy'
+import { post as studyForExamsWithAiPost } from './how-to-study-for-exams-with-ai'
+import { post as createEffectiveFlashcardsPost } from './how-to-create-effective-flashcards'
+import { post as learnNewSubjectFastPost } from './how-to-learn-a-new-subject-fast'
+import { post as takeBetterNotesWithAiPost } from './how-to-take-better-notes-with-ai'
 
 export interface BlogPost {
   title: string
@@ -23,6 +27,10 @@ export interface BlogPost {
 }
 
 export const blogPosts: BlogPost[] = [
+  studyForExamsWithAiPost,
+  createEffectiveFlashcardsPost,
+  learnNewSubjectFastPost,
+  takeBetterNotesWithAiPost,
   thoughtmapVsChatgptPost,
   thoughtmapVsQuizletPost,
   thoughtmapVsKhanAcademyPost,

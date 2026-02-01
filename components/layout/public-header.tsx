@@ -16,7 +16,9 @@ import {
     GraduationCap,
     FlaskConical,
     FileText,
-    BookMarked
+    BookMarked,
+    RefreshCw,
+    MessageSquareQuote
 } from "lucide-react"
 import { SITE_CONFIG } from "@/lib/config"
 
@@ -33,6 +35,8 @@ const resourcesDropdown = [
     { href: "/glossary", label: "Glossary", icon: BookOpen, description: "Terms explained" },
     { href: "/for-students", label: "For Students", icon: GraduationCap, description: "Student tools" },
     { href: "/for-researchers", label: "For Researchers", icon: FlaskConical, description: "Research tools" },
+    { href: "/testimonials", label: "Reviews", icon: MessageSquareQuote, description: "Customer reviews" },
+    { href: "/updates", label: "Updates", icon: RefreshCw, description: "What's new" },
 ]
 
 interface DropdownProps {
@@ -192,6 +196,8 @@ export function PublicHeader({ currentPage }: PublicHeaderProps) {
                     <Link href="/resources" className="text-base font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 pl-2" onClick={() => setMobileMenuOpen(false)}>Templates</Link>
                     <Link href="/for-students" className="text-base font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 pl-2" onClick={() => setMobileMenuOpen(false)}>For Students</Link>
                     <Link href="/for-researchers" className="text-base font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 pl-2" onClick={() => setMobileMenuOpen(false)}>For Researchers</Link>
+                    <Link href="/testimonials" className="text-base font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 pl-2" onClick={() => setMobileMenuOpen(false)}>Reviews</Link>
+                    <Link href="/updates" className="text-base font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 pl-2" onClick={() => setMobileMenuOpen(false)}>Updates</Link>
 
                     {/* Main Links */}
                     <div className="border-t border-slate-200 dark:border-slate-700 my-4 pt-4">

@@ -1,6 +1,12 @@
 import { Metadata } from "next"
-import { generateSEOMetadata } from "@/lib/seo"
+import { generateSEOMetadata, generateOrganizationSchema, generateWebsiteSchema, generateSoftwareApplicationSchema, generateEducationalOrganizationSchema } from "@/lib/seo"
 import { HomePageContent } from "@/components/home-page-content"
+
+// Generate all homepage schemas
+const organizationSchema = generateOrganizationSchema()
+const websiteSchema = generateWebsiteSchema()
+const softwareAppSchema = generateSoftwareApplicationSchema()
+const educationalOrgSchema = generateEducationalOrganizationSchema()
 
 export const metadata: Metadata = generateSEOMetadata({
   title: "ThoughtMap - AI Learning Platform with 300+ Models | Learn Any Topic",
@@ -26,5 +32,26 @@ export const metadata: Metadata = generateSEOMetadata({
 })
 
 export default function LandingPage() {
-  return <HomePageContent />
+  return (
+    <>
+      {/* Structured Data for SEO - SoftwareApplication, Organization, Website schemas */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareAppSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(educationalOrgSchema) }}
+      />
+      <HomePageContent />
+    </>
+  )
 }

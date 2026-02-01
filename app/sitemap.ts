@@ -37,6 +37,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
             priority: 0.8,
         },
         {
+            url: `${baseUrl}/blog/feed.xml`,
+            lastModified: currentDate,
+            changeFrequency: 'weekly' as const,
+            priority: 0.5,
+        },
+        {
             url: `${baseUrl}/demo`,
             lastModified: currentDate,
             changeFrequency: 'monthly' as const,
@@ -59,6 +65,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
             lastModified: currentDate,
             changeFrequency: 'yearly' as const,
             priority: 0.3,
+        },
+        {
+            url: `${baseUrl}/updates`,
+            lastModified: currentDate,
+            changeFrequency: 'weekly' as const,
+            priority: 0.7,
+        },
+        {
+            url: `${baseUrl}/testimonials`,
+            lastModified: currentDate,
+            changeFrequency: 'monthly' as const,
+            priority: 0.7,
         },
     ]
 

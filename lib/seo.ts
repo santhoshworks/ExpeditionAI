@@ -396,3 +396,126 @@ export function generateBreadcrumbSchema(items: BreadcrumbItem[]) {
         })),
     }
 }
+
+// HowTo schema for step-by-step guides
+export interface HowToStep {
+    name: string
+    text: string
+    image?: string
+}
+
+export interface HowToSchemaProps {
+    name: string
+    description: string
+    url: string
+    totalTime?: string // ISO 8601 duration format, e.g., "PT30M" for 30 minutes
+    estimatedCost?: { currency: string; value: string }
+    steps: HowToStep[]
+    image?: string
+}
+
+export function generateHowToSchema({
+    name,
+    description,
+    url,
+    totalTime,
+    estimatedCost,
+    steps,
+    image
+}: HowToSchemaProps) {
+    return {
+        '@context': 'https://schema.org',
+        '@type': 'HowTo',
+        name,
+        description,
+        url: url.startsWith('http') ? url : `${SITE_CONFIG.url}${url}`,
+        ...(totalTime && { totalTime }),
+        ...(estimatedCost && {
+            estimatedCost: {
+                '@type': 'MonetaryAmount',
+                currency: estimatedCost.currency,
+                value: estimatedCost.value,
+            },
+        }),
+        ...(image && {
+            image: {
+                '@type': 'ImageObject',
+                url: image.startsWith('http') ? image : `${SITE_CONFIG.url}${image}`,
+            },
+        }),
+        step: steps.map((step, index) => ({
+            '@type': 'HowToStep',
+            position: index + 1,
+            name: step.name,
+            text: step.text,
+            ...(step.image && {
+                image: {
+                    '@type': 'ImageObject',
+                    url: step.image.startsWith('http') ? step.image : `${SITE_CONFIG.url}${step.image}`,
+                },
+            }),
+        })),
+    }
+}
+
+// Review and AggregateRating schema for testimonials
+export interface ReviewSchemaProps {
+    author: string
+    reviewBody: string
+    ratingValue: number
+    datePublished?: string
+}
+
+export function generateReviewSchema({
+    author,
+    reviewBody,
+    ratingValue,
+    datePublished = new Date().toISOString().split('T')[0]
+}: ReviewSchemaProps) {
+    return {
+        '@type': 'Review',
+        author: {
+            '@type': 'Person',
+            name: author,
+        },
+        reviewBody,
+        reviewRating: {
+            '@type': 'Rating',
+            ratingValue: ratingValue.toString(),
+            bestRating: '5',
+            worstRating: '1',
+        },
+        datePublished,
+    }
+}
+
+export interface AggregateRatingSchemaProps {
+    ratingValue: number
+    reviewCount: number
+    bestRating?: number
+    worstRating?: number
+}
+
+export function generateTestimonialsPageSchema(
+    reviews: ReviewSchemaProps[],
+    aggregateRating: AggregateRatingSchemaProps
+) {
+    return {
+        '@context': 'https://schema.org',
+        '@type': 'Product',
+        name: SITE_CONFIG.name,
+        description: 'AI-powered learning platform with branching conversations and personalized quizzes',
+        brand: {
+            '@type': 'Brand',
+            name: SITE_CONFIG.name,
+        },
+        aggregateRating: {
+            '@type': 'AggregateRating',
+            ratingValue: aggregateRating.ratingValue.toString(),
+            reviewCount: aggregateRating.reviewCount.toString(),
+            bestRating: (aggregateRating.bestRating || 5).toString(),
+            worstRating: (aggregateRating.worstRating || 1).toString(),
+        },
+        review: reviews.map(review => generateReviewSchema(review)),
+    }
+}

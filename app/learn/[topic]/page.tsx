@@ -164,11 +164,11 @@ export default async function TopicPage({ params }: TopicPageProps) {
         { name: topic.name, url: `/learn/${topic.slug}` },
     ])
 
-    const courseSchema = generateCourseSchema(
-        `Learn ${topic.name} with AI`,
-        `${topic.description}. Interactive AI-powered learning with personalized paths and instant explanations.`,
-        `${SITE_CONFIG.url}/learn/${topic.slug}`
-    )
+    const courseSchema = generateCourseSchema({
+        name: `Learn ${topic.name} with AI`,
+        description: `${topic.description}. Interactive AI-powered learning with personalized paths and instant explanations.`,
+        url: `${SITE_CONFIG.url}/learn/${topic.slug}`
+    })
 
     const faqSchema = generateFAQSchema(
         topic.popularQuestions.map((question, index) => ({
