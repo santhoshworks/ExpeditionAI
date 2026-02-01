@@ -1,7 +1,7 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 import type { UserTier } from "./constants"
-import { DEFAULT_MODELS } from "./constants"
+import { DEFAULT_MODELS, getModelById } from "./constants"
 
 export interface QuizQuestion {
   id: string
@@ -228,6 +228,18 @@ export const useExploreStore = create<ExploreState>()(
         selectedModel: state.selectedModel,
         sidebarCollapsed: state.sidebarCollapsed,
       }),
+      // Validate persisted model on load - reset to default if invalid
+      merge: (persistedState, currentState) => {
+        const persisted = persistedState as Partial<ExploreState>
+        const validModel = persisted.selectedModel && getModelById(persisted.selectedModel)
+          ? persisted.selectedModel
+          : DEFAULT_MODELS.free
+        return {
+          ...currentState,
+          ...persisted,
+          selectedModel: validModel,
+        }
+      },
     }
   )
 )

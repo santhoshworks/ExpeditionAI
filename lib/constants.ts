@@ -124,7 +124,7 @@ export const TIER_CONFIGS: Record<UserTier, TierConfig> = {
     bonusCredits: 0,
     trailsPerDay: 15, // Increased for beta testing
     features: [
-      '4 free models (Mistral, Xiaomi, NVIDIA, DeepSeek)',
+      'Access to Gemini 2.0 Flash Lite',
       '15 trails per day',
       'Basic features',
     ],

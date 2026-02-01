@@ -111,16 +111,14 @@ All questions, quizzes, and summaries should be strictly relevant to this topic 
     }
 
     // Validate model access based on tier
-    const selectedModel = model || DEFAULT_MODELS[userTier]
-    const modelConfig = getModelById(selectedModel)
+    let selectedModel = model || DEFAULT_MODELS[userTier]
+    let modelConfig = getModelById(selectedModel)
 
-    if (!canUseModel(userTier, selectedModel)) {
-      return new Response(
-        JSON.stringify({
-          error: `Model ${modelConfig?.name || selectedModel} requires a higher tier. Please upgrade your plan.`
-        }),
-        { status: 403, headers: { 'Content-Type': 'application/json' } }
-      )
+    // If model is invalid or user can't access it, fall back to default for their tier
+    if (!modelConfig || !canUseModel(userTier, selectedModel)) {
+      console.log(`Model ${selectedModel} is invalid or inaccessible for tier ${userTier}, falling back to default`)
+      selectedModel = DEFAULT_MODELS[userTier]
+      modelConfig = getModelById(selectedModel)
     }
 
     // Check credit balance for paid models
