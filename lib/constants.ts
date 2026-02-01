@@ -218,6 +218,9 @@ export const FEATURE_MODELS = {
 
   // Quiz generation
   QUIZ_GENERATION: 'openai/gpt-4o-mini',
+
+  // Flashcard generation
+  FLASHCARD_GENERATION: 'openai/gpt-4o-mini',
 } as const
 
 // Helper function to get model for a specific feature

@@ -15,10 +15,14 @@ import { TrailTree } from "@/components/trail/trail-tree"
 import { useTextSelection } from "@/hooks/use-text-selection"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { BookOpen, Wand2, GitBranch, Compass, Zap, Brain } from "lucide-react"
+import { BookOpen, Wand2, GitBranch, Compass, Zap, Brain, Layers } from "lucide-react"
 import Link from "next/link"
 import { QuizSelectionModal } from "@/components/quiz/quiz-selection-modal"
 import { QuizInterface } from "@/components/quiz/quiz-interface"
+import { FlashcardSelectionModal, FlashcardInterface } from "@/components/flashcard"
+
+// Feature flag for flashcards
+const FLASHCARDS_ENABLED = process.env.NEXT_PUBLIC_ENABLE_FLASHCARDS === 'true'
 
 export default function ExpeditionPage() {
   const params = useParams()
@@ -28,6 +32,7 @@ export default function ExpeditionPage() {
 
   const [generateModalOpen, setGenerateModalOpen] = useState(false)
   const [quizModalOpen, setQuizModalOpen] = useState(false)
+  const [flashcardModalOpen, setFlashcardModalOpen] = useState(false)
 
   const {
     setCurrentExpedition,
@@ -38,6 +43,8 @@ export default function ExpeditionPage() {
     quizState,
     setQuizMode,
     setSelectedQuestionCount,
+    flashcardState,
+    setFlashcardMode,
   } = useExploreStore()
   const { data: expedition, isLoading: expeditionLoading } = useExpedition(expeditionId)
   const { data: trails, isLoading: trailsLoading } = useTrails(expeditionId)
@@ -84,6 +91,17 @@ export default function ExpeditionPage() {
 
   const handleExitQuiz = () => {
     setQuizMode(false)
+  }
+
+  const handleExitFlashcards = () => {
+    setFlashcardMode(false)
+  }
+
+  const handleStartFlashcards = (scope: 'trail' | 'expedition') => {
+    // Set scope in store, then enable flashcard mode
+    const { setFlashcardScope } = useExploreStore.getState()
+    setFlashcardScope(scope, scope === 'trail' ? currentTrailId! : expeditionId)
+    setFlashcardMode(true)
   }
 
   if (expeditionLoading || trailsLoading) {
@@ -194,6 +212,16 @@ export default function ExpeditionPage() {
                   <Brain className="h-3.5 w-3.5 text-purple-500" />
                   Quiz Me
                 </Button>
+                {FLASHCARDS_ENABLED && (
+                  <Button
+                    variant="outline"
+                    onClick={() => setFlashcardModalOpen(true)}
+                    className="h-9 rounded-lg border-slate-200 dark:border-slate-800 font-bold text-xs gap-2 hover:bg-amber-50 hover:border-amber-200 transition-colors"
+                  >
+                    <Layers className="h-3.5 w-3.5 text-amber-500" />
+                    Flashcards
+                  </Button>
+                )}
                 <Link href={`/expedition/${expeditionId}/journal`}>
                   <Button variant="outline" className="h-9 rounded-lg border-slate-200 dark:border-slate-800 font-bold text-xs gap-2 hover:bg-indigo-50 hover:border-indigo-200 transition-colors">
                     <BookOpen className="h-3.5 w-3.5 text-indigo-500" />
@@ -215,6 +243,14 @@ export default function ExpeditionPage() {
                 <QuizInterface
                   expeditionId={expeditionId}
                   onExit={handleExitQuiz}
+                />
+              </div>
+            ) : flashcardState.isFlashcardMode ? (
+              <div className="flex-1 flex flex-col min-h-0 bg-slate-50/30 dark:bg-slate-950/10">
+                <FlashcardInterface
+                  expeditionId={expeditionId}
+                  trailId={flashcardState.scope === 'trail' ? currentTrailId : undefined}
+                  onExit={handleExitFlashcards}
                 />
               </div>
             ) : (
@@ -269,6 +305,18 @@ export default function ExpeditionPage() {
         onOpenChange={setQuizModalOpen}
         onStartQuiz={handleStartQuiz}
       />
+
+      {/* Flashcard Selection Modal */}
+      {FLASHCARDS_ENABLED && (
+        <FlashcardSelectionModal
+          open={flashcardModalOpen}
+          onOpenChange={setFlashcardModalOpen}
+          onStart={handleStartFlashcards}
+          hasCurrentTrail={!!currentTrailId}
+          trailTitle={currentTrail?.title}
+          expeditionTitle={expedition.title}
+        />
+      )}
     </div>
   )
 }

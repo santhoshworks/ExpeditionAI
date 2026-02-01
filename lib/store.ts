@@ -2,6 +2,7 @@ import { create } from "zustand"
 import { persist } from "zustand/middleware"
 import type { UserTier } from "./constants"
 import { DEFAULT_MODELS, getModelById } from "./constants"
+import type { Flashcard, FlashcardProgress } from "@/types/flashcard"
 
 export interface QuizQuestion {
   id: string
@@ -19,6 +20,17 @@ export interface QuizState {
   quizLoading: boolean
   quizError: string | null
   selectedQuestionCount: number | null
+}
+
+export interface FlashcardState {
+  isFlashcardMode: boolean
+  flashcards: Flashcard[]
+  currentCardIndex: number
+  cardProgress: Record<string, FlashcardProgress>
+  flashcardLoading: boolean
+  flashcardError: string | null
+  scope: 'trail' | 'expedition' | null
+  sourceId: string | null
 }
 
 interface ExploreState {
@@ -53,6 +65,9 @@ interface ExploreState {
   // Quiz state
   quizState: QuizState
 
+  // Flashcard state
+  flashcardState: FlashcardState
+
   // Actions
   setCurrentExpedition: (id: string | null) => void
   setCurrentTrail: (id: string | null) => void
@@ -79,6 +94,16 @@ interface ExploreState {
   setQuizError: (error: string | null) => void
   setSelectedQuestionCount: (count: number | null) => void
   resetQuiz: () => void
+
+  // Flashcard actions
+  setFlashcardMode: (isActive: boolean) => void
+  setFlashcards: (cards: Flashcard[]) => void
+  setCurrentCardIndex: (index: number) => void
+  markCardProgress: (cardId: string, status: 'got_it' | 'missed') => void
+  setFlashcardLoading: (loading: boolean) => void
+  setFlashcardError: (error: string | null) => void
+  setFlashcardScope: (scope: 'trail' | 'expedition', sourceId: string) => void
+  resetFlashcards: () => void
 }
 
 export const useExploreStore = create<ExploreState>()(
@@ -107,6 +132,18 @@ export const useExploreStore = create<ExploreState>()(
         quizLoading: false,
         quizError: null,
         selectedQuestionCount: null,
+      },
+
+      // Initial flashcard state
+      flashcardState: {
+        isFlashcardMode: false,
+        flashcards: [],
+        currentCardIndex: 0,
+        cardProgress: {},
+        flashcardLoading: false,
+        flashcardError: null,
+        scope: null,
+        sourceId: null,
       },
 
       // Actions
@@ -219,6 +256,71 @@ export const useExploreStore = create<ExploreState>()(
             quizLoading: false,
             quizError: null,
             selectedQuestionCount: null,
+          },
+        })),
+
+      // Flashcard actions
+      setFlashcardMode: (isActive) =>
+        set((state) => ({
+          flashcardState: { ...state.flashcardState, isFlashcardMode: isActive },
+        })),
+
+      setFlashcards: (cards) =>
+        set((state) => ({
+          flashcardState: { ...state.flashcardState, flashcards: cards },
+        })),
+
+      setCurrentCardIndex: (index) =>
+        set((state) => ({
+          flashcardState: { ...state.flashcardState, currentCardIndex: index },
+        })),
+
+      markCardProgress: (cardId, status) =>
+        set((state) => {
+          const existingProgress = state.flashcardState.cardProgress[cardId]
+          const newProgress = {
+            flashcardId: cardId,
+            status,
+            reviewCount: (existingProgress?.reviewCount || 0) + 1,
+            lastReviewedAt: new Date().toISOString(),
+          }
+          return {
+            flashcardState: {
+              ...state.flashcardState,
+              cardProgress: {
+                ...state.flashcardState.cardProgress,
+                [cardId]: newProgress,
+              },
+            },
+          }
+        }),
+
+      setFlashcardLoading: (loading) =>
+        set((state) => ({
+          flashcardState: { ...state.flashcardState, flashcardLoading: loading },
+        })),
+
+      setFlashcardError: (error) =>
+        set((state) => ({
+          flashcardState: { ...state.flashcardState, flashcardError: error },
+        })),
+
+      setFlashcardScope: (scope, sourceId) =>
+        set((state) => ({
+          flashcardState: { ...state.flashcardState, scope, sourceId },
+        })),
+
+      resetFlashcards: () =>
+        set((state) => ({
+          flashcardState: {
+            isFlashcardMode: false,
+            flashcards: [],
+            currentCardIndex: 0,
+            cardProgress: {},
+            flashcardLoading: false,
+            flashcardError: null,
+            scope: null,
+            sourceId: null,
           },
         })),
     }),
