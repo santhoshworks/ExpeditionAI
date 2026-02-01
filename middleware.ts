@@ -86,8 +86,11 @@ export async function middleware(request: NextRequest) {
   const isRootPage = request.nextUrl.pathname === "/"
 
   if ((isAuthPage || isRootPage) && session) {
+    // Check for redirect parameter to preserve intended destination
+    const redirectParam = request.nextUrl.searchParams.get("redirect")
     const redirectUrl = request.nextUrl.clone()
-    redirectUrl.pathname = "/dashboard"
+    redirectUrl.pathname = redirectParam || "/dashboard"
+    redirectUrl.searchParams.delete("redirect")
     return NextResponse.redirect(redirectUrl)
   }
 

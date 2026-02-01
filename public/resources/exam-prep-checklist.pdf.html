@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Preparation Checklist - ThoughtMap</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @page {
+            size: A4;
+            margin: 0.5in;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.4;
+            color: #1e293b;
+            background: white;
+        }
+
+        .page {
+            width: 8.5in;
+            min-height: 11in;
+            padding: 0.5in;
+            margin: 0 auto;
+            background: white;
+        }
+
+        @media print {
+            .page {
+                width: 100%;
+                min-height: auto;
+                padding: 0;
+                margin: 0;
+                page-break-after: always;
+            }
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 3px solid #dc2626;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #dc2626, #f97316);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .logo-text {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .exam-info {
+            text-align: right;
+        }
+
+        .exam-field {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            margin-bottom: 4px;
+            justify-content: flex-end;
+        }
+
+        .exam-field label {
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        .exam-field .line {
+            width: 140px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .countdown-box {
+            background: linear-gradient(135deg, #fef2f2, #fee2e2);
+            border: 2px solid #dc2626;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .countdown-label {
+            font-weight: 600;
+            color: #991b1b;
+            font-size: 14px;
+        }
+
+        .countdown-days {
+            display: flex;
+            gap: 8px;
+        }
+
+        .day-box {
+            width: 32px;
+            height: 32px;
+            border: 2px solid #dc2626;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #dc2626;
+            background: white;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .checklist-section {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 10px 14px;
+            font-weight: 600;
+            font-size: 13px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-header.week4 { background: #22c55e; }
+        .section-header.week3 { background: #3b82f6; }
+        .section-header.week2 { background: #f59e0b; }
+        .section-header.week1 { background: #dc2626; }
+        .section-header.dayof { background: #7c3aed; }
+        .section-header.materials { background: #64748b; }
+
+        .section-content {
+            padding: 12px;
+            background: white;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+
+        .checkbox {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #cbd5e1;
+            border-radius: 4px;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .checkbox.priority {
+            border-color: #dc2626;
+            background: #fef2f2;
+        }
+
+        .item-text {
+            flex: 1;
+            color: #475569;
+            line-height: 1.4;
+        }
+
+        .item-text strong {
+            color: #1e293b;
+        }
+
+        .sub-items {
+            margin-left: 24px;
+            margin-top: 6px;
+        }
+
+        .sub-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 6px;
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .sub-checkbox {
+            width: 12px;
+            height: 12px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 3px;
+        }
+
+        .topics-section {
+            grid-column: 1 / -1;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .topics-header {
+            background: #1e293b;
+            color: white;
+            padding: 10px 14px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .topics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: #e2e8f0;
+        }
+
+        .topic-cell {
+            background: white;
+            padding: 8px;
+        }
+
+        .topic-cell.header {
+            background: #f8fafc;
+            font-weight: 600;
+            font-size: 11px;
+            color: #64748b;
+            text-align: center;
+        }
+
+        .topic-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 0;
+            border-bottom: 1px dotted #e2e8f0;
+        }
+
+        .topic-row:last-child {
+            border-bottom: none;
+        }
+
+        .confidence-scale {
+            display: flex;
+            gap: 2px;
+        }
+
+        .confidence-dot {
+            width: 10px;
+            height: 10px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 50%;
+        }
+
+        .footer {
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 10px;
+            color: #94a3b8;
+        }
+
+        .footer-tip {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 4px;
+            padding: 6px 10px;
+            color: #92400e;
+            font-size: 10px;
+        }
+
+        /* Page 2 styles */
+        .strategy-section {
+            margin-bottom: 20px;
+        }
+
+        .strategy-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .strategy-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 14px;
+        }
+
+        .strategy-icon.red { background: #dc2626; }
+        .strategy-icon.blue { background: #3b82f6; }
+        .strategy-icon.green { background: #22c55e; }
+        .strategy-icon.purple { background: #7c3aed; }
+
+        .strategy-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .strategy-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .strategy-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .strategy-card-title {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        .strategy-card-content {
+            font-size: 11px;
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        .exam-day-timeline {
+            background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+            border: 2px solid #7c3aed;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 20px;
+        }
+
+        .timeline-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #5b21b6;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .timeline-items {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .timeline-items::before {
+            content: "";
+            position: absolute;
+            top: 16px;
+            left: 40px;
+            right: 40px;
+            height: 3px;
+            background: #c4b5fd;
+        }
+
+        .timeline-item {
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .timeline-dot {
+            width: 32px;
+            height: 32px;
+            background: #7c3aed;
+            border-radius: 50%;
+            margin: 0 auto 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .timeline-time {
+            font-size: 11px;
+            font-weight: 600;
+            color: #5b21b6;
+        }
+
+        .timeline-action {
+            font-size: 10px;
+            color: #7c3aed;
+            max-width: 80px;
+        }
+
+        .panic-section {
+            background: #fef2f2;
+            border: 2px solid #dc2626;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 20px;
+        }
+
+        .panic-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #991b1b;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .panic-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .panic-card {
+            background: white;
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .panic-card-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: #dc2626;
+            margin-bottom: 4px;
+        }
+
+        .panic-card-content {
+            font-size: 10px;
+            color: #64748b;
+        }
+
+        .notes-section {
+            margin-top: 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .notes-header {
+            background: #64748b;
+            color: white;
+            padding: 10px 14px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .notes-content {
+            padding: 12px;
+            min-height: 100px;
+        }
+
+        .notes-lines {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .notes-line {
+            border-bottom: 1px solid #e2e8f0;
+            min-height: 16px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Page 1: Main Checklist -->
+    <div class="page">
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">T</div>
+                <span class="logo-text">Exam Preparation Checklist</span>
+            </div>
+            <div class="exam-info">
+                <div class="exam-field">
+                    <label>Exam:</label>
+                    <span class="line"></span>
+                </div>
+                <div class="exam-field">
+                    <label>Date:</label>
+                    <span class="line"></span>
+                </div>
+                <div class="exam-field">
+                    <label>Time:</label>
+                    <span class="line"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="countdown-box">
+            <span class="countdown-label">Days Until Exam:</span>
+            <div class="countdown-days">
+                <div class="day-box"></div>
+                <div class="day-box"></div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- 4 Weeks Before -->
+            <div class="checklist-section">
+                <div class="section-header week4">4 Weeks Before</div>
+                <div class="section-content">
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <span class="item-text"><strong>Get exam details</strong> - format, duration, topics covered, allowed materials</span>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <span class="item-text"><strong>Create topic list</strong> - break down all content into reviewable chunks</span>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <span class="item-text"><strong>Gather all materials</strong> - notes, textbooks, past papers, online resources</span>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <span class="item-text"><strong>Identify weak areas</strong> - prioritize topics needing most work</span>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <span class="item-text"><strong>Create study schedule</strong> - allocate time for each topic</span>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <span class="item-text"><strong>Form study group</strong> - find peers for discussion and practice</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3 Weeks Before -->
+            <div class="checklist-section">
+                <div class="section-header week3">3 Weeks Before</div>
+                <div class="section-content">
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <span class="item-text"><strong>Deep review</strong> - work through each topic systematically</span>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <span class="item-text"><strong>Create summary sheets</strong> - condense notes for each major topic</span>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <span class="item-text"><strong>Practice problems</strong> - work through textbook exercises</span>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <span class="item-text"><strong>Use ThoughtMap</strong> - explore difficult concepts with AI tutoring</span>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <span class="item-text"><strong>Attend review sessions</strong> - professor office hours, TA sessions</span>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <span class="item-text"><strong>Create flashcards</strong> - for key terms, formulas, concepts</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2 Weeks Before -->
+            <div class="checklist-section">
+                <div class="section-header week2">2 Weeks Before</div>
+                <div class="section-content">
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <span class="item-text"><strong>First practice exam</strong> - take under timed conditions</span>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <span class="item-text"><strong>Analyze mistakes</strong> - identify patterns in errors</span>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <span class="item-text"><strong>Focus weak areas</strong> - dedicate extra time to problem topics</span>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <span class="item-text"><strong>Teach concepts</strong> - explain topics to others (best way to learn)</span>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <span class="item-text"><strong>Review past exams</strong> - understand question patterns and style</span>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <span class="item-text"><strong>Clarify doubts</strong> - ask questions before it is too late</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 1 Week Before -->
+            <div class="checklist-section">
+                <div class="section-header week1">1 Week Before</div>
+                <div class="section-content">
+                    <div class="checklist-item">
+                        <div class="checkbox priority"></div>
+                        <span class="item-text"><strong>Second practice exam</strong> - simulate real exam conditions</span>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox priority"></div>
+                        <span class="item-text"><strong>Review all summaries</strong> - consolidate knowledge</span>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <span class="item-text"><strong>Final weak area push</strong> - last chance for difficult topics</span>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <span class="item-text"><strong>Prepare exam materials</strong> - calculator, ID, pencils, allowed notes</span>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <span class="item-text"><strong>Know logistics</strong> - room location, arrival time, parking</span>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <span class="item-text"><strong>Plan exam day</strong> - meals, transport, what to wear</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Day Before & Day Of -->
+            <div class="checklist-section">
+                <div class="section-header dayof">Day Before & Day Of</div>
+                <div class="section-content">
+                    <div class="checklist-item">
+                        <div class="checkbox priority"></div>
+                        <span class="item-text"><strong>Light review only</strong> - skim summaries, no new material</span>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox priority"></div>
+                        <span class="item-text"><strong>Pack everything</strong> - check all materials night before</span>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox priority"></div>
+                        <span class="item-text"><strong>Sleep well</strong> - 7-8 hours minimum, no all-nighters</span>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <span class="item-text"><strong>Eat well</strong> - balanced breakfast, avoid sugar crash</span>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <span class="item-text"><strong>Arrive early</strong> - 15-20 minutes before start time</span>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <span class="item-text"><strong>Stay calm</strong> - deep breaths, trust your preparation</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Materials Checklist -->
+            <div class="checklist-section">
+                <div class="section-header materials">Materials Checklist</div>
+                <div class="section-content">
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <span class="item-text">Student ID / Photo ID</span>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <span class="item-text">Multiple pencils (sharpened) / Pens</span>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <span class="item-text">Eraser</span>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <span class="item-text">Calculator (if allowed, with fresh batteries)</span>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <span class="item-text">Allowed reference sheet / Formula card</span>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <span class="item-text">Watch (non-smart)</span>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <span class="item-text">Water bottle</span>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <span class="item-text">Snack for break (if applicable)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Topic Tracker -->
+            <div class="topics-section">
+                <div class="topics-header">Topic Confidence Tracker (fill in topics, rate 1-5 dots for confidence)</div>
+                <div class="topics-grid">
+                    <div class="topic-cell header">Topic</div>
+                    <div class="topic-cell header">Confidence</div>
+                    <div class="topic-cell header">Notes</div>
+
+                    <div class="topic-cell">
+                        <div class="topic-row"><div class="sub-checkbox"></div><span class="item-text" style="border-bottom: 1px dotted #cbd5e1; flex: 1;"></span></div>
+                        <div class="topic-row"><div class="sub-checkbox"></div><span class="item-text" style="border-bottom: 1px dotted #cbd5e1; flex: 1;"></span></div>
+                        <div class="topic-row"><div class="sub-checkbox"></div><span class="item-text" style="border-bottom: 1px dotted #cbd5e1; flex: 1;"></span></div>
+                        <div class="topic-row"><div class="sub-checkbox"></div><span class="item-text" style="border-bottom: 1px dotted #cbd5e1; flex: 1;"></span></div>
+                        <div class="topic-row"><div class="sub-checkbox"></div><span class="item-text" style="border-bottom: 1px dotted #cbd5e1; flex: 1;"></span></div>
+                    </div>
+                    <div class="topic-cell">
+                        <div class="topic-row"><div class="confidence-scale"><div class="confidence-dot"></div><div class="confidence-dot"></div><div class="confidence-dot"></div><div class="confidence-dot"></div><div class="confidence-dot"></div></div></div>
+                        <div class="topic-row"><div class="confidence-scale"><div class="confidence-dot"></div><div class="confidence-dot"></div><div class="confidence-dot"></div><div class="confidence-dot"></div><div class="confidence-dot"></div></div></div>
+                        <div class="topic-row"><div class="confidence-scale"><div class="confidence-dot"></div><div class="confidence-dot"></div><div class="confidence-dot"></div><div class="confidence-dot"></div><div class="confidence-dot"></div></div></div>
+                        <div class="topic-row"><div class="confidence-scale"><div class="confidence-dot"></div><div class="confidence-dot"></div><div class="confidence-dot"></div><div class="confidence-dot"></div><div class="confidence-dot"></div></div></div>
+                        <div class="topic-row"><div class="confidence-scale"><div class="confidence-dot"></div><div class="confidence-dot"></div><div class="confidence-dot"></div><div class="confidence-dot"></div><div class="confidence-dot"></div></div></div>
+                    </div>
+                    <div class="topic-cell">
+                        <div class="topic-row"><span style="border-bottom: 1px dotted #cbd5e1; flex: 1; min-height: 14px;"></span></div>
+                        <div class="topic-row"><span style="border-bottom: 1px dotted #cbd5e1; flex: 1; min-height: 14px;"></span></div>
+                        <div class="topic-row"><span style="border-bottom: 1px dotted #cbd5e1; flex: 1; min-height: 14px;"></span></div>
+                        <div class="topic-row"><span style="border-bottom: 1px dotted #cbd5e1; flex: 1; min-height: 14px;"></span></div>
+                        <div class="topic-row"><span style="border-bottom: 1px dotted #cbd5e1; flex: 1; min-height: 14px;"></span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <span>ThoughtMap - AI-Powered Learning | thoughtmap.ai</span>
+            <div class="footer-tip">Tip: Focus on understanding, not memorizing. Use ThoughtMap to explore concepts deeply.</div>
+        </div>
+    </div>
+
+    <!-- Page 2: Exam Strategies -->
+    <div class="page">
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">T</div>
+                <span class="logo-text">Exam Day Strategies & Tips</span>
+            </div>
+        </div>
+
+        <div class="strategy-section">
+            <div class="strategy-header">
+                <div class="strategy-icon red">!</div>
+                <h3 class="strategy-title">During the Exam: Proven Strategies</h3>
+            </div>
+            <div class="strategy-grid">
+                <div class="strategy-card">
+                    <div class="strategy-card-title">1. Read Everything First</div>
+                    <div class="strategy-card-content">
+                        Spend 5 minutes reading all questions before answering. Note point values and identify easy wins. Plan your time allocation based on difficulty and points.
+                    </div>
+                </div>
+                <div class="strategy-card">
+                    <div class="strategy-card-title">2. Answer Easy Questions First</div>
+                    <div class="strategy-card-content">
+                        Build confidence and secure points. Mark difficult questions and return to them. Don't waste time stuck on one problem while easy points wait.
+                    </div>
+                </div>
+                <div class="strategy-card">
+                    <div class="strategy-card-title">3. Show Your Work</div>
+                    <div class="strategy-card-content">
+                        Partial credit adds up. Write out your reasoning even if unsure. For essays, outline first. Clear structure impresses graders.
+                    </div>
+                </div>
+                <div class="strategy-card">
+                    <div class="strategy-card-title">4. Time Management</div>
+                    <div class="strategy-card-content">
+                        Allocate time per question based on points. Set checkpoints (e.g., halfway at 50% time). Save 10% of time for review at the end.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="strategy-section">
+            <div class="strategy-header">
+                <div class="strategy-icon blue">?</div>
+                <h3 class="strategy-title">Question Type Strategies</h3>
+            </div>
+            <div class="strategy-grid">
+                <div class="strategy-card">
+                    <div class="strategy-card-title">Multiple Choice</div>
+                    <div class="strategy-card-content">
+                        Eliminate obviously wrong answers first. Watch for absolute words (always, never) - often wrong. "All of the above" is often correct. Trust your first instinct unless you find clear evidence otherwise.
+                    </div>
+                </div>
+                <div class="strategy-card">
+                    <div class="strategy-card-title">Short Answer</div>
+                    <div class="strategy-card-content">
+                        Be concise but complete. Start with your main point. Use keywords from the question. If unsure, write what you know - something is better than nothing.
+                    </div>
+                </div>
+                <div class="strategy-card">
+                    <div class="strategy-card-title">Essay Questions</div>
+                    <div class="strategy-card-content">
+                        Outline for 2-3 minutes first. Clear thesis statement. One idea per paragraph. Use specific examples. Strong conclusion that restates key points.
+                    </div>
+                </div>
+                <div class="strategy-card">
+                    <div class="strategy-card-title">Problem Solving</div>
+                    <div class="strategy-card-content">
+                        Write down given information first. Identify what you're solving for. Show each step clearly. Check units. Verify answer makes sense in context.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="exam-day-timeline">
+            <h3 class="timeline-title">Exam Day Timeline</h3>
+            <div class="timeline-items">
+                <div class="timeline-item">
+                    <div class="timeline-dot">1</div>
+                    <div class="timeline-time">-2 hrs</div>
+                    <div class="timeline-action">Wake up, eat breakfast</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot">2</div>
+                    <div class="timeline-time">-1 hr</div>
+                    <div class="timeline-action">Light review of summaries</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot">3</div>
+                    <div class="timeline-time">-30m</div>
+                    <div class="timeline-action">Travel to exam location</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot">4</div>
+                    <div class="timeline-time">-15m</div>
+                    <div class="timeline-action">Arrive, settle in, relax</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot">5</div>
+                    <div class="timeline-time">Start</div>
+                    <div class="timeline-action">Read all questions first</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot">6</div>
+                    <div class="timeline-time">-10m</div>
+                    <div class="timeline-action">Review answers</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panic-section">
+            <div class="panic-title">
+                <span>If You're Feeling Anxious</span>
+            </div>
+            <div class="panic-grid">
+                <div class="panic-card">
+                    <div class="panic-card-title">Box Breathing</div>
+                    <div class="panic-card-content">Breathe in 4 sec, hold 4 sec, out 4 sec, hold 4 sec. Repeat 4 times.</div>
+                </div>
+                <div class="panic-card">
+                    <div class="panic-card-title">Ground Yourself</div>
+                    <div class="panic-card-content">Name 5 things you see, 4 you hear, 3 you feel, 2 you smell, 1 you taste.</div>
+                </div>
+                <div class="panic-card">
+                    <div class="panic-card-title">Positive Self-Talk</div>
+                    <div class="panic-card-content">"I prepared for this. I know this material. I will do my best."</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="notes-section">
+            <div class="notes-header">Personal Notes & Reminders</div>
+            <div class="notes-content">
+                <div class="notes-lines">
+                    <div class="notes-line"></div>
+                    <div class="notes-line"></div>
+                    <div class="notes-line"></div>
+                    <div class="notes-line"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer" style="margin-top: 16px;">
+            <span>2026 ThoughtMap. Designed for the curious.</span>
+            <span>Need help studying? Use ThoughtMap for AI-powered tutoring | thoughtmap.ai</span>
+        </div>
+    </div>
+</body>
+</html>

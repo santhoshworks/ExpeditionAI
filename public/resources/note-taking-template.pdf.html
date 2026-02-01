@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered Cornell Note Taking Template - ThoughtMap</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @page {
+            size: A4;
+            margin: 0.5in;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.4;
+            color: #1e293b;
+            background: white;
+        }
+
+        .page {
+            width: 8.5in;
+            min-height: 11in;
+            padding: 0.5in;
+            margin: 0 auto;
+            background: white;
+        }
+
+        @media print {
+            .page {
+                width: 100%;
+                min-height: auto;
+                padding: 0;
+                margin: 0;
+                page-break-after: always;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 2px solid #6366f1;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .meta-fields {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        .meta-field {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .meta-field label {
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        .meta-field .line {
+            flex: 1;
+            border-bottom: 1px solid #cbd5e1;
+            min-width: 100px;
+        }
+
+        .topic-row {
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .topic-row label {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 14px;
+        }
+
+        .topic-row .line {
+            flex: 1;
+            border-bottom: 2px solid #e2e8f0;
+            height: 24px;
+        }
+
+        .main-content {
+            display: flex;
+            gap: 0;
+            min-height: 480px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .cue-column {
+            width: 35%;
+            background: #faf5ff;
+            border-right: 2px solid #c4b5fd;
+            padding: 16px;
+        }
+
+        .cue-header {
+            background: #8b5cf6;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .cue-instructions {
+            font-size: 11px;
+            color: #7c3aed;
+            margin-bottom: 16px;
+            padding: 8px;
+            background: white;
+            border-radius: 6px;
+            border: 1px dashed #c4b5fd;
+        }
+
+        .cue-lines {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .cue-line {
+            border-bottom: 1px solid #c4b5fd;
+            min-height: 20px;
+        }
+
+        .notes-column {
+            flex: 1;
+            padding: 16px;
+            background: white;
+        }
+
+        .notes-header {
+            background: #6366f1;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .notes-lines {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .notes-line {
+            border-bottom: 1px solid #e2e8f0;
+            min-height: 20px;
+        }
+
+        .ai-prompt-box {
+            margin-top: 16px;
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border: 2px solid #f59e0b;
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .ai-prompt-title {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 700;
+            color: #b45309;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        .ai-prompts {
+            font-size: 11px;
+            color: #92400e;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .ai-prompt-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+        }
+
+        .ai-prompt-item::before {
+            content: ">";
+            color: #f59e0b;
+            font-weight: bold;
+        }
+
+        .summary-section {
+            margin-top: 16px;
+            border: 2px solid #10b981;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .summary-header {
+            background: #10b981;
+            color: white;
+            padding: 8px 12px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .summary-content {
+            padding: 12px;
+            background: #f0fdf4;
+            min-height: 80px;
+        }
+
+        .summary-instructions {
+            font-size: 11px;
+            color: #059669;
+            margin-bottom: 12px;
+            font-style: italic;
+        }
+
+        .summary-lines {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .summary-line {
+            border-bottom: 1px solid #a7f3d0;
+            min-height: 16px;
+        }
+
+        .review-section {
+            margin-top: 16px;
+            display: flex;
+            gap: 16px;
+        }
+
+        .review-box {
+            flex: 1;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px;
+            background: #f8fafc;
+        }
+
+        .review-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+
+        .review-checkboxes {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            font-size: 11px;
+        }
+
+        .review-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .checkbox {
+            width: 14px;
+            height: 14px;
+            border: 2px solid #cbd5e1;
+            border-radius: 3px;
+        }
+
+        .connections-box {
+            flex: 1;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px;
+            background: #f8fafc;
+        }
+
+        .connections-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+
+        .connection-lines {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .connection-line {
+            border-bottom: 1px solid #e2e8f0;
+            min-height: 14px;
+        }
+
+        .footer {
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 10px;
+            color: #94a3b8;
+        }
+
+        .footer-tip {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 4px;
+            padding: 6px 10px;
+            color: #1d4ed8;
+            font-size: 10px;
+        }
+
+        /* Page 2 - Instructions */
+        .instructions-page {
+            padding: 0.5in;
+        }
+
+        .instructions-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .instructions-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .instructions-subtitle {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .instruction-section {
+            margin-bottom: 24px;
+        }
+
+        .instruction-heading {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .instruction-number {
+            width: 28px;
+            height: 28px;
+            background: #6366f1;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .instruction-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .instruction-content {
+            padding-left: 36px;
+            color: #475569;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .tips-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .tip-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .tip-card-title {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .tip-card-content {
+            font-size: 12px;
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        .thoughtmap-section {
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            border: 2px solid #3b82f6;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 24px;
+        }
+
+        .thoughtmap-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1e40af;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .thoughtmap-content {
+            font-size: 13px;
+            color: #1e40af;
+            line-height: 1.6;
+        }
+
+        .thoughtmap-features {
+            display: flex;
+            gap: 16px;
+            margin-top: 12px;
+        }
+
+        .thoughtmap-feature {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #3b82f6;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <!-- Page 1: Note Taking Template -->
+    <div class="page">
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">T</div>
+                <span class="logo-text">ThoughtMap Cornell Notes</span>
+            </div>
+            <div class="meta-fields">
+                <div class="meta-field">
+                    <label>Date:</label>
+                    <span class="line"></span>
+                </div>
+                <div class="meta-field">
+                    <label>Class/Subject:</label>
+                    <span class="line"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="topic-row">
+            <label>Topic:</label>
+            <span class="line"></span>
+        </div>
+
+        <div class="main-content">
+            <div class="cue-column">
+                <div class="cue-header">Cues & Questions</div>
+                <div class="cue-instructions">
+                    Write keywords, questions, and prompts here AFTER the lecture. Use these to test yourself during review.
+                </div>
+                <div class="cue-lines">
+                    <div class="cue-line"></div>
+                    <div class="cue-line"></div>
+                    <div class="cue-line"></div>
+                    <div class="cue-line"></div>
+                    <div class="cue-line"></div>
+                    <div class="cue-line"></div>
+                    <div class="cue-line"></div>
+                    <div class="cue-line"></div>
+                    <div class="cue-line"></div>
+                    <div class="cue-line"></div>
+                    <div class="cue-line"></div>
+                    <div class="cue-line"></div>
+                </div>
+
+                <div class="ai-prompt-box">
+                    <div class="ai-prompt-title">
+                        <span>AI Learning Prompts</span>
+                    </div>
+                    <div class="ai-prompts">
+                        <div class="ai-prompt-item">What are the 3 most important concepts?</div>
+                        <div class="ai-prompt-item">How does this connect to previous topics?</div>
+                        <div class="ai-prompt-item">What questions would be on an exam?</div>
+                        <div class="ai-prompt-item">Explain this to a 5-year-old</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="notes-column">
+                <div class="notes-header">Notes</div>
+                <div class="notes-lines">
+                    <div class="notes-line"></div>
+                    <div class="notes-line"></div>
+                    <div class="notes-line"></div>
+                    <div class="notes-line"></div>
+                    <div class="notes-line"></div>
+                    <div class="notes-line"></div>
+                    <div class="notes-line"></div>
+                    <div class="notes-line"></div>
+                    <div class="notes-line"></div>
+                    <div class="notes-line"></div>
+                    <div class="notes-line"></div>
+                    <div class="notes-line"></div>
+                    <div class="notes-line"></div>
+                    <div class="notes-line"></div>
+                    <div class="notes-line"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="summary-section">
+            <div class="summary-header">Summary</div>
+            <div class="summary-content">
+                <div class="summary-instructions">
+                    After class, write a 2-3 sentence summary in your own words. If you struggle, review the material again.
+                </div>
+                <div class="summary-lines">
+                    <div class="summary-line"></div>
+                    <div class="summary-line"></div>
+                    <div class="summary-line"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="review-section">
+            <div class="review-box">
+                <div class="review-title">Review Schedule</div>
+                <div class="review-checkboxes">
+                    <div class="review-checkbox">
+                        <div class="checkbox"></div>
+                        <span>24 hours after class</span>
+                    </div>
+                    <div class="review-checkbox">
+                        <div class="checkbox"></div>
+                        <span>1 week later</span>
+                    </div>
+                    <div class="review-checkbox">
+                        <div class="checkbox"></div>
+                        <span>Before exam</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="connections-box">
+                <div class="connections-title">Connections to Other Topics</div>
+                <div class="connection-lines">
+                    <div class="connection-line"></div>
+                    <div class="connection-line"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <span>ThoughtMap - AI-Powered Learning | thoughtmap.ai</span>
+            <div class="footer-tip">Tip: Use ThoughtMap to explore your questions with AI tutoring</div>
+        </div>
+    </div>
+
+    <!-- Page 2: Instructions -->
+    <div class="page instructions-page">
+        <div class="instructions-header">
+            <div class="logo" style="justify-content: center; margin-bottom: 16px;">
+                <div class="logo-icon">T</div>
+                <span class="logo-text">ThoughtMap</span>
+            </div>
+            <h1 class="instructions-title">How to Use Your Cornell Notes Template</h1>
+            <p class="instructions-subtitle">Master the proven method used by top students worldwide</p>
+        </div>
+
+        <div class="instruction-section">
+            <div class="instruction-heading">
+                <div class="instruction-number">1</div>
+                <h2 class="instruction-title">During the Lecture or Reading</h2>
+            </div>
+            <div class="instruction-content">
+                <p>Use the <strong>Notes column</strong> (right side) to capture key information. Don't try to write everything - focus on main ideas, examples, definitions, and concepts. Use abbreviations and your own shorthand. Leave the Cue column blank for now so you can focus fully on understanding.</p>
+            </div>
+        </div>
+
+        <div class="instruction-section">
+            <div class="instruction-heading">
+                <div class="instruction-number">2</div>
+                <h2 class="instruction-title">Within 24 Hours After</h2>
+            </div>
+            <div class="instruction-content">
+                <p>Review your notes while the information is fresh. Fill in the <strong>Cue column</strong> with questions, keywords, and prompts. Use our AI Learning Prompts to generate meaningful questions that test understanding. This 10-15 minute review session dramatically improves retention.</p>
+            </div>
+        </div>
+
+        <div class="instruction-section">
+            <div class="instruction-heading">
+                <div class="instruction-number">3</div>
+                <h2 class="instruction-title">Write Your Summary</h2>
+            </div>
+            <div class="instruction-content">
+                <p>Complete the <strong>Summary section</strong> at the bottom in your own words. Aim for 2-3 sentences that capture the essence. If you struggle to summarize, that's a signal you need to review the material more deeply. This synthesis is crucial for long-term memory.</p>
+            </div>
+        </div>
+
+        <div class="instruction-section">
+            <div class="instruction-heading">
+                <div class="instruction-number">4</div>
+                <h2 class="instruction-title">Review with Active Recall</h2>
+            </div>
+            <div class="instruction-content">
+                <p>During study sessions, <strong>cover the Notes column</strong> and use only the Cues to test yourself. This active recall practice is one of the most effective learning techniques. Check the Review Schedule boxes as you complete each review session.</p>
+            </div>
+        </div>
+
+        <div class="tips-grid">
+            <div class="tip-card">
+                <div class="tip-card-title">For Digital Use</div>
+                <div class="tip-card-content">
+                    This template works great with tablet apps like Notability, GoodNotes, or OneNote. Import the PDF and write directly on it with your stylus.
+                </div>
+            </div>
+            <div class="tip-card">
+                <div class="tip-card-title">For Print Use</div>
+                <div class="tip-card-content">
+                    Print multiple copies and keep them in a binder organized by subject. The consistent format makes review sessions more efficient.
+                </div>
+            </div>
+            <div class="tip-card">
+                <div class="tip-card-title">Active Recall Tips</div>
+                <div class="tip-card-content">
+                    When testing yourself, speak your answers out loud or write them on a separate sheet. Don't just think "I know this" - prove it!
+                </div>
+            </div>
+            <div class="tip-card">
+                <div class="tip-card-title">Spaced Repetition</div>
+                <div class="tip-card-content">
+                    Review at increasing intervals: 24 hours, 3 days, 1 week, 2 weeks, 1 month. Each review strengthens the memory trace.
+                </div>
+            </div>
+        </div>
+
+        <div class="thoughtmap-section">
+            <div class="thoughtmap-title">
+                <span>Supercharge Your Notes with ThoughtMap</span>
+            </div>
+            <div class="thoughtmap-content">
+                <p>Take your learning to the next level with ThoughtMap's AI-powered tutoring. Upload your notes or type your questions, and get personalized explanations, practice problems, and deeper insights. Perfect for those moments when you're stuck on a concept.</p>
+            </div>
+            <div class="thoughtmap-features">
+                <div class="thoughtmap-feature">AI Tutoring</div>
+                <div class="thoughtmap-feature">Concept Exploration</div>
+                <div class="thoughtmap-feature">Practice Questions</div>
+                <div class="thoughtmap-feature">Study Scheduling</div>
+            </div>
+        </div>
+
+        <div class="footer" style="margin-top: 24px;">
+            <span>2026 ThoughtMap. Designed for the curious.</span>
+            <span>Visit thoughtmap.ai for more learning resources</span>
+        </div>
+    </div>
+</body>
+</html>

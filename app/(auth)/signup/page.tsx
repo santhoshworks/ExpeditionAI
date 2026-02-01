@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -34,6 +34,8 @@ function mapAuthError(errorMessage: string): string {
 
 export default function SignupPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirect = searchParams.get("redirect") || "/dashboard"
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [fullName, setFullName] = useState("")
@@ -47,12 +49,15 @@ export default function SignupPage() {
 
     try {
       const supabase = createClient()
-      const redirectTo = `${window.location.origin}/api/auth/callback`
+      const callbackUrl = new URL(`${window.location.origin}/api/auth/callback`)
+      if (redirect !== "/dashboard") {
+        callbackUrl.searchParams.set("redirect", redirect)
+      }
 
       const { error: signInError } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo,
+          redirectTo: callbackUrl.toString(),
         },
       })
 
@@ -90,7 +95,7 @@ export default function SignupPage() {
         return
       }
 
-      router.push("/dashboard")
+      router.push(redirect)
       router.refresh()
     } catch (err) {
       setError("An unexpected error occurred")
