@@ -61,9 +61,36 @@ function parseTriviaResponse(rawContent: string, triviaEnabled: boolean): { cont
     trimmed = trimmed.trim()
   }
 
+  // Try to find and extract JSON object from the response
+  // This handles cases where AI outputs text before/after the JSON
+  let jsonString = trimmed
+
+  // Look for JSON object pattern - find the first { and last matching }
+  const firstBrace = trimmed.indexOf('{')
+  if (firstBrace > 0) {
+    // There's content before the JSON - try to extract just the JSON part
+    const possibleJson = trimmed.substring(firstBrace)
+    // Find the matching closing brace by counting braces
+    let braceCount = 0
+    let lastBrace = -1
+    for (let i = 0; i < possibleJson.length; i++) {
+      if (possibleJson[i] === '{') braceCount++
+      else if (possibleJson[i] === '}') {
+        braceCount--
+        if (braceCount === 0) {
+          lastBrace = i
+          break
+        }
+      }
+    }
+    if (lastBrace !== -1) {
+      jsonString = possibleJson.substring(0, lastBrace + 1)
+    }
+  }
+
   try {
     // Try to parse as JSON
-    const parsed = JSON.parse(trimmed)
+    const parsed = JSON.parse(jsonString)
 
     if (parsed.content && typeof parsed.content === 'string') {
       // Extract trivia if it exists and has values
@@ -115,6 +142,12 @@ function extractStreamingContent(rawContent: string): string {
     if (newlineIndex !== -1) {
       content = content.substring(newlineIndex + 1)
     }
+  }
+
+  // Handle case where AI outputs text before the JSON - find the JSON start
+  const firstBrace = content.indexOf('{')
+  if (firstBrace > 0) {
+    content = content.substring(firstBrace)
   }
 
   // First, try to parse as complete JSON

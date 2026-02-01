@@ -110,7 +110,7 @@ export default function ExpeditionPage() {
   const currentTrail = trails?.find((t) => t.id === currentTrailId)
 
   return (
-    <div className="h-full bg-slate-50/50 dark:bg-slate-950/20 flex flex-col overflow-hidden">
+    <div className="absolute inset-0 bg-slate-50/50 dark:bg-slate-950/20 flex flex-col overflow-hidden">
       {/* Main Content - Full width for better chat visibility */}
       <div className="flex-1 flex overflow-hidden">
         {/* Trail Navigation - Premium Glass Sidebar - More expandable */}
