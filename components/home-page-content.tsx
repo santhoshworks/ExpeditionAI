@@ -136,7 +136,7 @@ export function HomePageContent() {
                     </div>
                     <h4 className="text-3xl font-bold text-slate-900 tracking-tight">Explore and Organize</h4>
                     <p className="text-slate-600 text-lg leading-relaxed">
-                      As you learn about a topic, you'll discover related concepts worth exploring. Our visual map keeps everything organized so you don't lose track of what you've learned.
+                      As you learn about a topic, you&apos;ll discover related concepts worth exploring. Our visual map keeps everything organized so you don't lose track of what you've learned.
                     </p>
                     <div className="flex flex-wrap gap-2 pt-2">
                       {["Trail Branching", "Visual Tree", "Flag Progress"].map(tag => (
@@ -164,7 +164,7 @@ export function HomePageContent() {
                     </div>
                     <h4 className="text-3xl font-bold tracking-tight">Pick the Perfect AI</h4>
                     <p className="text-slate-400 text-lg leading-relaxed">
-                      Different topics need different approaches. Switch between ChatGPT, Claude, Gemini, and 297 other models to find the best explanation style for what you're learning.
+                      Different topics need different approaches. Switch between ChatGPT, Claude, Gemini, and 297 other models to find the best explanation style for what you&apos;re learning.
                     </p>
                   </div>
                   <div className="pt-10 flex items-center gap-4 text-indigo-400 font-bold group-hover:gap-6 transition-all">
@@ -181,7 +181,7 @@ export function HomePageContent() {
                   </div>
                   <h4 className="text-xl font-bold text-slate-900">Test Your Knowledge</h4>
                   <p className="text-slate-500 leading-relaxed">
-                    Personalized quizzes generated from what you've learned. Get instant feedback with detailed explanations to fill any gaps in understanding.
+                    Personalized quizzes generated from what you&apos;ve learned. Get instant feedback with detailed explanations to fill any gaps in understanding.
                   </p>
                 </CardContent>
               </Card>
@@ -194,7 +194,7 @@ export function HomePageContent() {
                   </div>
                   <h4 className="text-xl font-bold text-slate-900">Auto-Generated Summaries</h4>
                   <p className="text-slate-500 leading-relaxed">
-                    Get AI-powered summaries of everything you've learned. Export as PDF or notes to review key insights anytime.
+                    Get AI-powered summaries of everything you&apos;ve learned. Export as PDF or notes to review key insights anytime.
                   </p>
                 </CardContent>
               </Card>
@@ -399,11 +399,6 @@ export function HomePageContent() {
         </section>
         <section className="py-32 bg-white relative">
           <div className="container mx-auto px-6">
-            <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
-              <h2 className="text-indigo-600 font-bold tracking-wider uppercase text-sm">See It In Action</h2>
-              <h3 className="text-3xl md:text-5xl font-bold text-slate-900 leading-tight">Powerful tools for deeper understanding</h3>
-            </div>
-
             {/* Feature Showcase */}
             <section className="py-32 bg-white relative">
               <div className="container mx-auto px-6">
