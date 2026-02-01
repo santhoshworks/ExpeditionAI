@@ -8,8 +8,8 @@ import { generateSEOMetadata } from "@/lib/seo"
 import { Metadata } from "next"
 
 export const metadata: Metadata = generateSEOMetadata({
-  title: "Blog - Learning Science & AI Education Insights",
-  description: "Discover evidence-based study techniques, learning science research, and how AI is transforming education. Expert insights on personalized learning, educational technology, and effective study methods.",
+  title: "Learning Science Blog - Study Tips & AI Education Research",
+  description: "Evidence-based study techniques, learning science research, and AI education insights. Expert tips to learn faster and retain more.",
   keywords: [
     "learning science blog",
     "educational technology insights",

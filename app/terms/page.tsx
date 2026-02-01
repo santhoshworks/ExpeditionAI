@@ -5,8 +5,8 @@ import { Metadata } from "next"
 import { generateSEOMetadata } from "@/lib/seo"
 
 export const metadata: Metadata = generateSEOMetadata({
-    title: "Terms of Service",
-    description: "Read ThoughtMap's Terms of Service. Understand your rights, obligations, and the rules governing your use of our AI-powered learning platform.",
+    title: "Terms of Service - ThoughtMap",
+    description: "Read ThoughtMap's Terms of Service. Understand your rights, obligations, and rules for using our AI-powered learning platform.",
     keywords: [
         "terms of service",
         "terms and conditions",

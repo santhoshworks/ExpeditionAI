@@ -3,8 +3,8 @@ import { generateSEOMetadata } from "@/lib/seo"
 import { DemoContent } from "./demo-content"
 
 export const metadata: Metadata = generateSEOMetadata({
-    title: "Try ThoughtMap Free - AI Learning Demo",
-    description: "Experience AI-powered learning with no signup required. Try ThoughtMap's interactive learning platform with 300+ AI models including ChatGPT, Claude, and Llama. Start your free demo now.",
+    title: "Try ThoughtMap Free - Interactive AI Learning Demo",
+    description: "Experience AI-powered learning instantly. No signup required. Chat with GPT-4, Claude & 300+ AI models. See how branching conversations accelerate learning.",
     keywords: [
         "AI learning demo",
         "try AI tutor free",

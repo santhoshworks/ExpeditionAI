@@ -27,7 +27,12 @@ IMPORTANT: You MUST respond with ONLY valid JSON, with NO markdown code blocks o
     "realWorldUse": "Practical real-world applications (optional, null if not applicable)",
     "whenYouNeed": "Scenarios where this knowledge is useful (optional, null if not applicable)",
     "didYouKnow": "An interesting fact or surprising insight (optional, null if not applicable)"
-  }
+  },
+  "followUpQuestions": [
+    "A question to dig deeper into the topic",
+    "A question exploring a related concept",
+    "A question about practical application"
+  ]
 }
 
 Rules:
@@ -35,9 +40,12 @@ Rules:
 - Do NOT wrap JSON in \`\`\`json or \`\`\` markers
 - Include trivia ONLY when genuinely fascinating and relevant
 - Use null for trivia fields that don't apply
-- If NO trivia is relevant, use: {"content": "...", "trivia": null}
+- If NO trivia is relevant, use: {"content": "...", "trivia": null, "followUpQuestions": [...]}
 - Put your main answer in the "content" field with markdown formatting
-- Keep trivia items to 1-2 sentences each`
+- Keep trivia items to 1-2 sentences each
+- ALWAYS include exactly 3 follow-up questions that help the user explore deeper
+- Follow-up questions should be concise (under 60 characters), curious, and encourage learning
+- Questions should relate to the current topic or expand into related areas`
 
 // Regular system prompt (when trivia is disabled)
 const REGULAR_SYSTEM_PROMPT = `You are a helpful AI assistant focused on education and learning. Provide clear, detailed explanations with examples when appropriate. Use markdown formatting for better readability.`

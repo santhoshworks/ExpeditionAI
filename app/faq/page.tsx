@@ -1,6 +1,11 @@
 import { Metadata } from "next"
-import { generateSEOMetadata, generateFAQSchema } from "@/lib/seo"
+import { generateSEOMetadata, generateFAQSchema, generateBreadcrumbSchema } from "@/lib/seo"
 import { FAQContent } from "./faq-content"
+
+const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: 'FAQ', url: '/faq' },
+])
 
 // Define FAQ data at the top level to avoid serialization issues
 const FAQ_DATA = [
@@ -31,8 +36,8 @@ const FAQ_DATA = [
 ]
 
 export const metadata: Metadata = generateSEOMetadata({
-    title: "FAQ - Frequently Asked Questions",
-    description: "Get answers to common questions about ThoughtMap. Learn how expeditions work, which AI models are available, how to use your own API keys, and more.",
+    title: "FAQ - Common Questions About ThoughtMap AI Learning",
+    description: "Get answers about ThoughtMap: how expeditions work, available AI models, API keys, data export, and pricing. Everything you need to know.",
     keywords: [
         "ThoughtMap FAQ",
         "AI learning help",
@@ -56,6 +61,10 @@ export default function FAQPage() {
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
             />
             <FAQContent faqData={FAQ_DATA} />
         </>

@@ -2,10 +2,45 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Network, ArrowLeft, Calendar, User, Tag, ArrowRight } from "lucide-react"
-import { getBlogPostBySlug, getAllBlogPosts } from "@/content/blog"
+import { getBlogPostBySlug, getAllBlogPosts, getRelatedPosts } from "@/content/blog"
+import { Card, CardContent } from "@/components/ui/card"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import type { Metadata } from "next"
+import { generateArticleSchema, generateBreadcrumbSchema } from "@/lib/seo"
+
+// Related Posts Component
+function RelatedPosts({ currentSlug }: { currentSlug: string }) {
+  const relatedPosts = getRelatedPosts(currentSlug, 3)
+
+  if (relatedPosts.length === 0) return null
+
+  return (
+    <section className="mt-16">
+      <h2 className="text-2xl font-bold mb-6">Related Articles</h2>
+      <div className="grid gap-6 md:grid-cols-3">
+        {relatedPosts.map((post) => (
+          <Link key={post.slug} href={`/blog/${post.slug}`}>
+            <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer group">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-2 text-xs text-primary mb-2">
+                  <Tag className="w-3 h-3" />
+                  <span>{post.category}</span>
+                </div>
+                <h3 className="font-semibold group-hover:text-primary transition-colors line-clamp-2 mb-2">
+                  {post.title}
+                </h3>
+                <p className="text-sm text-muted-foreground line-clamp-2">
+                  {post.meta_description}
+                </p>
+              </CardContent>
+            </Card>
+          </Link>
+        ))}
+      </div>
+    </section>
+  )
+}
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>
@@ -51,8 +86,34 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     notFound()
   }
 
+  // Generate structured data schemas
+  const articleSchema = generateArticleSchema({
+    title: post.title,
+    description: post.meta_description,
+    url: `/blog/${post.slug}`,
+    datePublished: post.date,
+    author: post.author,
+    keywords: post.keywords,
+  })
+
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: 'Blog', url: '/blog' },
+    { name: post.title, url: `/blog/${post.slug}` },
+  ])
+
   return (
     <div className="min-h-screen bg-background text-foreground">
+      {/* Structured Data for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+
       {/* Navbar */}
       <header className="fixed top-0 w-full z-50 border-b bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
@@ -122,6 +183,20 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             </ReactMarkdown>
           </div>
 
+          {/* Internal Links Section */}
+          <div className="mt-12 p-6 bg-muted/30 rounded-xl border">
+            <h3 className="font-semibold mb-3">Explore ThoughtMap</h3>
+            <div className="flex flex-wrap gap-3">
+              <Link href="/demo" className="text-sm text-primary hover:underline">Try the Demo</Link>
+              <span className="text-muted-foreground">•</span>
+              <Link href="/pricing" className="text-sm text-primary hover:underline">View Pricing</Link>
+              <span className="text-muted-foreground">•</span>
+              <Link href="/faq" className="text-sm text-primary hover:underline">FAQ</Link>
+              <span className="text-muted-foreground">•</span>
+              <Link href="/about" className="text-sm text-primary hover:underline">About Us</Link>
+            </div>
+          </div>
+
           {/* CTA Section */}
           <div className="mt-16 bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl p-8 md:p-12 text-center">
             <h2 className="text-2xl md:text-3xl font-bold mb-4">Ready to try active learning?</h2>
@@ -135,6 +210,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               </Button>
             </Link>
           </div>
+
+          {/* Related Posts Section */}
+          <RelatedPosts currentSlug={post.slug} />
         </article>
       </main>
 

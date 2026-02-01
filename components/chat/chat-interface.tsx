@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button"
 import { RotateCcw } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { EmptyChatState } from "./empty-chat-state"
+import { FollowUpQuestions } from "./follow-up-questions"
 
 // Trivia data structure
 interface TriviaData {
@@ -30,6 +31,7 @@ interface ChatMessage {
   role: "user" | "assistant" | "system" | "illustration"
   content: string
   trivia?: TriviaData | null
+  followUpQuestions?: string[]
   metadata?: {
     topic?: string
     imageUrl?: string
@@ -41,10 +43,10 @@ interface ChatMessage {
 }
 
 // Helper function to parse JSON trivia response from LLM
-function parseTriviaResponse(rawContent: string, triviaEnabled: boolean): { content: string; trivia: TriviaData | null } {
+function parseTriviaResponse(rawContent: string, triviaEnabled: boolean): { content: string; trivia: TriviaData | null; followUpQuestions: string[] } {
   // If trivia is disabled, return content as-is
   if (!triviaEnabled) {
-    return { content: rawContent, trivia: null }
+    return { content: rawContent, trivia: null, followUpQuestions: [] }
   }
 
   // Trim any leading/trailing whitespace
@@ -80,8 +82,16 @@ function parseTriviaResponse(rawContent: string, triviaEnabled: boolean): { cont
         }
       }
 
+      // Extract follow-up questions if they exist
+      let followUpQuestions: string[] = []
+      if (parsed.followUpQuestions && Array.isArray(parsed.followUpQuestions)) {
+        followUpQuestions = parsed.followUpQuestions.filter(
+          (q: unknown) => typeof q === 'string' && q.trim().length > 0
+        ).slice(0, 3) // Limit to 3 questions
+      }
+
       console.log('Successfully parsed JSON response')
-      return { content: parsed.content, trivia }
+      return { content: parsed.content, trivia, followUpQuestions }
     } else {
       console.log('JSON parsed but missing content field:', { hasContent: !!parsed.content, triviaType: typeof parsed.trivia })
     }
@@ -92,7 +102,7 @@ function parseTriviaResponse(rawContent: string, triviaEnabled: boolean): { cont
 
   // Fallback: if not valid JSON or doesn't have expected structure, return raw content
   console.log('Returning raw content as fallback')
-  return { content: rawContent, trivia: null }
+  return { content: rawContent, trivia: null, followUpQuestions: [] }
 }
 
 // Helper to extract displayable content during streaming (attempt to parse partial JSON)
@@ -173,6 +183,7 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<Error | undefined>(undefined)
+  const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([])
   const abortControllerRef = useRef<AbortController | null>(null)
   const lastUserMessageRef = useRef<string | null>(null)
 
@@ -188,12 +199,13 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
     return existingMessages.map((m: DBMessage) => {
       // For assistant messages, parse JSON if trivia is enabled
       if (m.role === "assistant" && triviaEnabled) {
-        const { content, trivia } = parseTriviaResponse(m.content, triviaEnabled)
+        const { content, trivia, followUpQuestions } = parseTriviaResponse(m.content, triviaEnabled)
         return {
           id: m.id,
           role: m.role as "user" | "assistant" | "system" | "illustration",
           content,
           trivia,
+          followUpQuestions,
           metadata: m.metadata ? JSON.parse(m.metadata) : undefined,
         }
       }
@@ -214,8 +226,14 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
     clearTrailNewResponse(trailId)
     setIsLoading(false)
     setError(undefined)
+    setFollowUpQuestions([])
     if (formattedExistingMessages.length > 0) {
       setMessages(formattedExistingMessages)
+      // Set follow-up questions from the last assistant message if it has any
+      const lastAssistantMessage = [...formattedExistingMessages].reverse().find(m => m.role === "assistant")
+      if (lastAssistantMessage?.followUpQuestions && lastAssistantMessage.followUpQuestions.length > 0) {
+        setFollowUpQuestions(lastAssistantMessage.followUpQuestions)
+      }
     } else {
       setMessages([])
     }
@@ -257,6 +275,9 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
 
     // Capture the trail ID at the time of sending
     const requestTrailId = trailId
+
+    // Clear follow-up questions when sending a message
+    setFollowUpQuestions([])
 
     // Add user message if not a resend
     if (!isResend) {
@@ -363,26 +384,31 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
         }
       }
 
-      // After streaming completes, parse the full response to extract trivia
+      // After streaming completes, parse the full response to extract trivia and follow-up questions
       console.log('Full response received:')
       console.log('  Length:', assistantContent.length)
       console.log('  First 300 chars:', assistantContent.substring(0, 300))
       console.log('  Last 100 chars:', assistantContent.substring(Math.max(0, assistantContent.length - 100)))
 
-      const { content: finalContent, trivia } = parseTriviaResponse(assistantContent, triviaEnabled)
+      const { content: finalContent, trivia, followUpQuestions: parsedQuestions } = parseTriviaResponse(assistantContent, triviaEnabled)
       console.log('Parsed result:', {
         contentLength: finalContent.length,
         hasTrivia: !!trivia,
+        followUpQuestionsCount: parsedQuestions.length,
         contentPreview: finalContent.substring(0, 100)
       })
 
-      // Update with final parsed content and trivia
+      // Update with final parsed content, trivia, and follow-up questions
       if (currentTrailIdRef.current === requestTrailId) {
         setMessages(prev =>
           prev.map(m =>
-            m.id === assistantId ? { ...m, content: finalContent, trivia } : m
+            m.id === assistantId ? { ...m, content: finalContent, trivia, followUpQuestions: parsedQuestions } : m
           )
         )
+        // Set follow-up questions for display above input
+        if (parsedQuestions.length > 0) {
+          setFollowUpQuestions(parsedQuestions)
+        }
       }
 
       // If user switched to a different trail, mark the original trail as having a new response
@@ -412,6 +438,13 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
     if (lastUserMessageRef.current) {
       handleSend(lastUserMessageRef.current, true)
     }
+  }, [handleSend])
+
+  const handleFollowUpClick = useCallback((question: string) => {
+    // Clear follow-up questions immediately for clean transition
+    setFollowUpQuestions([])
+    // Send the question as a user message
+    handleSend(question)
   }, [handleSend])
 
   const handleGenerateIllustration = useCallback(async (topic: string) => {
@@ -595,8 +628,15 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
         />
       </ScrollArea>
       <div className="border-t bg-background/50 backdrop-blur-md mobile-input-container mobile-keyboard-safe p-3 md:p-4 relative">
+        {/* Follow-up Questions - Above input */}
+        <FollowUpQuestions
+          questions={followUpQuestions}
+          onQuestionClick={handleFollowUpClick}
+          isVisible={!isLoading && followUpQuestions.length > 0}
+        />
+
         {/* Regenerate Button - Floating above input Area */}
-        {!isLoading && lastUserMessageRef.current && (
+        {!isLoading && lastUserMessageRef.current && followUpQuestions.length === 0 && (
           <div className="absolute -top-12 left-0 right-0 flex justify-center pointer-events-none pb-2">
             <Button
               variant="outline"

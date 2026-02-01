@@ -7,12 +7,39 @@ import { TIER_CONFIGS, MODELS } from "@/lib/constants"
 import { CheckoutButton } from "@/components/payment/checkout-button"
 import { PublicHeader } from "@/components/layout/public-header"
 import { SITE_CONFIG } from "@/lib/config"
-import { generateSEOMetadata } from "@/lib/seo"
+import { generateSEOMetadata, generateProductSchema, generateBreadcrumbSchema } from "@/lib/seo"
 import { Metadata } from "next"
 
+// Generate Product schemas for pricing tiers (for SEO rich snippets)
+const pricingSchemas = [
+  generateProductSchema({
+    name: 'ThoughtMap Free Plan',
+    description: 'Free AI learning platform access with Gemini 2.0 Flash Lite, 15 trails per day',
+    price: 0,
+    features: TIER_CONFIGS.free.features,
+  }),
+  generateProductSchema({
+    name: 'ThoughtMap Basic Plan',
+    description: 'AI learning platform with 200 credits, access to Gemini 2.0 Flash, GPT-4o Mini, and Claude Haiku',
+    price: TIER_CONFIGS.basic.price,
+    features: TIER_CONFIGS.basic.features,
+  }),
+  generateProductSchema({
+    name: 'ThoughtMap Pro Plan',
+    description: 'Premium AI learning platform with 700 credits, all AI models including GPT-4o and Claude Sonnet',
+    price: TIER_CONFIGS.pro.price,
+    features: TIER_CONFIGS.pro.features,
+  }),
+]
+
+const breadcrumbSchema = generateBreadcrumbSchema([
+  { name: 'Home', url: '/' },
+  { name: 'Pricing', url: '/pricing' },
+])
+
 export const metadata: Metadata = generateSEOMetadata({
-  title: "Pricing - AI Learning Platform",
-  description: "Simple credit-based pricing for AI-powered learning. Start free with 4 AI models, upgrade to access 300+ models including GPT-4, Claude, and Gemini. No subscriptions, pay only for what you use.",
+  title: "Pricing Plans - Pay Only What You Use | No Subscriptions",
+  description: "Flexible credit-based pricing for AI-powered learning. Start free forever with 4 AI models. Upgrade anytime - credits never expire. From $5.",
   keywords: [
     "AI learning pricing",
     "educational technology pricing",
@@ -36,6 +63,19 @@ export default function PricingPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 overflow-x-hidden selection:bg-indigo-100 selection:text-indigo-900">
+      {/* Structured Data for SEO */}
+      {pricingSchemas.map((schema, index) => (
+        <script
+          key={index}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        />
+      ))}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+
       {/* Dynamic Background */}
       <div className="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-indigo-50 via-white to-slate-50" />
       <div className="fixed inset-0 -z-10 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />

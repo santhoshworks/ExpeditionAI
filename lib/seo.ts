@@ -203,22 +203,64 @@ export function generateSoftwareApplicationSchema() {
     }
 }
 
-export function generateCourseSchema(title: string, description: string, url: string) {
+export interface CourseSchemaProps {
+    name: string
+    description: string
+    url: string
+    provider?: string
+    educationalLevel?: string
+    duration?: string
+    skillLevel?: 'Beginner' | 'Intermediate' | 'Advanced'
+}
+
+export function generateCourseSchema({
+    name,
+    description,
+    url,
+    provider = SITE_CONFIG.name,
+    educationalLevel = 'All Levels',
+    skillLevel = 'Beginner'
+}: CourseSchemaProps) {
     return {
         '@context': 'https://schema.org',
         '@type': 'Course',
-        name: title,
+        name,
         description,
-        url,
+        url: url.startsWith('http') ? url : `${SITE_CONFIG.url}${url}`,
         provider: {
             '@type': 'Organization',
-            name: SITE_CONFIG.name,
+            name: provider,
             url: SITE_CONFIG.url,
         },
-        educationalLevel: 'All Levels',
-        teaches: description,
+        educationalLevel,
+        audience: {
+            '@type': 'EducationalAudience',
+            educationalRole: 'student',
+            audienceType: skillLevel,
+        },
         courseMode: 'online',
         isAccessibleForFree: true,
+        teaches: description,
+        hasCourseInstance: {
+            '@type': 'CourseInstance',
+            courseMode: 'online',
+            courseWorkload: 'Self-paced',
+        },
+    }
+}
+
+export function generateDefinedTermSchema(term: string, definition: string, url: string) {
+    return {
+        '@context': 'https://schema.org',
+        '@type': 'DefinedTerm',
+        name: term,
+        description: definition,
+        url: `${SITE_CONFIG.url}${url}`,
+        inDefinedTermSet: {
+            '@type': 'DefinedTermSet',
+            name: 'ThoughtMap Learning Glossary',
+            url: `${SITE_CONFIG.url}/glossary`,
+        },
     }
 }
 
@@ -233,6 +275,124 @@ export function generateFAQSchema(faqs: Array<{ question: string; answer: string
                 '@type': 'Answer',
                 text: faq.answer,
             },
+        })),
+    }
+}
+
+// Article/BlogPosting schema for blog posts
+export interface ArticleSchemaProps {
+    title: string
+    description: string
+    url: string
+    datePublished: string
+    dateModified?: string
+    author: string
+    image?: string
+    keywords?: string[]
+}
+
+export function generateArticleSchema({
+    title,
+    description,
+    url,
+    datePublished,
+    dateModified,
+    author,
+    image,
+    keywords = []
+}: ArticleSchemaProps) {
+    return {
+        '@context': 'https://schema.org',
+        '@type': 'Article',
+        headline: title,
+        description,
+        url: `${SITE_CONFIG.url}${url}`,
+        datePublished,
+        dateModified: dateModified || datePublished,
+        author: {
+            '@type': 'Person',
+            name: author,
+        },
+        publisher: {
+            '@type': 'Organization',
+            name: SITE_CONFIG.name,
+            url: SITE_CONFIG.url,
+            logo: {
+                '@type': 'ImageObject',
+                url: `${SITE_CONFIG.url}/favicon.svg`,
+            },
+        },
+        image: image ? (image.startsWith('http') ? image : `${SITE_CONFIG.url}${image}`) : `${SITE_CONFIG.url}/images/hero_visualization.png`,
+        mainEntityOfPage: {
+            '@type': 'WebPage',
+            '@id': `${SITE_CONFIG.url}${url}`,
+        },
+        keywords: keywords.join(', '),
+    }
+}
+
+// Product schema for pricing page
+export interface ProductSchemaProps {
+    name: string
+    description: string
+    price: number
+    priceCurrency?: string
+    features?: string[]
+}
+
+export function generateProductSchema({
+    name,
+    description,
+    price,
+    priceCurrency = 'USD',
+    features = []
+}: ProductSchemaProps) {
+    return {
+        '@context': 'https://schema.org',
+        '@type': 'Product',
+        name,
+        description,
+        brand: {
+            '@type': 'Brand',
+            name: SITE_CONFIG.name,
+        },
+        offers: {
+            '@type': 'Offer',
+            price: price.toString(),
+            priceCurrency,
+            availability: 'https://schema.org/InStock',
+            url: `${SITE_CONFIG.url}/pricing`,
+        },
+        ...(features.length > 0 && {
+            additionalProperty: features.map(feature => ({
+                '@type': 'PropertyValue',
+                name: 'Feature',
+                value: feature,
+            })),
+        }),
+    }
+}
+
+// Generate multiple product offers for pricing page
+export function generatePricingPageSchema(products: ProductSchemaProps[]) {
+    return products.map(product => generateProductSchema(product))
+}
+
+// Breadcrumb schema for navigation
+export interface BreadcrumbItem {
+    name: string
+    url: string
+}
+
+export function generateBreadcrumbSchema(items: BreadcrumbItem[]) {
+    return {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: items.map((item, index) => ({
+            '@type': 'ListItem',
+            position: index + 1,
+            name: item.name,
+            item: item.url.startsWith('http') ? item.url : `${SITE_CONFIG.url}${item.url}`,
         })),
     }
 }

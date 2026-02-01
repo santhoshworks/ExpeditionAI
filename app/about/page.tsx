@@ -1,13 +1,18 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Compass, Target, Zap, Users } from "lucide-react"
+import { ArrowLeft, Compass, Target, Zap, Users, BookOpen, ArrowRight } from "lucide-react"
 import { PublicHeader } from "@/components/layout/public-header"
-import { generateSEOMetadata } from "@/lib/seo"
+import { generateSEOMetadata, generateBreadcrumbSchema } from "@/lib/seo"
 import { Metadata } from "next"
 
+const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: 'About', url: '/about' },
+])
+
 export const metadata: Metadata = generateSEOMetadata({
-    title: "About - AI-Powered Learning Platform",
-    description: "Learn about ThoughtMap's mission to revolutionize education through AI-powered branching conversations. Discover how we're mapping human curiosity and making deep learning effortless for students and lifelong learners.",
+    title: "About ThoughtMap - Our Mission to Transform Learning",
+    description: "Learn how ThoughtMap is revolutionizing education with AI-powered branching conversations. Built for curious minds, students & lifelong learners.",
     keywords: [
         "about ThoughtMap",
         "AI learning platform mission",
@@ -24,6 +29,12 @@ export const metadata: Metadata = generateSEOMetadata({
 export default function AboutPage() {
     return (
         <div className="min-h-screen bg-slate-50 text-slate-900 overflow-x-hidden selection:bg-indigo-100 selection:text-indigo-900">
+            {/* Structured Data for SEO */}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+            />
+
             {/* Dynamic Background */}
             <div className="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-indigo-50 via-white to-slate-50" />
             <div className="fixed inset-0 -z-10 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
@@ -98,6 +109,32 @@ export default function AboutPage() {
                                 Today, ThoughtMap is used by researchers, students, and curious minds
                                 all over the world to map their path through the vast ocean of human knowledge.
                             </p>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Learn More Section */}
+                <section className="container mx-auto px-4 py-20">
+                    <div className="max-w-4xl mx-auto">
+                        <div className="flex items-center gap-3 mb-8">
+                            <BookOpen className="h-6 w-6 text-indigo-600" />
+                            <h2 className="text-2xl font-bold">Learn More About Learning</h2>
+                        </div>
+                        <div className="grid md:grid-cols-2 gap-6">
+                            <Link href="/blog/active-learning-increases-retention" className="group p-6 bg-white rounded-2xl border border-slate-200 hover:border-indigo-200 hover:shadow-lg transition-all">
+                                <h3 className="font-semibold text-lg mb-2 group-hover:text-indigo-600 transition-colors">Active Learning Increases Retention</h3>
+                                <p className="text-muted-foreground text-sm">Discover the science behind why active learning beats passive reading.</p>
+                            </Link>
+                            <Link href="/blog/spaced-repetition-guide" className="group p-6 bg-white rounded-2xl border border-slate-200 hover:border-indigo-200 hover:shadow-lg transition-all">
+                                <h3 className="font-semibold text-lg mb-2 group-hover:text-indigo-600 transition-colors">Spaced Repetition Guide</h3>
+                                <p className="text-muted-foreground text-sm">Learn how to retain information longer with proven memory techniques.</p>
+                            </Link>
+                        </div>
+                        <div className="mt-6 text-center">
+                            <Link href="/blog" className="inline-flex items-center gap-2 text-indigo-600 hover:underline font-medium">
+                                View all articles
+                                <ArrowRight className="h-4 w-4" />
+                            </Link>
                         </div>
                     </div>
                 </section>

@@ -3,8 +3,8 @@ import { generateSEOMetadata } from "@/lib/seo"
 import { HomePageContent } from "@/components/home-page-content"
 
 export const metadata: Metadata = generateSEOMetadata({
-  title: "AI-Powered Learning Platform",
-  description: "Master any topic with ThoughtMap's AI-powered learning platform. Access 300+ AI models, create branching learning paths, and learn faster with personalized quizzes and journals. Start free today.",
+  title: "ThoughtMap - AI Learning Platform with 300+ Models | Learn Any Topic",
+  description: "Master any subject with AI tutoring. Access GPT-4, Claude & Gemini. Visual learning maps, auto-generated quizzes & study journals. Start free today.",
   keywords: [
     "AI learning platform",
     "personalized learning",

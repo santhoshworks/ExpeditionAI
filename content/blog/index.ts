@@ -6,6 +6,9 @@ import { post as spacedRepetitionPost } from './spaced-repetition-guide'
 import { post as productivityHacksPost } from './study-productivity-hacks'
 import { post as memoryPalacePost } from './memory-palace-guide'
 import { post as studySchedulePost } from './study-schedule-template'
+import { post as thoughtmapVsChatgptPost } from './thoughtmap-vs-chatgpt-for-learning'
+import { post as thoughtmapVsQuizletPost } from './thoughtmap-vs-quizlet'
+import { post as thoughtmapVsKhanAcademyPost } from './thoughtmap-vs-khan-academy'
 
 export interface BlogPost {
   title: string
@@ -20,6 +23,9 @@ export interface BlogPost {
 }
 
 export const blogPosts: BlogPost[] = [
+  thoughtmapVsChatgptPost,
+  thoughtmapVsQuizletPost,
+  thoughtmapVsKhanAcademyPost,
   studySchedulePost,
   memoryPalacePost,
   productivityHacksPost,
@@ -36,4 +42,24 @@ export function getBlogPostBySlug(slug: string): BlogPost | undefined {
 
 export function getAllBlogPosts(): BlogPost[] {
   return blogPosts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+}
+
+// Get related posts based on category, excluding the current post
+export function getRelatedPosts(currentSlug: string, limit: number = 3): BlogPost[] {
+  const currentPost = getBlogPostBySlug(currentSlug)
+  if (!currentPost) return []
+
+  const sameCategoryPosts = blogPosts
+    .filter(post => post.slug !== currentSlug && post.category === currentPost.category)
+    .slice(0, limit)
+
+  // If not enough posts in the same category, add posts from other categories
+  if (sameCategoryPosts.length < limit) {
+    const otherPosts = blogPosts
+      .filter(post => post.slug !== currentSlug && post.category !== currentPost.category)
+      .slice(0, limit - sameCategoryPosts.length)
+    return [...sameCategoryPosts, ...otherPosts]
+  }
+
+  return sameCategoryPosts
 }

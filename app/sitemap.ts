@@ -1,5 +1,7 @@
 import { MetadataRoute } from 'next'
 import { getAllBlogPosts } from '@/content/blog'
+import { GLOSSARY_TERMS } from '@/lib/glossary'
+import { LEARNING_TOPICS } from '@/lib/topics'
 
 export default function sitemap(): MetadataRoute.Sitemap {
     const baseUrl = 'https://thoughtmap.space'
@@ -8,7 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // Get all blog posts
     const blogPosts = getAllBlogPosts()
 
-    // Static pages
+    // Core static pages
     const staticPages = [
         {
             url: baseUrl,
@@ -60,6 +62,104 @@ export default function sitemap(): MetadataRoute.Sitemap {
         },
     ]
 
+    // Feature landing pages
+    const featurePages = [
+        {
+            url: `${baseUrl}/features/ai-quiz`,
+            lastModified: currentDate,
+            changeFrequency: 'monthly' as const,
+            priority: 0.8,
+        },
+        {
+            url: `${baseUrl}/features/journals`,
+            lastModified: currentDate,
+            changeFrequency: 'monthly' as const,
+            priority: 0.8,
+        },
+        {
+            url: `${baseUrl}/features/trail-branching`,
+            lastModified: currentDate,
+            changeFrequency: 'monthly' as const,
+            priority: 0.8,
+        },
+    ]
+
+    // Audience pages
+    const audiencePages = [
+        {
+            url: `${baseUrl}/for-students`,
+            lastModified: currentDate,
+            changeFrequency: 'monthly' as const,
+            priority: 0.8,
+        },
+        {
+            url: `${baseUrl}/for-researchers`,
+            lastModified: currentDate,
+            changeFrequency: 'monthly' as const,
+            priority: 0.8,
+        },
+    ]
+
+    // Resource hub pages
+    const resourcePages = [
+        {
+            url: `${baseUrl}/resources`,
+            lastModified: currentDate,
+            changeFrequency: 'monthly' as const,
+            priority: 0.7,
+        },
+        {
+            url: `${baseUrl}/resources/study-schedule-template`,
+            lastModified: currentDate,
+            changeFrequency: 'monthly' as const,
+            priority: 0.6,
+        },
+        {
+            url: `${baseUrl}/resources/note-taking-template`,
+            lastModified: currentDate,
+            changeFrequency: 'monthly' as const,
+            priority: 0.6,
+        },
+        {
+            url: `${baseUrl}/resources/exam-prep-checklist`,
+            lastModified: currentDate,
+            changeFrequency: 'monthly' as const,
+            priority: 0.6,
+        },
+    ]
+
+    // Learn topic pages (programmatic SEO)
+    const learnPages = [
+        {
+            url: `${baseUrl}/learn`,
+            lastModified: currentDate,
+            changeFrequency: 'weekly' as const,
+            priority: 0.8,
+        },
+        ...LEARNING_TOPICS.map((topic) => ({
+            url: `${baseUrl}/learn/${topic.slug}`,
+            lastModified: currentDate,
+            changeFrequency: 'monthly' as const,
+            priority: 0.6,
+        })),
+    ]
+
+    // Glossary pages
+    const glossaryPages = [
+        {
+            url: `${baseUrl}/glossary`,
+            lastModified: currentDate,
+            changeFrequency: 'monthly' as const,
+            priority: 0.7,
+        },
+        ...GLOSSARY_TERMS.map((term) => ({
+            url: `${baseUrl}/glossary/${term.slug}`,
+            lastModified: currentDate,
+            changeFrequency: 'monthly' as const,
+            priority: 0.5,
+        })),
+    ]
+
     // Blog post pages
     const blogPages = blogPosts.map((post) => ({
         url: `${baseUrl}/blog/${post.slug}`,
@@ -68,5 +168,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
         priority: 0.7,
     }))
 
-    return [...staticPages, ...blogPages]
+    return [
+        ...staticPages,
+        ...featurePages,
+        ...audiencePages,
+        ...resourcePages,
+        ...learnPages,
+        ...glossaryPages,
+        ...blogPages,
+    ]
 }

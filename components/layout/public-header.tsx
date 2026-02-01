@@ -8,9 +8,80 @@ import {
     Network,
     ArrowRight,
     Menu,
-    X
+    X,
+    ChevronDown,
+    Sparkles,
+    BookOpen,
+    GitBranch,
+    GraduationCap,
+    FlaskConical,
+    FileText,
+    BookMarked
 } from "lucide-react"
 import { SITE_CONFIG } from "@/lib/config"
+
+// Navigation dropdown items
+const featuresDropdown = [
+    { href: "/features/ai-quiz", label: "AI Quiz Generator", icon: Sparkles, description: "Auto-generate quizzes" },
+    { href: "/features/journals", label: "Learning Journals", icon: BookOpen, description: "AI-powered notes" },
+    { href: "/features/trail-branching", label: "Trail Branching", icon: GitBranch, description: "Visual knowledge maps" },
+]
+
+const resourcesDropdown = [
+    { href: "/learn", label: "Learn Topics", icon: BookMarked, description: "Explore any subject" },
+    { href: "/resources", label: "Templates", icon: FileText, description: "Study resources" },
+    { href: "/glossary", label: "Glossary", icon: BookOpen, description: "Terms explained" },
+    { href: "/for-students", label: "For Students", icon: GraduationCap, description: "Student tools" },
+    { href: "/for-researchers", label: "For Researchers", icon: FlaskConical, description: "Research tools" },
+]
+
+interface DropdownProps {
+    label: string
+    items: typeof featuresDropdown
+    currentPage?: string
+}
+
+function NavDropdown({ label, items, currentPage }: DropdownProps) {
+    const [isOpen, setIsOpen] = useState(false)
+
+    return (
+        <div
+            className="relative"
+            onMouseEnter={() => setIsOpen(true)}
+            onMouseLeave={() => setIsOpen(false)}
+        >
+            <button
+                className={`flex items-center gap-1 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors ${currentPage === label.toLowerCase() ? 'text-indigo-600 dark:text-indigo-400' : ''
+                    }`}
+            >
+                {label}
+                <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {isOpen && (
+                <div className="absolute top-full left-0 pt-2 w-64">
+                    <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+                        {items.map((item) => (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                className="flex items-start gap-3 p-3 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                            >
+                                <div className="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center flex-shrink-0">
+                                    <item.icon className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                                </div>
+                                <div>
+                                    <div className="font-medium text-slate-900 dark:text-slate-100 text-sm">{item.label}</div>
+                                    <div className="text-xs text-slate-500 dark:text-slate-400">{item.description}</div>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+            )}
+        </div>
+    )
+}
 
 interface PublicHeaderProps {
     currentPage?: string
@@ -31,7 +102,7 @@ export function PublicHeader({ currentPage }: PublicHeaderProps) {
 
     return (
         <header
-            className={`fixed top-0 w-full z-50 transition-all duration-300 overflow-hidden ${scrolled
+            className={`fixed top-0 w-full z-50 transition-all duration-300 overflow-visible ${scrolled
                 ? "bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-800/50 py-3 shadow-sm"
                 : "bg-gradient-to-r from-white/80 via-white/90 to-white/80 dark:from-slate-950/80 dark:via-slate-950/90 dark:to-slate-950/80 backdrop-blur-xl py-5"
                 }`}
@@ -53,28 +124,9 @@ export function PublicHeader({ currentPage }: PublicHeaderProps) {
                     </span>
                 </Link>
 
-                <nav className="hidden md:flex items-center gap-10 text-sm font-semibold text-slate-600 dark:text-slate-400">
-                    <Link
-                        href="/#features"
-                        className={`hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors ${currentPage === 'home' ? 'text-indigo-600 dark:text-indigo-400' : ''
-                            }`}
-                    >
-                        Features
-                    </Link>
-                    <Link
-                        href="/#methodology"
-                        className={`hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors ${currentPage === 'home' ? 'text-indigo-600 dark:text-indigo-400' : ''
-                            }`}
-                    >
-                        Methodology
-                    </Link>
-                    <Link
-                        href="/about"
-                        className={`hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors ${currentPage === 'about' ? 'text-indigo-600 dark:text-indigo-400' : ''
-                            }`}
-                    >
-                        About
-                    </Link>
+                <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600 dark:text-slate-400">
+                    <NavDropdown label="Features" items={featuresDropdown} currentPage={currentPage} />
+                    <NavDropdown label="Resources" items={resourcesDropdown} currentPage={currentPage} />
                     <Link
                         href="/pricing"
                         className={`hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors ${currentPage === 'pricing' ? 'text-indigo-600 dark:text-indigo-400' : ''
@@ -88,6 +140,13 @@ export function PublicHeader({ currentPage }: PublicHeaderProps) {
                             }`}
                     >
                         Blog
+                    </Link>
+                    <Link
+                        href="/about"
+                        className={`hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors ${currentPage === 'about' ? 'text-indigo-600 dark:text-indigo-400' : ''
+                            }`}
+                    >
+                        About
                     </Link>
                 </nav>
 
@@ -120,13 +179,28 @@ export function PublicHeader({ currentPage }: PublicHeaderProps) {
                 {/* Background pattern for mobile menu */}
                 <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/3 via-transparent to-violet-500/3 opacity-50" />
                 <div className="absolute inset-0 bg-journal-pattern opacity-10" />
-                <nav className="container mx-auto px-6 py-8 flex flex-col gap-6 relative z-10">
-                    <Link href="/#features" className="text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400" onClick={() => setMobileMenuOpen(false)}>Features</Link>
-                    <Link href="/#methodology" className="text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400" onClick={() => setMobileMenuOpen(false)}>Methodology</Link>
-                    <Link href="/about" className="text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400" onClick={() => setMobileMenuOpen(false)}>About</Link>
-                    <Link href="/pricing" className="text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400" onClick={() => setMobileMenuOpen(false)}>Pricing</Link>
-                    <Link href="/blog" className="text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400" onClick={() => setMobileMenuOpen(false)}>Blog</Link>
-                    <Link href="/login" className="text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400" onClick={() => setMobileMenuOpen(false)}>Sign in</Link>
+                <nav className="container mx-auto px-6 py-8 flex flex-col gap-4 relative z-10">
+                    {/* Features Section */}
+                    <div className="text-xs font-bold uppercase text-slate-400 mb-1">Features</div>
+                    <Link href="/features/ai-quiz" className="text-base font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 pl-2" onClick={() => setMobileMenuOpen(false)}>AI Quiz Generator</Link>
+                    <Link href="/features/journals" className="text-base font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 pl-2" onClick={() => setMobileMenuOpen(false)}>Learning Journals</Link>
+                    <Link href="/features/trail-branching" className="text-base font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 pl-2" onClick={() => setMobileMenuOpen(false)}>Trail Branching</Link>
+
+                    {/* Resources Section */}
+                    <div className="text-xs font-bold uppercase text-slate-400 mb-1 mt-4">Resources</div>
+                    <Link href="/learn" className="text-base font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 pl-2" onClick={() => setMobileMenuOpen(false)}>Learn Topics</Link>
+                    <Link href="/resources" className="text-base font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 pl-2" onClick={() => setMobileMenuOpen(false)}>Templates</Link>
+                    <Link href="/for-students" className="text-base font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 pl-2" onClick={() => setMobileMenuOpen(false)}>For Students</Link>
+                    <Link href="/for-researchers" className="text-base font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 pl-2" onClick={() => setMobileMenuOpen(false)}>For Researchers</Link>
+
+                    {/* Main Links */}
+                    <div className="border-t border-slate-200 dark:border-slate-700 my-4 pt-4">
+                        <Link href="/pricing" className="block text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 mb-4" onClick={() => setMobileMenuOpen(false)}>Pricing</Link>
+                        <Link href="/blog" className="block text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 mb-4" onClick={() => setMobileMenuOpen(false)}>Blog</Link>
+                        <Link href="/about" className="block text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 mb-4" onClick={() => setMobileMenuOpen(false)}>About</Link>
+                        <Link href="/login" className="block text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 mb-4" onClick={() => setMobileMenuOpen(false)}>Sign in</Link>
+                    </div>
+
                     <Button className="w-full rounded-xl bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-500 h-12 text-lg font-bold">Start Learning</Button>
                 </nav>
             </div>
