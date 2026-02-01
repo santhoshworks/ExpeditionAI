@@ -28,7 +28,7 @@ export function FollowUpQuestions({ questions, onQuestionClick, isVisible }: Fol
               <span className="text-[10px] md:text-xs font-semibold uppercase tracking-wide">Continue exploring</span>
             </div>
 
-            <div className="flex flex-row gap-2">
+            <div className="flex flex-col gap-2">
               {questions.map((question, index) => (
                 <motion.button
                   key={index}

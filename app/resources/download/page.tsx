@@ -45,9 +45,7 @@ export default function DownloadPage() {
       }
 
       try {
-        const response = await fetch(`/api/resources/download?id=${resourceId}`, {
-          credentials: 'include'
-        })
+        const response = await fetch(`/api/resources/download?id=${resourceId}`)
         const result = await response.json()
 
         if (!response.ok) {

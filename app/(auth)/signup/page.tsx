@@ -243,10 +243,7 @@ export default function SignupPage() {
 
         <div className="text-center text-sm">
           <span className="text-gray-600 dark:text-gray-400">Already have an account? </span>
-          <Link
-            href={redirect !== "/dashboard" ? `/login?redirect=${encodeURIComponent(redirect)}` : "/login"}
-            className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 font-medium"
-          >
+          <Link href="/login" className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 font-medium">
             Sign in
           </Link>
         </div>

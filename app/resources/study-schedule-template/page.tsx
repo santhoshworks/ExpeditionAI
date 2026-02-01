@@ -102,7 +102,7 @@ export default function StudyScheduleTemplatePage() {
                                 </p>
                                 <div className="flex flex-col sm:flex-row gap-4">
                                     <Button size="lg" className="rounded-full px-8 text-lg h-14" asChild>
-                                        <Link href="/signup?redirect=%2Fresources%2Fdownload%3Fid%3Dstudy-schedule-template">
+                                        <Link href="/signup?redirect=/resources/download?id=study-schedule-template">
                                             <Download className="mr-2 h-5 w-5" />
                                             Download Free Template
                                         </Link>
@@ -352,7 +352,7 @@ export default function StudyScheduleTemplatePage() {
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
                             <Button size="lg" className="rounded-full px-12 text-lg h-14" asChild>
-                                <Link href="/signup?redirect=%2Fresources%2Fdownload%3Fid%3Dstudy-schedule-template">
+                                <Link href="/signup?redirect=/resources/download?id=study-schedule-template">
                                     <Download className="mr-2 h-5 w-5" />
                                     Download Free Template
                                 </Link>

@@ -198,11 +198,8 @@ export default function LoginPage() {
         */}
 
         <div className="text-center text-sm">
-          <span className="text-gray-600 dark:text-gray-400">Don&apos;t have an account? </span>
-          <Link
-            href={searchParams.get("redirect") ? `/signup?redirect=${encodeURIComponent(searchParams.get("redirect")!)}` : "/signup"}
-            className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 font-medium"
-          >
+          <span className="text-gray-600 dark:text-gray-400">Don't have an account? </span>
+          <Link href="/signup" className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 font-medium">
             Sign up
           </Link>
         </div>
