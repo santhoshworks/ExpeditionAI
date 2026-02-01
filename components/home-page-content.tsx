@@ -74,13 +74,6 @@ export function HomePageContent() {
                   </CTAButton>
                 </Link>
               </div>
-
-              <div className="flex items-center gap-8 pt-8 opacity-30" aria-label="Powered by leading AI providers">
-                <span className="text-2xl font-bold tracking-tighter text-slate-400">GOOGLE</span>
-                <span className="text-2xl font-bold tracking-tighter text-slate-400">MICROSOFT</span>
-                <span className="text-2xl font-bold tracking-tighter text-slate-400">OPENAI</span>
-                <span className="text-2xl font-bold tracking-tighter text-slate-400">META</span>
-              </div>
             </div>
           </div>
 
@@ -91,7 +84,7 @@ export function HomePageContent() {
               <div className="relative bg-white/40 dark:bg-slate-900/40 backdrop-blur-sm border border-white/50 dark:border-slate-800 rounded-[2.5rem] p-3 md:p-6 shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden">
                 <div className="bg-slate-950 rounded-[1.5rem] overflow-hidden aspect-[16/10] relative border border-slate-800">
                   <Image
-                    src="/images/chat_interface_screenshot.png"
+                    src="/images/chat_interface_screenshot.jpeg"
                     alt="ThoughtMap AI learning platform interface showing branching conversations and personalized education tools"
                     fill
                     className="object-cover opacity-90 object-top"
