@@ -6,12 +6,11 @@ type UserCreditsRow = Database['public']['Tables']['user_credits']['Row']
 
 // Token cost per million for different models (in USD)
 const MODEL_COSTS: Record<string, { input: number; output: number }> = {
-  // Only DeepSeek remains free
-  'deepseek/deepseek-chat': { input: 0, output: 0 },
+  // Free tier model (no cost)
+  'google/gemini-2.0-flash-lite-001': { input: 0, output: 0 },
 
-  // All other models have costs
+  // Paid models
   'google/gemini-2.0-flash-001': { input: 0.075, output: 0.3 },
-  'google/gemini-2.0-flash-lite-001': { input: 0.0375, output: 0.15 },
   'openai/gpt-4o-mini': { input: 0.15, output: 0.6 },
   'anthropic/claude-3.5-haiku': { input: 0.25, output: 1.25 },
   'google/gemini-pro-1.5': { input: 1.25, output: 5.0 },

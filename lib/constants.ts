@@ -18,6 +18,19 @@ export interface ModelOption {
 
 // All available models with tier restrictions
 export const MODELS: ModelOption[] = [
+  // Free Tier Model
+  {
+    id: 'google/gemini-2.0-flash-lite-001',
+    name: 'Gemini 2.0 Flash Lite',
+    provider: 'Google',
+    costPerTrail: 0,
+    speed: 'Very Fast',
+    tier: 'free',
+    recommended: true,
+    badge: 'Free',
+    description: 'Fast and free for all users',
+  },
+
   // Basic Tier Models (Budget-friendly for beta)
   {
     id: 'google/gemini-2.0-flash-001',
@@ -26,19 +39,8 @@ export const MODELS: ModelOption[] = [
     costPerTrail: 0.5,
     speed: 'Very Fast',
     tier: 'basic',
-    recommended: true,
     badge: 'Fast',
     description: 'Recommended for most learning',
-  },
-  {
-    id: 'google/gemini-2.0-flash-lite-001',
-    name: 'Gemini 2.0 Flash Lite',
-    provider: 'Google',
-    costPerTrail: 0.25,
-    speed: 'Very Fast',
-    tier: 'basic',
-    badge: 'Fast',
-    description: 'Ultra-fast and cost-efficient',
   },
   {
     id: 'openai/gpt-4o-mini',
@@ -136,7 +138,7 @@ export const TIER_CONFIGS: Record<UserTier, TierConfig> = {
     bonusCredits: 0,
     trailsPerDay: null,
     features: [
-      '200 credits (~400 trails with Gemini Flash 8B)',
+      '200 credits (~400 trails with Gemini 2.0 Flash)',
       'Gemini 2.0 Flash, GPT-4o Mini, Claude Haiku',
       'Fast response times',
       'No daily limits',

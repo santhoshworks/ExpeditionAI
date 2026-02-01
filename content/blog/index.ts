@@ -13,6 +13,10 @@ import { post as studyForExamsWithAiPost } from './how-to-study-for-exams-with-a
 import { post as createEffectiveFlashcardsPost } from './how-to-create-effective-flashcards'
 import { post as learnNewSubjectFastPost } from './how-to-learn-a-new-subject-fast'
 import { post as takeBetterNotesWithAiPost } from './how-to-take-better-notes-with-ai'
+import { post as whyOrganicChemistryHardPost } from './why-organic-chemistry-is-hard'
+import { post as whyCalculusFeelsImpossiblePost } from './why-calculus-feels-impossible'
+import { post as whyPhysicsProblemsUnsolvablePost } from './why-physics-problems-seem-unsolvable'
+import { post as whenNothingSticksPost } from './when-nothing-you-study-sticks'
 
 export interface BlogPost {
   title: string
@@ -27,6 +31,10 @@ export interface BlogPost {
 }
 
 export const blogPosts: BlogPost[] = [
+  whyOrganicChemistryHardPost,
+  whyCalculusFeelsImpossiblePost,
+  whyPhysicsProblemsUnsolvablePost,
+  whenNothingSticksPost,
   studyForExamsWithAiPost,
   createEffectiveFlashcardsPost,
   learnNewSubjectFastPost,

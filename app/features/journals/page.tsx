@@ -61,21 +61,13 @@ const FAQ_DATA = [
 const faqSchema = generateFAQSchema(FAQ_DATA)
 
 export const metadata: Metadata = generateSEOMetadata({
-    title: "AI Learning Journals - Auto-Generated Study Notes",
-    description: "Transform your learning sessions into comprehensive study notes automatically. Our AI learning journal synthesizes conversations into organized documentation. Export auto-generated study notes as PDF or Markdown.",
+    title: "Track Your Learning Breakthroughs | AI Learning Journals",
+    description: "Capture your 'aha' moments and build understanding over time. AI-powered notes that help you see what you've learned and what's next.",
     keywords: [
-        "AI learning journal",
-        "auto-generated study notes",
-        "AI note taking",
-        "automatic note generator",
-        "AI study notes",
-        "learning documentation",
-        "conversation summarizer",
-        "AI journal generator",
-        "smart note taking",
-        "automated study notes",
-        "learning summary AI",
-        "knowledge documentation"
+        "track learning progress",
+        "study notes",
+        "learning breakthroughs",
+        "understand over time"
     ],
     url: "/features/journals"
 })

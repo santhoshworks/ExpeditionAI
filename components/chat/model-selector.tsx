@@ -182,7 +182,7 @@ export function ModelSelector({ userTier = 'free', userCredits = 0 }: ModelSelec
           <>
             <DropdownMenuSeparator />
             <div className="px-2 py-1.5 text-xs text-center text-muted-foreground">
-              Powered by {currentModel?.name || 'DeepSeek V3'}
+              Powered by {currentModel?.name || 'Gemini 2.0 Flash Lite'}
             </div>
           </>
         )}

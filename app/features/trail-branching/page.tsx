@@ -63,21 +63,13 @@ const FAQ_DATA = [
 const faqSchema = generateFAQSchema(FAQ_DATA)
 
 export const metadata: Metadata = generateSEOMetadata({
-    title: "Branching Learning Paths - Non-Linear Education",
-    description: "Explore topics through branching learning paths that mirror how your brain works. Create visual knowledge maps, follow your curiosity, and build interconnected understanding with non-linear learning.",
+    title: "See How Everything Connects | Visual Learning Maps",
+    description: "Understanding isn't linear. Explore how concepts connect, dive deeper where curious, and see the big picture of what you're learning.",
     keywords: [
-        "branching learning paths",
-        "non-linear learning",
-        "visual knowledge mapping",
-        "learning tree",
-        "knowledge graph learning",
-        "connected learning",
-        "exploratory learning",
-        "topic branching",
-        "visual learning platform",
-        "concept mapping",
-        "mind map learning",
-        "interconnected education"
+        "visual learning",
+        "concept maps",
+        "how things connect",
+        "understand relationships"
     ],
     url: "/features/trail-branching"
 })

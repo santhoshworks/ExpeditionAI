@@ -58,21 +58,14 @@ const FAQ_DATA = [
 const faqSchema = generateFAQSchema(FAQ_DATA)
 
 export const metadata: Metadata = generateSEOMetadata({
-    title: "AI Quiz Generator - Test Your Knowledge",
-    description: "Create personalized quizzes instantly with our AI quiz maker. The automatic quiz generator analyzes your learning and creates targeted questions to test your knowledge. Transform any topic into an interactive assessment.",
+    title: "Test What You Actually Understand | AI Quiz Generator",
+    description: "Find gaps in your understanding before the real test. AI-generated quizzes adapt to what you know and don't know. Study smarter, not harder.",
     keywords: [
-        "AI quiz maker",
-        "automatic quiz generator",
-        "test generator AI",
-        "AI quiz creator",
-        "intelligent quiz generator",
-        "personalized quiz maker",
-        "AI test creator",
-        "smart quiz generator",
-        "automated quiz creation",
-        "AI-powered testing",
-        "learning assessment AI",
-        "knowledge testing tool"
+        "quiz yourself",
+        "test understanding",
+        "find knowledge gaps",
+        "practice problems",
+        "exam prep"
     ],
     url: "/features/ai-quiz"
 })

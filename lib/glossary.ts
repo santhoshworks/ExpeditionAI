@@ -174,6 +174,62 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
         definition: 'The cognitive system responsible for temporarily holding and manipulating information needed for complex tasks like learning, reasoning, and comprehension. Working memory has limited capacity, which is why chunking and reducing cognitive load are important for learning.',
         relatedTerms: ['cognitive-load', 'chunking', 'memory-consolidation'],
         category: 'Learning Science'
+    },
+    {
+        slug: 'test-anxiety',
+        term: 'Test Anxiety',
+        definition: 'The experience of intense worry, nervousness, and physical discomfort before or during exams. Test anxiety can cause students to freeze up, forget material they knew, and perform below their abilities. Understanding that test anxiety is a common response to pressure—not a reflection of intelligence—is the first step to managing it.',
+        relatedTerms: ['metacognition', 'growth-mindset', 'self-regulated-learning'],
+        category: 'Learning Science'
+    },
+    {
+        slug: 'math-anxiety',
+        term: 'Math Anxiety',
+        definition: 'A feeling of tension, apprehension, or fear that interferes with math performance. Math anxiety often stems from negative past experiences or the belief that mathematical ability is fixed. Research shows that math anxiety can be overcome through building foundational understanding, celebrating small wins, and reframing mistakes as learning opportunities.',
+        relatedTerms: ['growth-mindset', 'cognitive-load', 'test-anxiety'],
+        category: 'Learning Science'
+    },
+    {
+        slug: 'learning-plateau',
+        term: 'Learning Plateau',
+        definition: 'A period during learning when progress seems to stall despite continued effort. Plateaus are a normal part of skill development and often precede breakthroughs. They typically indicate that the brain is consolidating knowledge or that new learning strategies are needed to reach the next level.',
+        relatedTerms: ['desirable-difficulties', 'neural-plasticity', 'spaced-repetition'],
+        category: 'Learning Science'
+    },
+    {
+        slug: 'foundational-gaps',
+        term: 'Foundational Gaps',
+        definition: 'Missing prerequisite knowledge that blocks understanding of more advanced concepts. When learning feels impossibly difficult, foundational gaps are often the cause. Identifying and filling these gaps—rather than pushing forward—is usually the fastest path to real understanding.',
+        relatedTerms: ['chunking', 'adaptive-learning', 'personalized-learning'],
+        category: 'Education'
+    },
+    {
+        slug: 'aha-moment',
+        term: 'Aha Moment',
+        definition: 'The sudden flash of insight when a concept finally \'clicks\' and makes sense. Also called an insight or eureka moment, these breakthroughs occur when the brain successfully connects new information to existing knowledge. Creating conditions for aha moments—through exploration, questioning, and active engagement—is more effective than passive review.',
+        relatedTerms: ['elaboration', 'neural-plasticity', 'active-recall'],
+        category: 'Learning Science'
+    },
+    {
+        slug: 'study-burnout',
+        term: 'Study Burnout',
+        definition: 'A state of mental, emotional, and physical exhaustion from prolonged or intense studying without adequate rest. Symptoms include decreased motivation, difficulty concentrating, and feeling overwhelmed. Preventing burnout requires balancing effort with recovery—the brain consolidates learning during rest, not during cramming.',
+        relatedTerms: ['memory-consolidation', 'spaced-repetition', 'self-regulated-learning'],
+        category: 'Learning Science'
+    },
+    {
+        slug: 'imposter-syndrome',
+        term: 'Imposter Syndrome in Learning',
+        definition: 'The persistent feeling of being a fraud or not belonging, despite evidence of competence. In academic settings, imposter syndrome causes students to attribute success to luck and failures to ability. Recognizing that struggle is a normal part of learning—not proof of inadequacy—helps combat these feelings.',
+        relatedTerms: ['growth-mindset', 'metacognition', 'self-regulated-learning'],
+        category: 'Learning Science'
+    },
+    {
+        slug: 'passive-learning',
+        term: 'Passive Learning',
+        definition: 'Learning activities where the learner receives information without actively engaging with it, such as reading, highlighting, or watching lectures. Research consistently shows that passive learning is far less effective than active approaches like self-testing, teaching others, or solving problems. The feeling of familiarity from passive review often creates an illusion of learning.',
+        relatedTerms: ['active-recall', 'retrieval-practice', 'desirable-difficulties'],
+        category: 'Study Techniques'
     }
 ]
 

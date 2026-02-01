@@ -9,24 +9,18 @@ const softwareAppSchema = generateSoftwareApplicationSchema()
 const educationalOrgSchema = generateEducationalOrganizationSchema()
 
 export const metadata: Metadata = generateSEOMetadata({
-  title: "ThoughtMap - AI Learning Platform with 300+ Models | Learn Any Topic",
-  description: "Master any subject with AI tutoring. Access GPT-4, Claude & Gemini. Visual learning maps, auto-generated quizzes & study journals. Start free today.",
+  title: "ThoughtMap - Finally Understand Any Subject | AI Tutoring That Works",
+  description: "Struggling with a subject? ThoughtMap helps you actually understand - not just memorize. Ask questions until it clicks. Learn at your pace. Start free.",
   keywords: [
-    "AI learning platform",
-    "personalized learning",
-    "AI tutor",
-    "branching conversations",
-    "learning management system",
-    "online education platform",
-    "interactive learning",
-    "AI-powered education",
-    "knowledge mapping",
-    "learning expeditions",
-    "quiz generator",
-    "study tools",
-    "ChatGPT learning",
-    "Claude AI learning",
-    "Gemini learning"
+    "understand difficult subjects",
+    "help with studying",
+    "AI tutoring",
+    "learn at your own pace",
+    "ask questions until it clicks",
+    "struggling with school",
+    "finally understand",
+    "study help",
+    "learning breakthrough"
   ],
   url: "/"
 })

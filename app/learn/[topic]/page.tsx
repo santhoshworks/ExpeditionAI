@@ -30,7 +30,9 @@ import {
     PenTool,
     Database,
     Music,
-    Star
+    Star,
+    Heart,
+    HelpCircle
 } from "lucide-react"
 import { PublicHeader } from "@/components/layout/public-header"
 import {
@@ -92,19 +94,20 @@ export async function generateMetadata({ params }: TopicPageProps): Promise<Meta
     }
 
     return generateSEOMetadata({
-        title: `Learn ${topic.name} with AI - ${topic.category} Learning`,
-        description: `Master ${topic.name} with personalized AI tutoring. ${topic.description}. Interactive learning paths, instant explanations, and practice problems. Start learning ${topic.name.toLowerCase()} today.`,
+        title: `Finally Understand ${topic.name} | AI Tutoring That Works`,
+        description: `Struggling with ${topic.name.toLowerCase()}? You're not alone. Learn ${topic.name.toLowerCase()} at your pace with AI tutoring that adapts to you. Ask questions until it clicks.`,
         keywords: [
-            `learn ${topic.name.toLowerCase()}`,
-            `${topic.name.toLowerCase()} AI tutor`,
-            `${topic.name.toLowerCase()} learning platform`,
-            `study ${topic.name.toLowerCase()} online`,
-            `${topic.name.toLowerCase()} course`,
-            `${topic.name.toLowerCase()} tutorial`,
-            `AI ${topic.name.toLowerCase()} help`,
-            `${topic.category.toLowerCase()} learning`,
-            `learn ${topic.name.toLowerCase()} with AI`,
-            `${topic.name.toLowerCase()} for ${topic.difficulty.toLowerCase()}`
+            `${topic.name.toLowerCase()} help`,
+            `understand ${topic.name.toLowerCase()}`,
+            `${topic.name.toLowerCase()} explained simply`,
+            `struggling with ${topic.name.toLowerCase()}`,
+            `${topic.name.toLowerCase()} tutoring`,
+            `learn ${topic.name.toLowerCase()} online`,
+            `why is ${topic.name.toLowerCase()} so hard`,
+            `${topic.name.toLowerCase()} made easy`,
+            `${topic.name.toLowerCase()} for beginners`,
+            `AI ${topic.name.toLowerCase()} tutor`,
+            `${topic.category.toLowerCase()} help`
         ],
         url: `/learn/${topic.slug}`
     })
@@ -127,6 +130,38 @@ const difficultyColors: Record<string, { bg: string; text: string }> = {
     'Beginner': { bg: 'bg-green-100', text: 'text-green-700' },
     'Intermediate': { bg: 'bg-yellow-100', text: 'text-yellow-700' },
     'Advanced': { bg: 'bg-red-100', text: 'text-red-700' }
+}
+
+// Generate difficulty-specific struggle reasons
+function getDifficultyReasons(topic: LearningTopic): string[] {
+    const difficultyReasons: Record<string, string[]> = {
+        'Beginner': [
+            `Starting something new always feels overwhelming at first`,
+            `There's a lot of new vocabulary and concepts to absorb`,
+            `It's hard to know where to begin or what order to learn things`
+        ],
+        'Intermediate': [
+            `The concepts build on each other, so missing one piece can make everything harder`,
+            `It requires connecting abstract ideas to practical applications`,
+            `Traditional teaching often moves too fast or too slow for individual learners`
+        ],
+        'Advanced': [
+            `The material is genuinely complex and requires deep thinking`,
+            `It often requires mastery of multiple prerequisite subjects`,
+            `Small misunderstandings early on compound into bigger confusion later`
+        ]
+    }
+    return difficultyReasons[topic.difficulty] || difficultyReasons['Intermediate']
+}
+
+// Generate empathy-focused "why it's hard" content
+function generateWhyItsHardContent(topic: LearningTopic) {
+    const reasons = getDifficultyReasons(topic)
+    return {
+        acknowledgment: `If you've ever felt frustrated, confused, or even a little defeated when studying ${topic.name.toLowerCase()}, you're in good company. This subject genuinely challenges most people who encounter it.`,
+        reasons,
+        reframe: `The good news: with the right approach, ${topic.name.toLowerCase()} becomes much more manageable. When you can ask questions freely, get explanations tailored to your level, and learn at your own pace, the subject transforms from intimidating to fascinating.`
+    }
 }
 
 // Generate topic-specific content sections (~500 words)
@@ -156,6 +191,7 @@ export default async function TopicPage({ params }: TopicPageProps) {
     const difficultyStyle = difficultyColors[topic.difficulty]
     const IconComponent = iconMap[topic.icon] || BookOpen
     const content = generateTopicContent(topic)
+    const whyItsHard = generateWhyItsHardContent(topic)
 
     // Generate structured data schemas
     const breadcrumbSchema = generateBreadcrumbSchema([
@@ -170,12 +206,16 @@ export default async function TopicPage({ params }: TopicPageProps) {
         url: `${SITE_CONFIG.url}/learn/${topic.slug}`
     })
 
-    const faqSchema = generateFAQSchema(
-        topic.popularQuestions.map((question, index) => ({
+    // Combine empathy FAQs with topic-specific FAQs for schema
+    const empathyFaqs = getEmpathyFAQs(topic)
+    const allFaqs = [
+        ...empathyFaqs,
+        ...topic.popularQuestions.map((question, index) => ({
             question,
             answer: getFAQAnswer(topic, index)
         }))
-    )
+    ]
+    const faqSchema = generateFAQSchema(allFaqs)
 
     return (
         <div className="min-h-screen bg-slate-50 text-slate-900 overflow-x-hidden selection:bg-indigo-100 selection:text-indigo-900">
@@ -253,13 +293,13 @@ export default async function TopicPage({ params }: TopicPageProps) {
                                 <div className="flex flex-col sm:flex-row gap-4 pt-4">
                                     <Link href="/signup">
                                         <Button size="lg" className={`rounded-full px-8 bg-gradient-to-r ${categoryStyle.gradient} hover:opacity-90`}>
-                                            Start Learning {topic.name}
+                                            Start Understanding {topic.name}
                                             <ArrowRight className="w-4 h-4 ml-2" />
                                         </Button>
                                     </Link>
                                     <Link href="/demo">
                                         <Button variant="outline" size="lg" className="rounded-full px-8">
-                                            Try Demo First
+                                            Ask Your First Question
                                         </Button>
                                     </Link>
                                 </div>
@@ -292,6 +332,52 @@ export default async function TopicPage({ params }: TopicPageProps) {
                                         </div>
                                     </CardContent>
                                 </Card>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Why It's Hard Section - Empathy First */}
+                <section className="py-16 bg-gradient-to-br from-slate-50 to-indigo-50/30 border-t border-slate-100">
+                    <div className="container mx-auto px-6">
+                        <div className="max-w-4xl mx-auto">
+                            <div className="flex items-center gap-3 mb-6">
+                                <div className="p-2 rounded-xl bg-rose-100">
+                                    <Heart className="w-5 h-5 text-rose-600" />
+                                </div>
+                                <h2 className="text-2xl md:text-3xl font-bold text-slate-900">
+                                    Why {topic.name} Can Feel Challenging
+                                </h2>
+                            </div>
+
+                            <p className="text-lg text-slate-600 mb-8 leading-relaxed">
+                                {whyItsHard.acknowledgment}
+                            </p>
+
+                            <div className="bg-white rounded-2xl p-6 md:p-8 border border-slate-200 shadow-sm mb-8">
+                                <h3 className="font-semibold text-slate-900 mb-4">Common reasons students struggle:</h3>
+                                <ul className="space-y-3">
+                                    {whyItsHard.reasons.map((reason, index) => (
+                                        <li key={index} className="flex items-start gap-3">
+                                            <HelpCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                                            <span className="text-slate-600">{reason}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+
+                            <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 md:p-8 border border-green-100">
+                                <div className="flex items-start gap-4">
+                                    <div className="p-2 rounded-xl bg-green-100 shrink-0">
+                                        <Sparkles className="w-5 h-5 text-green-600" />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-semibold text-green-900 mb-2">Here&apos;s the good news</h3>
+                                        <p className="text-green-800 leading-relaxed">
+                                            {whyItsHard.reframe}
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -422,6 +508,16 @@ export default async function TopicPage({ params }: TopicPageProps) {
                         </div>
 
                         <div className="max-w-3xl mx-auto space-y-6">
+                            {/* Empathy-focused questions first */}
+                            {getEmpathyFAQs(topic).map((faq, index) => (
+                                <div key={`empathy-${index}`} className="bg-white rounded-xl p-6 border border-slate-100 shadow-sm">
+                                    <h4 className="font-semibold text-slate-900 mb-3">{faq.question}</h4>
+                                    <p className="text-slate-500 leading-relaxed">
+                                        {faq.answer}
+                                    </p>
+                                </div>
+                            ))}
+                            {/* Original topic-specific questions */}
                             {topic.popularQuestions.map((question, index) => (
                                 <div key={index} className="bg-white rounded-xl p-6 border border-slate-100 shadow-sm">
                                     <h4 className="font-semibold text-slate-900 mb-3">{question}</h4>
@@ -505,15 +601,15 @@ export default async function TopicPage({ params }: TopicPageProps) {
                                 <IconComponent className={`w-10 h-10 ${categoryStyle.text}`} />
                             </div>
                             <h2 className="text-3xl md:text-5xl font-bold text-slate-900 tracking-tight">
-                                Ready to Master {topic.name}?
+                                Ready to Finally Understand {topic.name}?
                             </h2>
                             <p className="text-xl text-slate-500 font-medium">
-                                Join thousands of learners who are exploring {topic.name.toLowerCase()} with AI-powered conversations.
+                                Stop struggling alone. Ask questions, get clear explanations, and learn {topic.name.toLowerCase()} at your own pace.
                             </p>
                             <div className="flex flex-col sm:flex-row justify-center items-center gap-4 pt-4">
                                 <Link href="/signup">
                                     <Button size="lg" className={`rounded-full px-10 bg-gradient-to-r ${categoryStyle.gradient} hover:opacity-90`}>
-                                        Start Learning Free
+                                        Break Through the Confusion
                                         <ArrowRight className="w-4 h-4 ml-2" />
                                     </Button>
                                 </Link>
@@ -576,6 +672,24 @@ export default async function TopicPage({ params }: TopicPageProps) {
             </footer>
         </div>
     )
+}
+
+// Generate empathy-focused FAQ questions
+function getEmpathyFAQs(topic: LearningTopic): Array<{ question: string; answer: string }> {
+    return [
+        {
+            question: `Why is ${topic.name.toLowerCase()} so hard?`,
+            answer: `${topic.name} feels hard for many students because it requires building new mental frameworks. The concepts often build on each other, so a gap in understanding early on can make later material confusing. Plus, traditional teaching methods don't always match how individuals actually learn. The good news is that with patient, personalized explanations, ${topic.name.toLowerCase()} becomes much more approachable.`
+        },
+        {
+            question: `How long does it take to understand ${topic.name.toLowerCase()}?`,
+            answer: `Everyone learns at their own pace, but with focused practice, most students start feeling confident with ${topic.name.toLowerCase()} basics within a few weeks. Mastery takes longer - typically ${topic.estimatedHours} hours of engaged learning. The key is consistency and asking questions whenever something doesn't click. AI tutoring helps because you can learn anytime, without waiting for help.`
+        },
+        {
+            question: `What should I learn before ${topic.name.toLowerCase()}?`,
+            answer: `The recommended prerequisites for ${topic.name.toLowerCase()} are: ${topic.prerequisites.join(', ')}. If you're missing some of these foundations, don't worry - our AI tutor can help fill in gaps as you go. Many students successfully learn ${topic.name.toLowerCase()} while building up prerequisite knowledge simultaneously.`
+        }
+    ]
 }
 
 // Helper function to generate FAQ answers based on topic
