@@ -2,41 +2,85 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { useEffect, useState } from 'react'
+
+interface Model {
+    name: string
+    usage: number
+    tier: string
+}
+
+interface Topic {
+    topic: string
+    count: number
+}
+
+interface PeakHour {
+    hour: string
+    activity: number
+}
+
+interface TrendData {
+    current: number
+    previous: number
+    change: number
+}
+
+interface ActivityMetricsData {
+    topModels: Model[]
+    topTopics: Topic[]
+    peakHours: PeakHour[]
+    weeklyTrends: {
+        messages: TrendData
+        trails: TrendData
+        expeditions: TrendData
+        newUsers: TrendData
+    }
+}
 
 export function ActivityMetrics() {
-    // This would typically fetch real data from your API
-    const metrics = {
-        topModels: [
-            { name: 'Mistral Devstral 2512', usage: 3450, tier: 'Free' },
-            { name: 'Gemini 2.0 Flash', usage: 2100, tier: 'Basic' },
-            { name: 'GPT-4o Mini', usage: 1800, tier: 'Basic' },
-            { name: 'Claude 3.5 Haiku', usage: 950, tier: 'Basic' },
-            { name: 'GPT-4o', usage: 420, tier: 'Pro' }
-        ],
-        topTopics: [
-            { topic: 'JavaScript Programming', count: 1250 },
-            { topic: 'Machine Learning', count: 980 },
-            { topic: 'React Development', count: 850 },
-            { topic: 'Python Basics', count: 720 },
-            { topic: 'Data Science', count: 650 },
-            { topic: 'Web Development', count: 580 },
-            { topic: 'API Design', count: 420 },
-            { topic: 'Database Design', count: 380 }
-        ],
-        peakHours: [
-            { hour: '9 AM', activity: 85 },
-            { hour: '10 AM', activity: 92 },
-            { hour: '2 PM', activity: 88 },
-            { hour: '3 PM', activity: 95 },
-            { hour: '7 PM', activity: 78 },
-            { hour: '8 PM', activity: 82 }
-        ],
-        weeklyTrends: {
-            messages: { current: 12450, previous: 11200, change: 11.2 },
-            trails: { current: 3200, previous: 2950, change: 8.5 },
-            expeditions: { current: 890, previous: 820, change: 8.5 },
-            newUsers: { current: 245, previous: 220, change: 11.4 }
+    const [metrics, setMetrics] = useState<ActivityMetricsData | null>(null)
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
+
+    useEffect(() => {
+        const fetchMetrics = async () => {
+            try {
+                const response = await fetch('/api/admin/metrics/activity-metrics')
+                if (!response.ok) {
+                    throw new Error('Failed to fetch activity metrics')
+                }
+                const data = await response.json()
+                setMetrics(data)
+            } catch (err) {
+                setError(err instanceof Error ? err.message : 'An error occurred')
+            } finally {
+                setLoading(false)
+            }
         }
+
+        fetchMetrics()
+    }, [])
+
+    if (loading) {
+        return (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card><CardContent className="pt-6"><div className="text-center text-sm text-gray-500">Loading...</div></CardContent></Card>
+                <Card><CardContent className="pt-6"><div className="text-center text-sm text-gray-500">Loading...</div></CardContent></Card>
+                <Card><CardContent className="pt-6"><div className="text-center text-sm text-gray-500">Loading...</div></CardContent></Card>
+                <Card><CardContent className="pt-6"><div className="text-center text-sm text-gray-500">Loading...</div></CardContent></Card>
+            </div>
+        )
+    }
+
+    if (error || !metrics) {
+        return (
+            <Card>
+                <CardContent className="pt-6">
+                    <div className="text-center text-sm text-red-500">{error || 'Failed to load metrics'}</div>
+                </CardContent>
+            </Card>
+        )
     }
 
     const getTierBadgeVariant = (tier: string) => {

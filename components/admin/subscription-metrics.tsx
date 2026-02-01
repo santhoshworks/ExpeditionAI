@@ -3,36 +3,85 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
+import { useEffect, useState } from 'react'
+
+interface SubscriptionMetricsData {
+    subscriptionBreakdown: {
+        free: number
+        basic: number
+        pro: number
+    }
+    conversionFunnel: {
+        signups: number
+        trialUsers: number
+        basicConversions: number
+        proUpgrades: number
+    }
+    churnAnalysis: {
+        monthlyChurnRate: number
+        averageLifetimeValue: number
+        reactivationRate: number
+    }
+    revenueMetrics: {
+        mrr: number
+        arr: number
+        averageRevenuePerUser: number
+    }
+}
 
 export function SubscriptionMetrics() {
-    // This would typically fetch real data from your API
-    const metrics = {
-        subscriptionBreakdown: {
-            free: 7500,
-            basic: 1200,
-            pro: 300
-        },
-        conversionFunnel: {
-            signups: 1000,
-            trialUsers: 450,
-            basicConversions: 120,
-            proUpgrades: 30
-        },
-        churnAnalysis: {
-            monthlyChurnRate: 5.2,
-            averageLifetimeValue: 45.60,
-            reactivationRate: 12.3
-        },
-        revenueMetrics: {
-            mrr: 8400, // Monthly Recurring Revenue
-            arr: 100800, // Annual Recurring Revenue
-            averageRevenuePerUser: 9.33
+    const [metrics, setMetrics] = useState<SubscriptionMetricsData | null>(null)
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
+
+    useEffect(() => {
+        const fetchMetrics = async () => {
+            try {
+                const response = await fetch('/api/admin/metrics/subscription-metrics')
+                if (!response.ok) {
+                    throw new Error('Failed to fetch subscription metrics')
+                }
+                const data = await response.json()
+                setMetrics(data)
+            } catch (err) {
+                setError(err instanceof Error ? err.message : 'An error occurred')
+            } finally {
+                setLoading(false)
+            }
         }
+
+        fetchMetrics()
+    }, [])
+
+    if (loading) {
+        return (
+            <Card>
+                <CardHeader>
+                    <CardTitle>Subscription Analytics</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="text-center text-sm text-gray-500">Loading metrics...</div>
+                </CardContent>
+            </Card>
+        )
+    }
+
+    if (error || !metrics) {
+        return (
+            <Card>
+                <CardHeader>
+                    <CardTitle>Subscription Analytics</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="text-center text-sm text-red-500">{error || 'Failed to load metrics'}</div>
+                </CardContent>
+            </Card>
+        )
     }
 
     const totalUsers = Object.values(metrics.subscriptionBreakdown).reduce((sum, count) => sum + count, 0)
     const paidUsers = metrics.subscriptionBreakdown.basic + metrics.subscriptionBreakdown.pro
-    const conversionRate = (paidUsers / totalUsers * 100).toFixed(1)
+    const conversionRate = totalUsers > 0 ? (paidUsers / totalUsers * 100).toFixed(1) : '0'
 
     return (
         <Card>
