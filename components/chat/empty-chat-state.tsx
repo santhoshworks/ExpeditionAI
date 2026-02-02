@@ -24,10 +24,10 @@ interface EmptyChatStateProps {
 
 export function EmptyChatState({ onSuggest, onAction, topicTitle }: EmptyChatStateProps) {
     const suggestions = [
-        `How does ${topicTitle || "this"} work?`,
-        `What are the key concepts of ${topicTitle || "this topic"}?`,
-        `Can you give me a real-world example?`,
-        "What should I learn first?",
+        `I want to understand ${topicTitle || "this"} - where do I start?`,
+        `Here's what I think I know about ${topicTitle || "this topic"}...`,
+        `Help me understand ${topicTitle || "this"} well enough to explain it`,
+        `What's the most important thing to grasp about ${topicTitle || "this"}?`,
     ]
 
     const actions = [
@@ -76,7 +76,7 @@ export function EmptyChatState({ onSuggest, onAction, topicTitle }: EmptyChatSta
                     Welcome to <span className="text-indigo-600">{topicTitle || "this Exploration"}</span>
                 </h2>
                 <p className="text-sm md:text-lg text-slate-500 dark:text-slate-400 font-medium leading-relaxed max-w-lg mx-auto">
-                    Your AI guide is ready to help you master this topic. Choose a path to begin your learning journey.
+                    Your AI coach will guide you through this topic with questions and explanations tailored to what you already know.
                 </p>
             </motion.div>
 

@@ -112,7 +112,7 @@ export const TIER_CONFIGS: Record<UserTier, TierConfig> = {
     name: 'Free',
     price: 0,
     features: [
-      '4 fast AI models',
+      'Fast AI models for everyday learning',
       'GPT-4o Mini, Claude Haiku, Gemini Flash Lite, DeepSeek V3',
       'Unlimited conversations',
       'Branching trails & visual maps',
@@ -124,11 +124,11 @@ export const TIER_CONFIGS: Record<UserTier, TierConfig> = {
     price: 4.99,
     originalPrice: 9.99,
     features: [
-      'All 8 AI models',
-      'GPT-4o, Claude Sonnet, Gemini Flash, DeepSeek R1',
-      'Most powerful models for complex topics',
-      'Priority support',
-      'Early access to new features',
+      'Everything in Free, plus:',
+      'Premium models: GPT-4o, Claude Sonnet, DeepSeek R1',
+      'Deeper analysis for complex topics',
+      'Advanced reasoning & math capabilities',
+      'Priority support & early access',
     ],
   },
 }

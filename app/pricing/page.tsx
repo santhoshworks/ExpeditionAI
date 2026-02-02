@@ -13,13 +13,13 @@ import { Metadata } from "next"
 const pricingSchemas = [
   generateProductSchema({
     name: 'ThoughtMap Free Plan',
-    description: 'AI learning platform with 4 fast models including GPT-4o Mini and Claude Haiku',
+    description: 'AI learning platform with fast models including GPT-4o Mini and Claude Haiku',
     price: 0,
     features: TIER_CONFIGS.free.features,
   }),
   generateProductSchema({
     name: 'ThoughtMap Pro Plan',
-    description: 'Premium AI learning with all 8 models including GPT-4o, Claude Sonnet, and DeepSeek R1',
+    description: 'Premium AI learning with powerful models like GPT-4o, Claude Sonnet, and DeepSeek R1 for deeper analysis',
     price: TIER_CONFIGS.pro.price,
     features: TIER_CONFIGS.pro.features,
   }),
@@ -154,10 +154,10 @@ export default function PricingPage() {
               </Card>
 
               {/* Pro Tier */}
-              <Card className="bg-white border-indigo-200 shadow-2xl group hover:shadow-3xl transition-all duration-500 relative overflow-hidden scale-[1.02] z-10">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-violet-600"></div>
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-30">
-                  <div className="bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm font-bold px-6 py-2 rounded-full flex items-center gap-2 shadow-lg">
+              <Card className="bg-white border-indigo-200 shadow-2xl group hover:shadow-3xl transition-all duration-500 relative scale-[1.02] z-10">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-violet-600 rounded-t-lg"></div>
+                <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-30">
+                  <div className="bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm font-bold px-6 py-2.5 rounded-full flex items-center gap-2 shadow-lg whitespace-nowrap">
                     <Crown className="h-4 w-4 fill-white" />
                     50% OFF Launch Sale
                   </div>
@@ -223,8 +223,8 @@ export default function PricingPage() {
           <div className="container mx-auto px-6">
             <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
               <h2 className="text-indigo-600 font-bold tracking-wider uppercase text-sm">Model Comparison</h2>
-              <h3 className="text-3xl md:text-5xl font-bold text-slate-900 leading-tight">8 curated models for every need</h3>
-              <p className="text-slate-500 text-lg">We've handpicked the best models from each provider so you don't have to choose from hundreds.</p>
+              <h3 className="text-3xl md:text-5xl font-bold text-slate-900 leading-tight">The right model for every question</h3>
+              <p className="text-slate-500 text-lg">We've handpicked the best models from OpenAI, Anthropic, Google, and DeepSeek so you don't have to choose from hundreds.</p>
             </div>
 
             <div className="max-w-5xl mx-auto">

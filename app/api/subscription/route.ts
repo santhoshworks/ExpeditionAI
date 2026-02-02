@@ -20,13 +20,16 @@ export async function GET(request: NextRequest) {
         }
 
         // Get subscription from our database
-        const { data: subscription, error } = await supabase
+        const { data: subscriptionData, error } = await supabase
             .from('user_subscriptions')
             .select('*')
             .eq('user_id', user.id)
             .single()
 
-        if (error && error.code !== 'PGRST116') { // PGRST116 = no rows
+        // PGRST116 = no rows found, which is fine (user has no subscription)
+        const subscription = error?.code === 'PGRST116' ? null : subscriptionData
+
+        if (error && error.code !== 'PGRST116') {
             console.error('Error fetching subscription:', error)
             return NextResponse.json(
                 { error: 'Failed to fetch subscription' },
@@ -41,10 +44,29 @@ export async function GET(request: NextRequest) {
             .eq('user_id', user.id)
             .single()
 
+        const hasActiveSubscription = (subscription as any)?.status === 'active'
+
+        // If subscription is active, tier should be 'pro'
+        // This handles cases where the webhook failed to update user_credits
+        let tier = (userCredits as any)?.tier || 'free'
+        if (hasActiveSubscription && tier !== 'pro') {
+            tier = 'pro'
+            // Fix the inconsistency in the database
+            await supabase
+                .from('user_credits')
+                .upsert({
+                    user_id: user.id,
+                    tier: 'pro',
+                    credits: 0,
+                    trails_today: 0,
+                    last_trail_date: null,
+                } as any, { onConflict: 'user_id' })
+        }
+
         return NextResponse.json({
             subscription: subscription || null,
-            tier: userCredits?.tier || 'free',
-            hasActiveSubscription: subscription?.status === 'active',
+            tier,
+            hasActiveSubscription,
         })
 
     } catch (error) {

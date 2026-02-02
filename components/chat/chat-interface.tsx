@@ -589,8 +589,8 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
       // Clear the auto-message data immediately so it doesn't trigger again
       setAutoMessageData(null)
 
-      // Trigger the first message
-      const autoMessage = `Explain more about "${selectedText}"`
+      // Trigger the first message - coaching-oriented
+      const autoMessage = `I want to understand "${selectedText}" - what should I know first?`
       handleSend(autoMessage)
     }
   }, [trailId, autoMessageData, messages.length, isLoading, setAutoMessageData, handleSend])
@@ -617,7 +617,7 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
       !autoMessageData
     ) {
       hasTriggeredAutoMessage.current.add(trailId)
-      const autoMessage = `Explain more about "${trailTitle}"`
+      const autoMessage = `Help me understand "${trailTitle}" - where should we start?`
       handleSend(autoMessage)
     }
   }, [trailId, trailTitle, trailSourceText, isFetched, isLoadingMessages, existingMessages, isLoading, autoMessageData, handleSend])
@@ -628,14 +628,14 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
         if (onOpenGenerateModal) {
           onOpenGenerateModal()
         } else {
-          handleSend("Suggest some specific sub-topics for me to dive deeper into.")
+          handleSend("What are some specific sub-topics I should explore to deepen my understanding?")
         }
         break
       case "quiz":
-        handleSend("Quiz me on this topic with 3 challenging questions to test my understanding.")
+        handleSend("Test my understanding with a few questions - I want to see what I've really grasped.")
         break
       case "summary":
-        handleSend("Can you provide a concise but comprehensive summary of what we're learning here?")
+        handleSend("Can you help me summarize what I should take away from this topic?")
         break
     }
   }, [handleSend, onOpenGenerateModal])
