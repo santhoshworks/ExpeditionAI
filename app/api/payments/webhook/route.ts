@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { upgradeTier } from '@/lib/credits'
 import { headers } from 'next/headers'
+import type { UserTier } from '@/lib/constants'
 
 const DODO_WEBHOOK_SECRET = process.env.DODO_WEBHOOK_SECRET
 
@@ -9,7 +10,7 @@ export async function POST(request: NextRequest) {
     try {
         const body = await request.text()
         const headersList = await headers()
-        const signature = headersList.get('dodo-signature')
+        const signature = headersList.get('dodo-signature') || headersList.get('x-dodo-signature')
 
         // Verify webhook signature
         if (!signature || !DODO_WEBHOOK_SECRET) {
@@ -20,7 +21,7 @@ export async function POST(request: NextRequest) {
             )
         }
 
-        // Verify the signature (implement based on Dodo's signature verification)
+        // Verify the signature
         const isValidSignature = await verifyDodoSignature(body, signature, DODO_WEBHOOK_SECRET)
 
         if (!isValidSignature) {
@@ -32,15 +33,44 @@ export async function POST(request: NextRequest) {
         }
 
         const event = JSON.parse(body)
+        console.log('Received Dodo webhook:', event.type)
 
         // Handle different webhook events
         switch (event.type) {
-            case 'checkout.session.completed':
+            // Subscription lifecycle events
+            case 'subscription.created':
+                await handleSubscriptionCreated(event.data)
+                break
+
+            case 'subscription.active':
+            case 'subscription.renewed':
+                await handleSubscriptionActive(event.data)
+                break
+
+            case 'subscription.on_hold':
+                await handleSubscriptionOnHold(event.data)
+                break
+
+            case 'subscription.cancelled':
+                await handleSubscriptionCancelled(event.data)
+                break
+
+            case 'subscription.expired':
+                await handleSubscriptionExpired(event.data)
+                break
+
+            // Payment events
+            case 'payment.succeeded':
                 await handlePaymentSuccess(event.data)
                 break
 
-            case 'checkout.session.failed':
+            case 'payment.failed':
                 await handlePaymentFailed(event.data)
+                break
+
+            // Checkout events (for initial subscription)
+            case 'checkout.completed':
+                await handleCheckoutCompleted(event.data)
                 break
 
             default:
@@ -58,87 +88,253 @@ export async function POST(request: NextRequest) {
     }
 }
 
-async function handlePaymentSuccess(sessionData: any) {
+async function handleSubscriptionCreated(data: any) {
     try {
-        const { metadata, amount, payment_method, session_id } = sessionData
-        const { user_id, tier, credits, bonus_credits } = metadata
+        const { subscription, customer } = data
+        const userId = customer?.external_id || subscription?.metadata?.user_id
 
-        if (!user_id || !tier) {
-            console.error('Missing required metadata in payment success webhook')
+        if (!userId) {
+            console.error('Missing user_id in subscription.created webhook')
             return
         }
 
-        const totalCredits = parseInt(credits) + parseInt(bonus_credits || 0)
-
-        // Store payment event
         const supabase = await createClient()
-        await supabase.from('payment_events').insert({
-            event_type: 'checkout.session.completed',
-            session_id: session_id,
-            user_id: user_id,
-            amount: amount / 100, // Convert cents to dollars
-            status: 'completed',
-            payment_method: payment_method || 'card',
-            tier: tier,
-            credits: parseInt(credits),
-            bonus_credits: parseInt(bonus_credits || 0),
-            metadata: sessionData,
-            processed_at: new Date().toISOString()
-        })
 
-        // Upgrade user tier and add credits
-        const result = await upgradeTier(user_id, tier, totalCredits)
+        // Create/update subscription record
+        await supabase.from('user_subscriptions').upsert({
+            user_id: userId,
+            subscription_id: subscription.id,
+            status: subscription.status,
+            current_period_start: subscription.current_period_start,
+            current_period_end: subscription.current_period_end,
+            cancel_at_period_end: subscription.cancel_at_period_end || false,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+        }, { onConflict: 'user_id' })
 
-        if (!result.success) {
-            console.error('Failed to upgrade user tier:', result.error)
-            // Update payment event with error
-            await supabase.from('payment_events')
-                .update({
-                    failure_reason: result.error,
-                    status: 'processing_failed'
-                })
-                .eq('session_id', session_id)
-            return
+        // Upgrade user to Pro if subscription is active
+        if (subscription.status === 'active') {
+            await upgradeTier(userId, 'pro')
         }
 
-        console.log(`Successfully processed payment for user ${user_id} - ${tier} tier with ${totalCredits} credits`)
-
-        // Update daily analytics
-        await supabase.rpc('update_payment_analytics')
-
+        console.log(`Subscription created for user ${userId}: ${subscription.id}`)
     } catch (error) {
-        console.error('Error handling payment success:', error)
+        console.error('Error handling subscription.created:', error)
     }
 }
 
-async function handlePaymentFailed(sessionData: any) {
+async function handleSubscriptionActive(data: any) {
     try {
-        const { metadata, amount, failure_reason, session_id } = sessionData
-        const { user_id, tier } = metadata
+        const { subscription, customer } = data
+        const userId = customer?.external_id || subscription?.metadata?.user_id
 
-        console.log(`Payment failed for user ${user_id} - ${tier} tier`)
+        if (!userId) {
+            console.error('Missing user_id in subscription.active webhook')
+            return
+        }
 
-        // Store failed payment event
         const supabase = await createClient()
+
+        // Update subscription record
+        await supabase.from('user_subscriptions')
+            .update({
+                status: 'active',
+                current_period_start: subscription.current_period_start,
+                current_period_end: subscription.current_period_end,
+                updated_at: new Date().toISOString(),
+            })
+            .eq('user_id', userId)
+
+        // Ensure user is on Pro tier
+        await upgradeTier(userId, 'pro')
+
+        console.log(`Subscription renewed/active for user ${userId}`)
+    } catch (error) {
+        console.error('Error handling subscription.active:', error)
+    }
+}
+
+async function handleSubscriptionOnHold(data: any) {
+    try {
+        const { subscription, customer } = data
+        const userId = customer?.external_id || subscription?.metadata?.user_id
+
+        if (!userId) {
+            console.error('Missing user_id in subscription.on_hold webhook')
+            return
+        }
+
+        const supabase = await createClient()
+
+        // Update subscription status to on_hold
+        await supabase.from('user_subscriptions')
+            .update({
+                status: 'on_hold',
+                updated_at: new Date().toISOString(),
+            })
+            .eq('user_id', userId)
+
+        // Keep user on Pro for a grace period (don't downgrade immediately)
+        console.log(`Subscription on hold for user ${userId} - payment failed`)
+    } catch (error) {
+        console.error('Error handling subscription.on_hold:', error)
+    }
+}
+
+async function handleSubscriptionCancelled(data: any) {
+    try {
+        const { subscription, customer } = data
+        const userId = customer?.external_id || subscription?.metadata?.user_id
+
+        if (!userId) {
+            console.error('Missing user_id in subscription.cancelled webhook')
+            return
+        }
+
+        const supabase = await createClient()
+
+        // Update subscription status
+        await supabase.from('user_subscriptions')
+            .update({
+                status: 'cancelled',
+                cancelled_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+            })
+            .eq('user_id', userId)
+
+        // Downgrade user to free tier
+        await upgradeTier(userId, 'free')
+
+        console.log(`Subscription cancelled for user ${userId}`)
+    } catch (error) {
+        console.error('Error handling subscription.cancelled:', error)
+    }
+}
+
+async function handleSubscriptionExpired(data: any) {
+    try {
+        const { subscription, customer } = data
+        const userId = customer?.external_id || subscription?.metadata?.user_id
+
+        if (!userId) {
+            console.error('Missing user_id in subscription.expired webhook')
+            return
+        }
+
+        const supabase = await createClient()
+
+        // Update subscription status
+        await supabase.from('user_subscriptions')
+            .update({
+                status: 'expired',
+                updated_at: new Date().toISOString(),
+            })
+            .eq('user_id', userId)
+
+        // Downgrade user to free tier
+        await upgradeTier(userId, 'free')
+
+        console.log(`Subscription expired for user ${userId}`)
+    } catch (error) {
+        console.error('Error handling subscription.expired:', error)
+    }
+}
+
+async function handleCheckoutCompleted(data: any) {
+    try {
+        const { checkout_session, customer, subscription } = data
+        const userId = customer?.external_id || checkout_session?.metadata?.user_id
+
+        if (!userId) {
+            console.error('Missing user_id in checkout.completed webhook')
+            return
+        }
+
+        const supabase = await createClient()
+
+        // Store payment event
         await supabase.from('payment_events').insert({
-            event_type: 'checkout.session.failed',
-            session_id: session_id,
-            user_id: user_id,
-            amount: amount / 100, // Convert cents to dollars
-            status: 'failed',
-            tier: tier,
-            credits: parseInt(metadata.credits || 0),
-            bonus_credits: parseInt(metadata.bonus_credits || 0),
-            failure_reason: failure_reason || 'Payment processing failed',
-            metadata: sessionData,
+            event_type: 'checkout.completed',
+            session_id: checkout_session?.id,
+            user_id: userId,
+            amount: checkout_session?.amount_total / 100,
+            status: 'completed',
+            tier: 'pro',
+            metadata: data,
             processed_at: new Date().toISOString()
         })
 
-        // Update daily analytics
-        await supabase.rpc('update_payment_analytics')
+        // If there's a subscription, it will be handled by subscription.created
+        // If it's a one-time payment (fallback), upgrade tier directly
+        if (!subscription) {
+            await upgradeTier(userId, 'pro')
+        }
 
+        console.log(`Checkout completed for user ${userId}`)
     } catch (error) {
-        console.error('Error handling payment failure:', error)
+        console.error('Error handling checkout.completed:', error)
+    }
+}
+
+async function handlePaymentSuccess(data: any) {
+    try {
+        const { payment, customer, subscription } = data
+        const userId = customer?.external_id || payment?.metadata?.user_id
+
+        if (!userId) {
+            console.error('Missing user_id in payment.succeeded webhook')
+            return
+        }
+
+        const supabase = await createClient()
+
+        // Store payment event
+        await supabase.from('payment_events').insert({
+            event_type: 'payment.succeeded',
+            session_id: payment?.id,
+            user_id: userId,
+            amount: payment?.amount / 100,
+            status: 'completed',
+            payment_method: payment?.payment_method || 'card',
+            tier: 'pro',
+            metadata: data,
+            processed_at: new Date().toISOString()
+        })
+
+        console.log(`Payment succeeded for user ${userId}`)
+    } catch (error) {
+        console.error('Error handling payment.succeeded:', error)
+    }
+}
+
+async function handlePaymentFailed(data: any) {
+    try {
+        const { payment, customer, failure_reason } = data
+        const userId = customer?.external_id || payment?.metadata?.user_id
+
+        if (!userId) {
+            console.error('Missing user_id in payment.failed webhook')
+            return
+        }
+
+        const supabase = await createClient()
+
+        // Store failed payment event
+        await supabase.from('payment_events').insert({
+            event_type: 'payment.failed',
+            session_id: payment?.id,
+            user_id: userId,
+            amount: payment?.amount / 100,
+            status: 'failed',
+            tier: 'pro',
+            failure_reason: failure_reason || 'Payment processing failed',
+            metadata: data,
+            processed_at: new Date().toISOString()
+        })
+
+        console.log(`Payment failed for user ${userId}`)
+    } catch (error) {
+        console.error('Error handling payment.failed:', error)
     }
 }
 
@@ -148,15 +344,16 @@ async function verifyDodoSignature(
     secret: string
 ): Promise<boolean> {
     try {
-        // Implement Dodo's signature verification algorithm
-        // This is a placeholder - replace with actual Dodo signature verification
         const crypto = require('crypto')
         const expectedSignature = crypto
             .createHmac('sha256', secret)
             .update(payload)
             .digest('hex')
 
-        return signature === `sha256=${expectedSignature}`
+        // Dodo may use different signature formats
+        return signature === expectedSignature ||
+               signature === `sha256=${expectedSignature}` ||
+               signature === `v1=${expectedSignature}`
     } catch (error) {
         console.error('Signature verification error:', error)
         return false

@@ -208,7 +208,7 @@ export default function PricingPage() {
                     <p className="text-xs text-slate-500">+ all free models</p>
                   </div>
 
-                  <CheckoutButton tier="pro" price={TIER_CONFIGS.pro.price} variant="primary" size="lg" className="w-full">
+                  <CheckoutButton variant="primary" size="lg" className="w-full">
                     Upgrade to Pro
                     <Sparkles className="ml-2 w-5 h-5" />
                   </CheckoutButton>

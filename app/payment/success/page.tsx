@@ -2,8 +2,7 @@ import { Suspense } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { CheckCircle, ArrowRight } from 'lucide-react'
-import { TIER_CONFIGS } from '@/lib/constants'
+import { CheckCircle, ArrowRight, Sparkles } from 'lucide-react'
 
 function PaymentSuccessContent() {
     return (
@@ -13,18 +12,19 @@ function PaymentSuccessContent() {
                     <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
                         <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
                     </div>
-                    <CardTitle className="text-2xl">Payment Successful!</CardTitle>
+                    <CardTitle className="text-2xl">Welcome to Pro!</CardTitle>
                     <CardDescription>
-                        Your account has been upgraded and credits have been added.
+                        Your subscription is now active.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    <div className="text-center space-y-2">
+                    <div className="text-center space-y-3">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-100 dark:bg-indigo-900 rounded-full text-sm text-indigo-700 dark:text-indigo-300">
+                            <Sparkles className="h-4 w-4" />
+                            Pro Member
+                        </div>
                         <p className="text-sm text-muted-foreground">
-                            You can now access premium models and features.
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                            Your credits have been added to your account and are ready to use.
+                            You now have access to all 8 AI models including GPT-4o, Claude Sonnet, and more.
                         </p>
                     </div>
 
@@ -35,9 +35,9 @@ function PaymentSuccessContent() {
                                 <ArrowRight className="ml-2 h-4 w-4" />
                             </Button>
                         </Link>
-                        <Link href="/pricing" className="block">
+                        <Link href="/settings" className="block">
                             <Button variant="outline" className="w-full">
-                                View Pricing
+                                Manage Subscription
                             </Button>
                         </Link>
                     </div>

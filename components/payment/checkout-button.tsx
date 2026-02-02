@@ -6,17 +6,17 @@ import { Loader2 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 
 interface CheckoutButtonProps {
-    tier: 'basic' | 'pro'
-    price: number
     children: React.ReactNode
     className?: string
     variant?: 'primary' | 'secondary'
     size?: 'sm' | 'md' | 'lg' | 'xl'
 }
 
+/**
+ * Button to initiate Pro tier checkout
+ * Only Pro tier requires payment - Free tier is free
+ */
 export function CheckoutButton({
-    tier,
-    price,
     children,
     className,
     variant = 'primary',
@@ -34,7 +34,7 @@ export function CheckoutButton({
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ tier }),
+                body: JSON.stringify({ tier: 'pro' }),
             })
 
             const data = await response.json()

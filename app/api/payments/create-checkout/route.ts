@@ -3,16 +3,19 @@ import { createClient } from '@/lib/supabase/server'
 import { TIER_CONFIGS } from '@/lib/constants'
 
 // Dodo payment configuration
-const DODO_API_URL = process.env.DODO_API_URL || 'https://api.dodo.dev'
+const DODO_API_URL = process.env.DODO_API_URL || 'https://api.dodopayments.com'
 const DODO_SECRET_KEY = process.env.DODO_SECRET_KEY
+// This should be the product ID from your Dodo dashboard for the Pro subscription
+const DODO_PRO_PRODUCT_ID = process.env.DODO_PRO_PRODUCT_ID
 
 export async function POST(request: NextRequest) {
     try {
         const { tier } = await request.json()
 
-        if (!tier || !['basic', 'pro'].includes(tier)) {
+        // Only Pro tier requires payment (Free tier is free)
+        if (tier !== 'pro') {
             return NextResponse.json(
-                { error: 'Invalid tier specified' },
+                { error: 'Invalid tier specified. Only Pro tier requires payment.' },
                 { status: 400 }
             )
         }
@@ -28,27 +31,43 @@ export async function POST(request: NextRequest) {
             )
         }
 
-        const tierConfig = TIER_CONFIGS[tier as keyof typeof TIER_CONFIGS]
+        // Check if user already has an active subscription
+        const { data: existingSub } = await supabase
+            .from('user_subscriptions')
+            .select('*')
+            .eq('user_id', user.id)
+            .eq('status', 'active')
+            .single()
 
-        // Create checkout session with Dodo
+        if (existingSub) {
+            return NextResponse.json(
+                { error: 'You already have an active Pro subscription.' },
+                { status: 400 }
+            )
+        }
+
+        // Create checkout session with Dodo for subscription
+        // Using Dodo's checkout session API with product_cart for subscriptions
         const checkoutData = {
-            amount: tierConfig.price * 100, // Convert to cents
-            currency: 'USD',
-            customer_email: user.email,
-            customer_id: user.id,
-            product_name: `ThoughtMap ${tierConfig.name} Plan`,
-            product_description: `${tierConfig.credits} credits + ${tierConfig.bonusCredits} bonus credits`,
-            success_url: `${process.env.NEXT_PUBLIC_APP_URL}/payment/success?tier=${tier}`,
-            cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/pricing`,
+            customer: {
+                email: user.email,
+                external_id: user.id,
+            },
+            product_cart: [
+                {
+                    product_id: DODO_PRO_PRODUCT_ID,
+                    quantity: 1,
+                }
+            ],
+            success_url: `${process.env.NEXT_PUBLIC_APP_URL}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/payment/cancel`,
             metadata: {
-                tier,
+                tier: 'pro',
                 user_id: user.id,
-                credits: tierConfig.credits,
-                bonus_credits: tierConfig.bonusCredits,
             },
         }
 
-        const response = await fetch(`${DODO_API_URL}/v1/checkout/sessions`, {
+        const response = await fetch(`${DODO_API_URL}/checkout-sessions`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${DODO_SECRET_KEY}`,
@@ -69,7 +88,7 @@ export async function POST(request: NextRequest) {
         const session = await response.json()
 
         return NextResponse.json({
-            checkout_url: session.checkout_url,
+            checkout_url: session.url,
             session_id: session.id,
         })
 

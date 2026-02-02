@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { XCircle, ArrowLeft, CreditCard } from 'lucide-react'
+import { XCircle, ArrowLeft, Sparkles } from 'lucide-react'
 
 export default function PaymentCancelPage() {
     return (
@@ -11,23 +11,23 @@ export default function PaymentCancelPage() {
                     <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900">
                         <XCircle className="h-6 w-6 text-orange-600 dark:text-orange-400" />
                     </div>
-                    <CardTitle className="text-2xl">Payment Cancelled</CardTitle>
+                    <CardTitle className="text-2xl">Checkout Cancelled</CardTitle>
                     <CardDescription>
-                        Your payment was cancelled. No charges were made to your account.
+                        No worries! Your subscription was not created.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="text-center space-y-2">
                         <p className="text-sm text-muted-foreground">
-                            You can try again anytime or continue using the free tier.
+                            You can upgrade to Pro anytime to unlock all 8 AI models.
                         </p>
                     </div>
 
                     <div className="space-y-2">
                         <Link href="/pricing" className="block">
                             <Button className="w-full">
-                                <CreditCard className="mr-2 h-4 w-4" />
-                                Try Again
+                                <Sparkles className="mr-2 h-4 w-4" />
+                                View Pro Benefits
                             </Button>
                         </Link>
                         <Link href="/dashboard" className="block">
