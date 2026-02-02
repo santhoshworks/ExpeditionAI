@@ -20,6 +20,8 @@ export interface QuizState {
   quizLoading: boolean
   quizError: string | null
   selectedQuestionCount: number | null
+  scope: 'trail' | 'expedition' | null
+  sourceId: string | null
 }
 
 export interface FlashcardState {
@@ -93,6 +95,7 @@ interface ExploreState {
   setQuizLoading: (loading: boolean) => void
   setQuizError: (error: string | null) => void
   setSelectedQuestionCount: (count: number | null) => void
+  setQuizScope: (scope: 'trail' | 'expedition', sourceId: string) => void
   resetQuiz: () => void
 
   // Flashcard actions
@@ -132,6 +135,8 @@ export const useExploreStore = create<ExploreState>()(
         quizLoading: false,
         quizError: null,
         selectedQuestionCount: null,
+        scope: null,
+        sourceId: null,
       },
 
       // Initial flashcard state
@@ -247,6 +252,11 @@ export const useExploreStore = create<ExploreState>()(
           quizState: { ...state.quizState, selectedQuestionCount: count },
         })),
 
+      setQuizScope: (scope, sourceId) =>
+        set((state) => ({
+          quizState: { ...state.quizState, scope, sourceId },
+        })),
+
       resetQuiz: () =>
         set((state) => ({
           quizState: {
@@ -256,6 +266,8 @@ export const useExploreStore = create<ExploreState>()(
             quizLoading: false,
             quizError: null,
             selectedQuestionCount: null,
+            scope: null,
+            sourceId: null,
           },
         })),
 

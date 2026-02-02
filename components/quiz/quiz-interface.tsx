@@ -57,11 +57,15 @@ export function QuizInterface({ expeditionId, onExit }: QuizInterfaceProps) {
       setQuizError(null)
 
       try {
+        // Determine trailId based on scope
+        const trailId = quizState.scope === 'trail' ? quizState.sourceId : undefined
+
         const response = await fetch("/api/quiz/generate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             expeditionId,
+            trailId,
             questionCount: quizState.selectedQuestionCount || 5,
           }),
         })
@@ -94,7 +98,7 @@ export function QuizInterface({ expeditionId, onExit }: QuizInterfaceProps) {
     }
 
     loadQuiz()
-  }, [expeditionId, quizState.selectedQuestionCount])
+  }, [expeditionId, quizState.selectedQuestionCount, quizState.scope, quizState.sourceId])
 
   const handleAnswer = (optionIndex: number) => {
     if (hasAnswered) return

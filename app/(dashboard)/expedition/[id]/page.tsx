@@ -43,6 +43,7 @@ export default function ExpeditionPage() {
     quizState,
     setQuizMode,
     setSelectedQuestionCount,
+    setQuizScope,
     flashcardState,
     setFlashcardMode,
   } = useExploreStore()
@@ -84,8 +85,9 @@ export default function ExpeditionPage() {
     }
   }, [trails, currentTrailId, setCurrentTrail, trailIdParam])
 
-  const handleStartQuiz = (questionCount: number) => {
+  const handleStartQuiz = (questionCount: number, scope: 'trail' | 'expedition') => {
     setSelectedQuestionCount(questionCount)
+    setQuizScope(scope, scope === 'trail' ? currentTrailId! : expeditionId)
     setQuizMode(true)
   }
 
@@ -304,6 +306,9 @@ export default function ExpeditionPage() {
         open={quizModalOpen}
         onOpenChange={setQuizModalOpen}
         onStartQuiz={handleStartQuiz}
+        hasCurrentTrail={!!currentTrailId}
+        trailTitle={currentTrail?.title}
+        expeditionTitle={expedition.title}
       />
 
       {/* Flashcard Selection Modal */}

@@ -9,6 +9,7 @@ const openrouter = createOpenRouter({
 
 const quizRequestSchema = z.object({
   expeditionId: z.string(),
+  trailId: z.string().optional(),
   questionCount: z.number().min(3).max(10),
 })
 
@@ -35,7 +36,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json()
-    const { expeditionId, questionCount } = quizRequestSchema.parse(body)
+    const { expeditionId, trailId, questionCount } = quizRequestSchema.parse(body)
 
     // Verify expedition ownership
     const { data: expedition, error: expeditionError } = await supabase
@@ -48,14 +49,20 @@ export async function POST(req: Request) {
       return new Response("Expedition not found or access denied", { status: 403 })
     }
 
-    // Get all trails for this expedition
-    const { data: trails, error: trailsError } = await supabase
+    // Get trails - either specific trail or all trails in expedition
+    let trailsQuery = supabase
       .from("trails")
       .select("id, title")
       .eq("expedition_id", expeditionId)
 
+    if (trailId) {
+      trailsQuery = trailsQuery.eq("id", trailId)
+    }
+
+    const { data: trails, error: trailsError } = await trailsQuery
+
     if (trailsError || !trails || trails.length === 0) {
-      return new Response("No trails found for this expedition", { status: 404 })
+      return new Response("No trails found", { status: 404 })
     }
 
     // Get all messages from all trails in this expedition
