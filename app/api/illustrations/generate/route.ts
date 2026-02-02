@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { getUserCredits, deductCredits } from '@/lib/credits'
 import { generateIllustrationWithOpenRouter, getUserOpenRouterKey } from '@/lib/openrouter-image'
-
-// Cost for illustration generation (in credits)
-const ILLUSTRATION_COST = 2
 
 export async function POST(request: NextRequest) {
     try {
@@ -23,15 +19,6 @@ export async function POST(request: NextRequest) {
         const { data: { user }, error: authError } = await supabase.auth.getUser()
         if (authError || !user) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-        }
-
-        // Check if user has enough credits
-        const userCredits = await getUserCredits(user.id)
-        if (!userCredits || userCredits.credits < ILLUSTRATION_COST) {
-            return NextResponse.json(
-                { error: 'Insufficient credits for illustration generation' },
-                { status: 402 }
-            )
         }
 
         // Verify trail exists and belongs to user
@@ -81,22 +68,11 @@ export async function POST(request: NextRequest) {
             )
         }
 
-        // Deduct credits
-        const deductionResult = await deductCredits(user.id, 'illustration', 0, 0)
-        if (!deductionResult.success) {
-            return NextResponse.json(
-                { error: 'Failed to deduct credits' },
-                { status: 500 }
-            )
-        }
-
         return NextResponse.json({
             success: true,
             imageUrl: result.imageUrl,
             query: result.prompt,
             description: result.description,
-            creditsUsed: ILLUSTRATION_COST,
-            remainingCredits: deductionResult.remainingCredits,
         })
 
     } catch (error) {

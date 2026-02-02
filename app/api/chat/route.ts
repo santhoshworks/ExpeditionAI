@@ -2,13 +2,7 @@ import { createClient } from "@/lib/supabase/server"
 import { createOpenRouter } from "@openrouter/ai-sdk-provider"
 import { streamText } from "ai"
 import { z } from "zod"
-import {
-  getUserCredits,
-  hasEnoughCredits,
-  deductCredits,
-  canCreateTrail,
-  incrementTrailCount,
-} from "@/lib/credits"
+import { getUserTier } from "@/lib/credits"
 import { canUseModel, getModelById, DEFAULT_MODELS } from "@/lib/constants"
 import { getTierOverrideFromHeaders } from "@/lib/tier-override"
 
@@ -93,13 +87,13 @@ export async function POST(req: Request) {
     const isBaseCamp = trail.is_base_camp
 
     // Enhanced context for the system prompt
-    const contextPrompt = `You are currently assisting the user in an "Expedition" titled "${expeditionTitle}". 
+    const contextPrompt = `You are currently assisting the user in an "Expedition" titled "${expeditionTitle}".
 ${isBaseCamp ? `The user is at the Base Camp, which covers the core topic: "${trailTitle}".` : `The user is currently exploring a specific branch called "${trailTitle}" within this expedition.`}
 All questions, quizzes, and summaries should be strictly relevant to this topic unless the user explicitly asks to pivot.`
 
-    // Get user credits and tier
-    const userCredits = await getUserCredits(user.id)
-    let userTier = userCredits?.tier || 'free'
+    // Get user tier
+    const userSubscription = await getUserTier(user.id)
+    let userTier = userSubscription.tier
 
     // Check for tier override (for testing)
     const tierOverride = getTierOverrideFromHeaders(req.headers)
@@ -107,16 +101,7 @@ All questions, quizzes, and summaries should be strictly relevant to this topic 
       userTier = tierOverride.tier
     }
 
-    console.log('User tier detected:', { userTier, userCredits, selectedModel: model })
-
-    // Check daily trail limit for free tier
-    const trailCheck = await canCreateTrail(user.id)
-    if (!trailCheck.allowed) {
-      return new Response(
-        JSON.stringify({ error: trailCheck.reason }),
-        { status: 429, headers: { 'Content-Type': 'application/json' } }
-      )
-    }
+    console.log('User tier detected:', { userTier, selectedModel: model })
 
     // Validate model access based on tier
     let selectedModel = model || DEFAULT_MODELS[userTier]
@@ -127,19 +112,6 @@ All questions, quizzes, and summaries should be strictly relevant to this topic 
       console.log(`Model ${selectedModel} is invalid or inaccessible for tier ${userTier}, falling back to default`)
       selectedModel = DEFAULT_MODELS[userTier]
       modelConfig = getModelById(selectedModel)
-    }
-
-    // Check credit balance for paid models
-    if (modelConfig && modelConfig.costPerTrail > 0) {
-      const creditCheck = await hasEnoughCredits(user.id, selectedModel)
-      if (!creditCheck.hasCredits) {
-        return new Response(
-          JSON.stringify({
-            error: `Insufficient credits. You need ~${creditCheck.required} credits but have ${creditCheck.available}. Add more credits or use a free model.`
-          }),
-          { status: 402, headers: { 'Content-Type': 'application/json' } }
-        )
-      }
     }
 
     // Handle illustration messages (save directly, don't process with AI)
@@ -200,11 +172,6 @@ All questions, quizzes, and summaries should be strictly relevant to this topic 
       console.error("Failed to save user message:", userMsgError)
     }
 
-    // Increment trail count for free tier daily limit tracking
-    if (userTier === 'free') {
-      await incrementTrailCount(user.id)
-    }
-
     // Check if trivia feature is enabled
     const triviaEnabled = process.env.NEXT_PUBLIC_ENABLE_TRIVIA === 'true'
 
@@ -239,25 +206,7 @@ All questions, quizzes, and summaries should be strictly relevant to this topic 
               tokens_used: (usage?.totalTokens || 0),
             } as any)
 
-          // Deduct credits based on actual token usage (for paid models)
-          if (modelConfig && modelConfig.costPerTrail > 0 && usage) {
-            // Log usage object to understand its structure
-            console.log('Usage object:', usage)
-
-            const deductResult = await deductCredits(
-              user.id,
-              selectedModel,
-              Math.floor((usage.totalTokens || 0) * 0.7), // Estimate input tokens as ~70%
-              Math.floor((usage.totalTokens || 0) * 0.3)  // Estimate output tokens as ~30%
-            )
-
-            if (!deductResult.success) {
-              console.error("Failed to deduct credits:", deductResult.error)
-            }
-          }
-
           // Record learning activity for analytics (non-blocking)
-          // Note: Type assertion needed until Supabase types are regenerated after migration
           try {
             await (supabaseClient.rpc as any)('record_daily_activity', {
               p_user_id: user.id,

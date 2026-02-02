@@ -59,7 +59,7 @@ export function DemoContent() {
                             Try ThoughtMap Free
                         </h1>
                         <p className="text-lg md:text-xl text-slate-500 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed font-medium">
-                            Experience AI-powered learning with 300+ models. No signup required.
+                            Experience AI-powered learning with 8 curated models. No signup required.
                         </p>
                     </div>
 

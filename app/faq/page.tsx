@@ -19,7 +19,7 @@ const FAQ_DATA = [
     },
     {
         question: "Which AI models can I use?",
-        answer: "ThoughtMap integrates with OpenRouter, giving you access to over 300 models including Claude 3.5, GPT-4o, Llama 3, and more. Depending on your plan, you can switch between models mid-expedition."
+        answer: "ThoughtMap offers 8 curated AI models from top providers: GPT-4o and GPT-4o Mini from OpenAI, Claude 3.5 Sonnet and Haiku from Anthropic, Gemini 2.0 Flash and Flash Lite from Google, and DeepSeek V3 and R1. Free users get 4 fast models, Pro users unlock all 8."
     },
     {
         question: "What is the Learning Journal?",

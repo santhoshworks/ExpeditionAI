@@ -1,8 +1,7 @@
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
 import { CTAButton } from "@/components/ui/cta-button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Check, Zap, Star, Sparkles, Network, ArrowRight } from "lucide-react"
+import { Check, Zap, Sparkles, Network, ArrowRight, Crown } from "lucide-react"
 import { TIER_CONFIGS, MODELS } from "@/lib/constants"
 import { CheckoutButton } from "@/components/payment/checkout-button"
 import { PublicHeader } from "@/components/layout/public-header"
@@ -14,19 +13,13 @@ import { Metadata } from "next"
 const pricingSchemas = [
   generateProductSchema({
     name: 'ThoughtMap Free Plan',
-    description: 'Free AI learning platform access with Gemini 2.0 Flash Lite, 15 trails per day',
+    description: 'AI learning platform with 4 fast models including GPT-4o Mini and Claude Haiku',
     price: 0,
     features: TIER_CONFIGS.free.features,
   }),
   generateProductSchema({
-    name: 'ThoughtMap Basic Plan',
-    description: 'AI learning platform with 200 credits, access to Gemini 2.0 Flash, GPT-4o Mini, and Claude Haiku',
-    price: TIER_CONFIGS.basic.price,
-    features: TIER_CONFIGS.basic.features,
-  }),
-  generateProductSchema({
     name: 'ThoughtMap Pro Plan',
-    description: 'Premium AI learning platform with 700 credits, all AI models including GPT-4o and Claude Sonnet',
+    description: 'Premium AI learning with all 8 models including GPT-4o, Claude Sonnet, and DeepSeek R1',
     price: TIER_CONFIGS.pro.price,
     features: TIER_CONFIGS.pro.features,
   }),
@@ -38,8 +31,8 @@ const breadcrumbSchema = generateBreadcrumbSchema([
 ])
 
 export const metadata: Metadata = generateSEOMetadata({
-  title: "Pricing Plans - Pay Only What You Use | No Subscriptions",
-  description: "Flexible credit-based pricing for AI-powered learning. Start free forever with 4 AI models. Upgrade anytime - credits never expire. From $5.",
+  title: "Pricing - Free Forever or Go Pro | ThoughtMap",
+  description: "Start learning for free with 4 AI models. Upgrade to Pro for access to GPT-4o, Claude Sonnet, and more powerful models. Simple monthly pricing.",
   keywords: [
     "AI learning pricing",
     "educational technology pricing",
@@ -48,8 +41,7 @@ export const metadata: Metadata = generateSEOMetadata({
     "GPT-4 education pricing",
     "Claude AI learning",
     "Gemini AI education",
-    "credit-based pricing",
-    "no subscription learning",
+    "monthly subscription learning",
     "affordable AI education"
   ],
   url: "/pricing"
@@ -58,7 +50,6 @@ export const metadata: Metadata = generateSEOMetadata({
 export default function PricingPage() {
   // Group models by tier for display
   const freeModels = MODELS.filter(m => m.tier === 'free')
-  const basicModels = MODELS.filter(m => m.tier === 'basic')
   const proModels = MODELS.filter(m => m.tier === 'pro')
 
   return (
@@ -90,18 +81,18 @@ export default function PricingPage() {
             <div className="flex flex-col items-center text-center max-w-4xl mx-auto space-y-10">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-50 border border-indigo-100/50 text-indigo-600 text-xs md:text-sm font-semibold tracking-wide uppercase animate-in fade-in slide-in-from-bottom-4">
                 <Sparkles className="w-4 h-4" />
-                <span>Simple Credit-Based Pricing</span>
+                <span>Simple Pricing</span>
               </div>
 
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-slate-900 leading-[0.95] md:leading-[1.05]">
-                Pay only for what you <br />
+                Start free. <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-br from-indigo-600 via-violet-600 to-fuchsia-600">
-                  actually use.
+                  Upgrade when ready.
                 </span>
               </h1>
 
               <p className="text-base md:text-xl text-slate-500 max-w-3xl leading-relaxed font-medium">
-                No subscriptions, no monthly fees. Buy credits once and use them forever. Start free with 4 AI models, upgrade when you need more power.
+                Learn with 4 powerful AI models completely free. Unlock premium models like GPT-4o and Claude Sonnet when you need deeper analysis.
               </p>
             </div>
           </div>
@@ -110,23 +101,18 @@ export default function PricingPage() {
         {/* Pricing Cards */}
         <section className="py-32 bg-white relative">
           <div className="container mx-auto px-6">
-            <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
-              <h2 className="text-indigo-600 font-bold tracking-wider uppercase text-sm">Choose Your Plan</h2>
-              <h3 className="text-3xl md:text-5xl font-bold text-slate-900 leading-tight">Start free, upgrade when ready</h3>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-20">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-20">
               {/* Free Tier */}
-              <Card className="bg-white border-slate-100 shadow-xl group hover:shadow-2xl transition-all duration-500 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-400 to-emerald-500"></div>
+              <Card className="bg-white border-slate-200 shadow-xl group hover:shadow-2xl transition-all duration-500 relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-slate-400 to-slate-500"></div>
                 <CardHeader className="p-8">
                   <CardTitle className="flex items-center gap-3 text-2xl">
-                    <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center text-green-600">
+                    <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center text-slate-600">
                       <Zap className="w-6 h-6" />
                     </div>
                     <span>Free</span>
                   </CardTitle>
-                  <CardDescription className="text-slate-500 text-lg">Perfect for trying out the platform</CardDescription>
+                  <CardDescription className="text-slate-500 text-lg">Everything you need to start learning</CardDescription>
                 </CardHeader>
                 <CardContent className="p-8 pt-0 space-y-8">
                   <div className="space-y-2">
@@ -139,8 +125,8 @@ export default function PricingPage() {
                   <ul className="space-y-4">
                     {TIER_CONFIGS.free.features.map((feature, i) => (
                       <li key={i} className="flex items-start gap-3">
-                        <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <Check className="h-3 w-3 text-green-600" />
+                        <div className="w-5 h-5 bg-slate-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <Check className="h-3 w-3 text-slate-600" />
                         </div>
                         <span className="text-slate-600 leading-relaxed">{feature}</span>
                       </li>
@@ -148,10 +134,10 @@ export default function PricingPage() {
                   </ul>
 
                   <div className="pt-6 border-t border-slate-100">
-                    <p className="text-sm font-semibold text-slate-900 mb-3">Available Models:</p>
+                    <p className="text-sm font-semibold text-slate-900 mb-3">Included Models:</p>
                     <div className="flex flex-wrap gap-2">
                       {freeModels.map(model => (
-                        <span key={model.id} className="text-xs bg-green-50 text-green-700 px-3 py-1.5 rounded-full font-medium border border-green-100">
+                        <span key={model.id} className="text-xs bg-slate-100 text-slate-700 px-3 py-1.5 rounded-full font-medium border border-slate-200">
                           {model.name}
                         </span>
                       ))}
@@ -167,34 +153,39 @@ export default function PricingPage() {
                 </CardContent>
               </Card>
 
-              {/* Basic Tier */}
-              <Card className="bg-white border-indigo-200 shadow-2xl group hover:shadow-3xl transition-all duration-500 relative overflow-hidden scale-105 z-10">
+              {/* Pro Tier */}
+              <Card className="bg-white border-indigo-200 shadow-2xl group hover:shadow-3xl transition-all duration-500 relative overflow-hidden scale-[1.02] z-10">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-violet-600"></div>
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-30">
                   <div className="bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm font-bold px-6 py-2 rounded-full flex items-center gap-2 shadow-lg">
-                    <Star className="h-4 w-4 fill-white" />
-                    Most Popular
+                    <Crown className="h-4 w-4 fill-white" />
+                    50% OFF Launch Sale
                   </div>
                 </div>
                 <CardHeader className="p-8 pt-12">
                   <CardTitle className="flex items-center gap-3 text-2xl">
                     <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
-                      <Zap className="w-6 h-6" />
+                      <Sparkles className="w-6 h-6" />
                     </div>
-                    <span>Basic</span>
+                    <span>Pro</span>
                   </CardTitle>
-                  <CardDescription className="text-slate-500 text-lg">Great for regular students</CardDescription>
+                  <CardDescription className="text-slate-500 text-lg">Unlock the most powerful AI models</CardDescription>
                 </CardHeader>
                 <CardContent className="p-8 pt-0 space-y-8">
                   <div className="space-y-2">
-                    <div className="text-5xl font-bold text-slate-900">
-                      $5
+                    <div className="flex items-baseline gap-3">
+                      <span className="text-5xl font-bold text-slate-900">
+                        ${TIER_CONFIGS.pro.price}
+                      </span>
+                      <span className="text-2xl text-slate-400 line-through">
+                        ${TIER_CONFIGS.pro.originalPrice}
+                      </span>
                     </div>
-                    <p className="text-slate-500 font-medium">100 credits • One-time purchase</p>
+                    <p className="text-slate-500 font-medium">per month</p>
                   </div>
 
                   <ul className="space-y-4">
-                    {TIER_CONFIGS.basic.features.map((feature, i) => (
+                    {TIER_CONFIGS.pro.features.map((feature, i) => (
                       <li key={i} className="flex items-start gap-3">
                         <div className="w-5 h-5 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                           <Check className="h-3 w-3 text-indigo-600" />
@@ -205,72 +196,21 @@ export default function PricingPage() {
                   </ul>
 
                   <div className="pt-6 border-t border-slate-100">
-                    <p className="text-sm font-semibold text-slate-900 mb-3">Unlocks Models:</p>
+                    <p className="text-sm font-semibold text-slate-900 mb-3">Premium Models Unlocked:</p>
                     <div className="flex flex-wrap gap-2 mb-3">
-                      {basicModels.map(model => (
+                      {proModels.map(model => (
                         <span key={model.id} className="text-xs bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-full font-medium border border-indigo-100 flex items-center gap-1">
                           {model.name}
-                          {model.recommended && <Star className="h-3 w-3 fill-indigo-600" />}
+                          {model.badge === 'Premium' && <Sparkles className="h-3 w-3" />}
                         </span>
                       ))}
                     </div>
                     <p className="text-xs text-slate-500">+ all free models</p>
                   </div>
 
-                  <CheckoutButton tier="basic" price={TIER_CONFIGS.basic.price} variant="primary" size="lg" className="w-full">
-                    Get Basic - $5
-                    <Zap className="ml-2 w-5 h-5 fill-indigo-400 text-indigo-400" />
-                  </CheckoutButton>
-                </CardContent>
-              </Card>
-
-              {/* Pro Tier */}
-              <Card className="bg-white border-slate-100 shadow-xl group hover:shadow-2xl transition-all duration-500 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-400 to-red-500"></div>
-                <CardHeader className="p-8">
-                  <CardTitle className="flex items-center gap-3 text-2xl">
-                    <div className="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center text-orange-600">
-                      <Sparkles className="w-6 h-6" />
-                    </div>
-                    <span>Pro</span>
-                  </CardTitle>
-                  <CardDescription className="text-slate-500 text-lg">Premium reasoning models</CardDescription>
-                </CardHeader>
-                <CardContent className="p-8 pt-0 space-y-8">
-                  <div className="space-y-2">
-                    <div className="text-5xl font-bold text-slate-900">
-                      $15
-                    </div>
-                    <p className="text-slate-500 font-medium">500+ credits • One-time purchase</p>
-                  </div>
-
-                  <ul className="space-y-4">
-                    {TIER_CONFIGS.pro.features.map((feature, i) => (
-                      <li key={i} className="flex items-start gap-3">
-                        <div className="w-5 h-5 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <Check className="h-3 w-3 text-orange-600" />
-                        </div>
-                        <span className="text-slate-600 leading-relaxed">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <div className="pt-6 border-t border-slate-100">
-                    <p className="text-sm font-semibold text-slate-900 mb-3">Unlocks Premium Models:</p>
-                    <div className="flex flex-wrap gap-2 mb-3">
-                      {proModels.map(model => (
-                        <span key={model.id} className="text-xs bg-orange-50 text-orange-700 px-3 py-1.5 rounded-full font-medium border border-orange-100 flex items-center gap-1">
-                          {model.name}
-                          {model.badge === 'Premium' && <Sparkles className="h-3 w-3 fill-orange-600" />}
-                        </span>
-                      ))}
-                    </div>
-                    <p className="text-xs text-slate-500">+ all Basic & Free models</p>
-                  </div>
-
-                  <CheckoutButton tier="pro" price={TIER_CONFIGS.pro.price} variant="secondary" size="lg" className="w-full">
-                    Get Pro - $15
-                    <ArrowRight className="ml-2 w-5 h-5" />
+                  <CheckoutButton tier="pro" price={TIER_CONFIGS.pro.price} variant="primary" size="lg" className="w-full">
+                    Upgrade to Pro
+                    <Sparkles className="ml-2 w-5 h-5" />
                   </CheckoutButton>
                 </CardContent>
               </Card>
@@ -278,109 +218,80 @@ export default function PricingPage() {
           </div>
         </section>
 
-        {/* Model Performance Comparison Table */}
+        {/* Model Comparison Table */}
         <section className="py-32 bg-slate-50 relative">
           <div className="container mx-auto px-6">
             <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
               <h2 className="text-indigo-600 font-bold tracking-wider uppercase text-sm">Model Comparison</h2>
-              <h3 className="text-3xl md:text-5xl font-bold text-slate-900 leading-tight">Choose the right AI for your needs</h3>
+              <h3 className="text-3xl md:text-5xl font-bold text-slate-900 leading-tight">8 curated models for every need</h3>
+              <p className="text-slate-500 text-lg">We've handpicked the best models from each provider so you don't have to choose from hundreds.</p>
             </div>
 
-            <div className="max-w-6xl mx-auto">
+            <div className="max-w-5xl mx-auto">
               <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
                 <div className="overflow-x-auto">
-                  <table className="w-full min-w-[700px]">
+                  <table className="w-full min-w-[600px]">
                     <thead>
                       <tr className="bg-slate-50 border-b border-slate-100">
                         <th className="text-left py-6 px-6 text-slate-900 font-bold">Model</th>
+                        <th className="text-center py-6 px-4 text-slate-900 font-bold">Provider</th>
                         <th className="text-center py-6 px-4 text-slate-900 font-bold">Speed</th>
-                        <th className="text-center py-6 px-4 text-slate-900 font-bold">Quality</th>
-                        <th className="text-center py-6 px-4 text-slate-900 font-bold">Cost/Trail</th>
+                        <th className="text-center py-6 px-4 text-slate-900 font-bold">Tier</th>
                         <th className="text-left py-6 px-6 text-slate-900 font-bold">Best For</th>
                       </tr>
                     </thead>
                     <tbody>
                       {MODELS.map((model, index) => (
                         <tr key={model.id} className={`border-b border-slate-50 hover:bg-slate-25 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-slate-25/50'}`}>
-                          <td className="py-6 px-6">
-                            <div className="flex flex-col gap-2">
-                              <div className="flex items-center gap-3">
-                                <span className="font-semibold text-slate-900">{model.name}</span>
-                                <div className="flex gap-1">
-                                  {model.recommended && (
-                                    <span className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-full flex items-center gap-1 font-medium border border-blue-100">
-                                      <Star className="h-3 w-3 fill-blue-600" /> Best
-                                    </span>
-                                  )}
-                                  {model.badge === 'Premium' && (
-                                    <span className="text-xs bg-orange-50 text-orange-700 px-2 py-1 rounded-full font-medium border border-orange-100">
-                                      Premium
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
+                          <td className="py-5 px-6">
+                            <div className="flex items-center gap-3">
+                              <span className="font-semibold text-slate-900">{model.name}</span>
+                              {model.recommended && (
+                                <span className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-full font-medium border border-blue-100">
+                                  Default
+                                </span>
+                              )}
+                              {model.badge === 'Premium' && (
+                                <span className="text-xs bg-indigo-50 text-indigo-700 px-2 py-1 rounded-full font-medium border border-indigo-100">
+                                  Premium
+                                </span>
+                              )}
                             </div>
                           </td>
-                          <td className="text-center py-6 px-4">
+                          <td className="text-center py-5 px-4 text-slate-600">
+                            {model.provider}
+                          </td>
+                          <td className="text-center py-5 px-4">
                             <div className="flex justify-center">
                               {model.speed === 'Very Fast' && (
-                                <div className="flex gap-0.5">
-                                  {[...Array(4)].map((_, i) => (
-                                    <div key={i} className="w-2 h-2 bg-green-400 rounded-full"></div>
-                                  ))}
-                                </div>
+                                <span className="text-xs bg-green-50 text-green-700 px-2 py-1 rounded-full font-medium">
+                                  Very Fast
+                                </span>
                               )}
                               {model.speed === 'Fast' && (
-                                <div className="flex gap-0.5">
-                                  {[...Array(3)].map((_, i) => (
-                                    <div key={i} className="w-2 h-2 bg-yellow-400 rounded-full"></div>
-                                  ))}
-                                </div>
+                                <span className="text-xs bg-yellow-50 text-yellow-700 px-2 py-1 rounded-full font-medium">
+                                  Fast
+                                </span>
                               )}
                               {model.speed === 'Medium' && (
-                                <div className="flex gap-0.5">
-                                  {[...Array(2)].map((_, i) => (
-                                    <div key={i} className="w-2 h-2 bg-orange-400 rounded-full"></div>
-                                  ))}
-                                </div>
+                                <span className="text-xs bg-orange-50 text-orange-700 px-2 py-1 rounded-full font-medium">
+                                  Medium
+                                </span>
                               )}
                             </div>
                           </td>
-                          <td className="text-center py-6 px-4">
-                            <div className="flex justify-center">
-                              {model.tier === 'free' && (
-                                <div className="flex gap-0.5">
-                                  {[...Array(3)].map((_, i) => (
-                                    <Star key={i} className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                                  ))}
-                                </div>
-                              )}
-                              {model.tier === 'basic' && (
-                                <div className="flex gap-0.5">
-                                  {[...Array(4)].map((_, i) => (
-                                    <Star key={i} className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                                  ))}
-                                </div>
-                              )}
-                              {model.tier === 'pro' && (
-                                <div className="flex gap-0.5">
-                                  {[...Array(model.id === 'openai/gpt-4o' ? 5 : 4)].map((_, i) => (
-                                    <Star key={i} className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          </td>
-                          <td className="text-center py-6 px-4">
-                            {model.costPerTrail === 0 ? (
-                              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-50 text-green-700 border border-green-100">
+                          <td className="text-center py-5 px-4">
+                            {model.tier === 'free' ? (
+                              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-slate-100 text-slate-700 border border-slate-200">
                                 Free
                               </span>
                             ) : (
-                              <span className="text-slate-600 font-medium">{model.costPerTrail} credits</span>
+                              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                Pro
+                              </span>
                             )}
                           </td>
-                          <td className="py-6 px-6 text-slate-500 leading-relaxed">
+                          <td className="py-5 px-6 text-slate-500">
                             {model.description}
                           </td>
                         </tr>
@@ -393,73 +304,35 @@ export default function PricingPage() {
           </div>
         </section>
 
-        {/* Credit Calculator */}
+        {/* Features Section */}
         <section className="py-32 bg-white relative">
           <div className="container mx-auto px-6">
             <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
-              <h2 className="text-indigo-600 font-bold tracking-wider uppercase text-sm">Credit Calculator</h2>
-              <h3 className="text-3xl md:text-5xl font-bold text-slate-900 leading-tight">How credits work</h3>
+              <h2 className="text-indigo-600 font-bold tracking-wider uppercase text-sm">All Plans Include</h2>
+              <h3 className="text-3xl md:text-5xl font-bold text-slate-900 leading-tight">Powerful learning features</h3>
             </div>
 
-            <div className="max-w-4xl mx-auto">
-              <div className="bg-slate-50 rounded-3xl p-8 md:p-12 border border-slate-100">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-                  <div className="space-y-6">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
-                        <Zap className="w-6 h-6 text-indigo-600" />
-                      </div>
-                      <div>
-                        <h4 className="text-xl font-bold text-slate-900">Basic ($5 = 100 credits)</h4>
-                        <p className="text-slate-500">Perfect for regular use</p>
-                      </div>
-                    </div>
-                    <ul className="space-y-3 text-slate-600">
-                      <li className="flex items-center gap-3">
-                        <div className="w-2 h-2 bg-indigo-400 rounded-full"></div>
-                        <span>~400 trails with Gemini Flash 8B</span>
-                      </li>
-                      <li className="flex items-center gap-3">
-                        <div className="w-2 h-2 bg-indigo-400 rounded-full"></div>
-                        <span>~200 trails with Gemini 2.0 Flash</span>
-                      </li>
-                      <li className="flex items-center gap-3">
-                        <div className="w-2 h-2 bg-indigo-400 rounded-full"></div>
-                        <span>~100 trails with GPT-4o Mini</span>
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="space-y-6">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
-                        <Sparkles className="w-6 h-6 text-orange-600" />
-                      </div>
-                      <div>
-                        <h4 className="text-xl font-bold text-slate-900">Pro ($15 = 500 credits)</h4>
-                        <p className="text-slate-500">For power users</p>
-                      </div>
-                    </div>
-                    <ul className="space-y-3 text-slate-600">
-                      <li className="flex items-center gap-3">
-                        <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
-                        <span>~250 trails with Claude Haiku</span>
-                      </li>
-                      <li className="flex items-center gap-3">
-                        <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
-                        <span>~166 trails with Gemini Pro</span>
-                      </li>
-                      <li className="flex items-center gap-3">
-                        <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
-                        <span>~100 trails with GPT-4o</span>
-                      </li>
-                    </ul>
-                  </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+              <div className="text-center p-8">
+                <div className="w-16 h-16 bg-indigo-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                  <Network className="w-8 h-8 text-indigo-600" />
                 </div>
-                <div className="mt-8 pt-8 border-t border-slate-200 text-center">
-                  <p className="text-slate-500 leading-relaxed">
-                    Actual credit usage varies based on conversation length. <span className="font-semibold text-slate-700">Credits never expire.</span>
-                  </p>
+                <h4 className="text-xl font-bold text-slate-900 mb-3">Branching Trails</h4>
+                <p className="text-slate-500">Explore tangents without losing context. Create a visual map of your learning journey.</p>
+              </div>
+              <div className="text-center p-8">
+                <div className="w-16 h-16 bg-violet-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                  <Sparkles className="w-8 h-8 text-violet-600" />
                 </div>
+                <h4 className="text-xl font-bold text-slate-900 mb-3">AI Quizzes</h4>
+                <p className="text-slate-500">Test your understanding with auto-generated quizzes based on your conversations.</p>
+              </div>
+              <div className="text-center p-8">
+                <div className="w-16 h-16 bg-fuchsia-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                  <Zap className="w-8 h-8 text-fuchsia-600" />
+                </div>
+                <h4 className="text-xl font-bold text-slate-900 mb-3">Flashcards</h4>
+                <p className="text-slate-500">Reinforce learning with AI-generated flashcards for spaced repetition.</p>
               </div>
             </div>
           </div>
@@ -470,7 +343,7 @@ export default function PricingPage() {
           <div className="container mx-auto px-6 text-center">
             <div className="max-w-4xl mx-auto space-y-10 relative z-10">
               <h2 className="text-4xl md:text-6xl font-bold text-slate-900 tracking-tight leading-tight">
-                Ready to start your <span className="text-indigo-600 underline underline-offset-8 decoration-indigo-200">learning journey</span>?
+                Ready to learn <span className="text-indigo-600 underline underline-offset-8 decoration-indigo-200">smarter</span>?
               </h2>
               <p className="text-xl md:text-2xl text-slate-500 font-medium">
                 Join thousands of learners exploring knowledge through AI-powered conversations.
@@ -482,7 +355,7 @@ export default function PricingPage() {
                     <ArrowRight className="ml-2 w-5 h-5" />
                   </CTAButton>
                 </Link>
-                <p className="text-slate-400 font-medium text-sm">No credit card required • 4 AI models free forever</p>
+                <p className="text-slate-400 font-medium text-sm">No credit card required</p>
               </div>
             </div>
           </div>

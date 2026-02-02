@@ -38,7 +38,7 @@ export default function JournalPage() {
   const expeditionId = params.id as string
   const { data: expedition, isLoading: isExpeditionLoading } = useExpedition(expeditionId)
   const { data: journal, isLoading: isJournalLoading } = useJournal(expeditionId)
-  const { selectedModel, setCurrentExpedition, currentTrailId, setCurrentTrail, userTier, userCredits } = useExploreStore()
+  const { selectedModel, setCurrentExpedition, currentTrailId, setCurrentTrail, userTier } = useExploreStore()
   const { mutate: generateJournal, isPending: isGenerating } = useGenerateJournal()
   const { data: trails } = useTrails(expeditionId)
 
@@ -220,7 +220,7 @@ export default function JournalPage() {
                   </DropdownMenuContent>
                 </DropdownMenu>
               )}
-              <ModelSelector userTier={userTier} userCredits={userCredits} />
+              <ModelSelector userTier={userTier} />
               <Button
                 size="sm"
                 onClick={handleGenerate}
@@ -346,7 +346,7 @@ export default function JournalPage() {
                 </p>
                 <div className="flex flex-col items-center gap-4 mb-4">
                   <span className="text-sm text-muted-foreground uppercase tracking-widest font-semibold">Select Synthesis Model</span>
-                  <ModelSelector userTier={userTier} userCredits={userCredits} />
+                  <ModelSelector userTier={userTier} />
                 </div>
                 <Button
                   size="lg"

@@ -395,44 +395,42 @@ export function useGenerateJournal() {
   })
 }
 
-// User Credits
-export function useUserCredits() {
-  const setUserCredits = useExploreStore((state) => state.setUserCredits)
+// User Tier (simplified from credits)
+export function useUserTier() {
+  const setUserTier = useExploreStore((state) => state.setUserTier)
 
   const query = useQuery({
-    queryKey: ["userCredits"],
+    queryKey: ["userTier"],
     queryFn: async () => {
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
 
       if (!user) {
-        const defaultData = { credits: 0, tier: 'free' as UserTier, trails_today: 0 }
+        const defaultData = { tier: 'free' as UserTier }
         return applyTierOverride(defaultData)
       }
 
       const { data, error } = await supabase
         .from("user_credits")
-        .select("credits, tier, trails_today, last_trail_date")
+        .select("tier")
         .eq("user_id", user.id)
         .single()
 
       if (error || !data) {
         // Return default free tier if no record exists
-        const defaultData = { credits: 0, tier: 'free' as UserTier, trails_today: 0 }
+        const defaultData = { tier: 'free' as UserTier }
         return applyTierOverride(defaultData)
       }
 
       const typedData = data as Database['public']['Tables']['user_credits']['Row']
 
-      // Reset trails_today if it's a new day
-      const today = new Date().toISOString().split('T')[0]
-      const trailsToday = typedData.last_trail_date === today ? typedData.trails_today : 0
-
-      const result = {
-        credits: typedData.credits,
-        tier: typedData.tier as UserTier,
-        trails_today: trailsToday,
+      // Map old 'basic' tier to 'free' for backward compatibility
+      let tier = typedData.tier as UserTier
+      if (tier === 'basic' as any) {
+        tier = 'free'
       }
+
+      const result = { tier }
 
       // Apply tier override for testing (query params or localStorage)
       return applyTierOverride(result)
@@ -444,20 +442,26 @@ export function useUserCredits() {
   // Sync to Zustand store when data changes
   useEffect(() => {
     if (query.data) {
-      setUserCredits(query.data.credits, query.data.tier, query.data.trails_today)
+      setUserTier(query.data.tier)
     }
-  }, [query.data, setUserCredits])
+  }, [query.data, setUserTier])
 
   return query
 }
 
-export function useRefreshCredits() {
+// Legacy alias for backward compatibility
+export const useUserCredits = useUserTier
+
+export function useRefreshUserTier() {
   const queryClient = useQueryClient()
 
   return () => {
-    queryClient.invalidateQueries({ queryKey: ["userCredits"] })
+    queryClient.invalidateQueries({ queryKey: ["userTier"] })
   }
 }
+
+// Legacy alias
+export const useRefreshCredits = useRefreshUserTier
 
 // Learning Wishlist
 export function useLearningWishlist() {

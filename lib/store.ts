@@ -59,10 +59,8 @@ interface ExploreState {
   // Model selection
   selectedModel: string
 
-  // User credits and tier
+  // User tier (simplified from credits)
   userTier: UserTier
-  userCredits: number
-  trailsToday: number
 
   // Quiz state
   quizState: QuizState
@@ -83,8 +81,7 @@ interface ExploreState {
   toggleSidebar: () => void
   toggleMapExpanded: () => void
   setSelectedModel: (model: string) => void
-  setUserCredits: (credits: number, tier: UserTier, trailsToday?: number) => void
-  deductCreditsLocally: (amount: number) => void
+  setUserTier: (tier: UserTier) => void
   reset: () => void
 
   // Quiz actions
@@ -124,8 +121,6 @@ export const useExploreStore = create<ExploreState>()(
       trailsWithNewResponse: new Set<string>(),
       selectedModel: DEFAULT_MODELS.free,
       userTier: "free",
-      userCredits: 0,
-      trailsToday: 0,
 
       // Initial quiz state
       quizState: {
@@ -188,17 +183,7 @@ export const useExploreStore = create<ExploreState>()(
 
       setSelectedModel: (model) => set({ selectedModel: model }),
 
-      setUserCredits: (credits, tier, trailsToday = 0) =>
-        set({
-          userCredits: credits,
-          userTier: tier,
-          trailsToday,
-        }),
-
-      deductCreditsLocally: (amount) =>
-        set((state) => ({
-          userCredits: Math.max(0, state.userCredits - amount),
-        })),
+      setUserTier: (tier) => set({ userTier: tier }),
 
       reset: () =>
         set({

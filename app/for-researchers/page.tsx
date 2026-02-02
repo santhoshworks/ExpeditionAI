@@ -37,7 +37,7 @@ const researcherFAQs = [
     },
     {
         question: "Can I use ThoughtMap for interdisciplinary research?",
-        answer: "Absolutely! ThoughtMap excels at interdisciplinary work because our branching model naturally maps how concepts connect across fields. You can start exploring a topic in one discipline and branch into related concepts from other fields. With access to 300+ AI models, you can use models that are particularly strong in specific domains - for example, using Claude for nuanced humanities discussions and GPT-4 for technical scientific concepts within the same research expedition. The visual knowledge map helps you see and document cross-disciplinary connections."
+        answer: "Absolutely! ThoughtMap excels at interdisciplinary work because our branching model naturally maps how concepts connect across fields. You can start exploring a topic in one discipline and branch into related concepts from other fields. With access to 8 curated AI models, you can use models that are particularly strong in specific domains - for example, using Claude Sonnet for nuanced humanities discussions and GPT-4o for technical scientific concepts within the same research expedition. The visual knowledge map helps you see and document cross-disciplinary connections."
     },
     {
         question: "How does the journal export feature work?",
@@ -45,7 +45,7 @@ const researcherFAQs = [
     },
     {
         question: "What makes ThoughtMap different from using ChatGPT for research?",
-        answer: "While ChatGPT is a single linear conversation, ThoughtMap provides a structured environment designed for deep research. Key differences include: (1) Branching conversations that let you explore multiple directions without losing context, (2) Visual knowledge mapping that shows how concepts relate, (3) Access to 300+ AI models so you can use the best tool for each aspect of your research, (4) Built-in organization with expeditions and trails that keep your research structured, (5) Export capabilities for academic workflows, and (6) The ability to return to any point in your exploration to branch in new directions. It's the difference between a notepad and a research workbench."
+        answer: "While ChatGPT is a single linear conversation, ThoughtMap provides a structured environment designed for deep research. Key differences include: (1) Branching conversations that let you explore multiple directions without losing context, (2) Visual knowledge mapping that shows how concepts relate, (3) Access to 8 curated AI models so you can use the best tool for each aspect of your research, (4) Built-in organization with expeditions and trails that keep your research structured, (5) Export capabilities for academic workflows, and (6) The ability to return to any point in your exploration to branch in new directions. It's the difference between a notepad and a research workbench."
     },
     {
         question: "Is ThoughtMap suitable for graduate students and PhD candidates?",
@@ -148,8 +148,8 @@ export default function ForResearchersPage() {
                                 <div className="text-sm text-slate-500 font-medium">Researchers</div>
                             </div>
                             <div className="text-center space-y-2">
-                                <div className="text-3xl md:text-4xl font-bold text-indigo-600">300+</div>
-                                <div className="text-sm text-slate-500 font-medium">AI Models</div>
+                                <div className="text-3xl md:text-4xl font-bold text-indigo-600">8</div>
+                                <div className="text-sm text-slate-500 font-medium">Curated AI Models</div>
                             </div>
                             <div className="text-center space-y-2">
                                 <div className="text-3xl md:text-4xl font-bold text-indigo-600">50%</div>
@@ -284,9 +284,9 @@ export default function ForResearchersPage() {
                                 <div className="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                                     <Lightbulb className="w-7 h-7 text-emerald-600" />
                                 </div>
-                                <h4 className="text-xl font-bold text-slate-900 mb-3">300+ AI Models</h4>
+                                <h4 className="text-xl font-bold text-slate-900 mb-3">8 Curated AI Models</h4>
                                 <p className="text-slate-500 leading-relaxed mb-4">
-                                    Different research questions benefit from different AI strengths. Use Claude for nuanced analysis, GPT-4 for broad synthesis, or specialized models for domain-specific topics. All in one research environment.
+                                    Different research questions benefit from different AI strengths. Use Claude Sonnet for nuanced analysis, GPT-4o for broad synthesis, or DeepSeek for domain-specific topics. All in one research environment.
                                 </p>
                                 <Link href="/pricing" className="inline-flex items-center text-emerald-600 font-semibold hover:underline">
                                     See all models <ArrowRight className="ml-1 w-4 h-4" />
@@ -545,23 +545,18 @@ export default function ForResearchersPage() {
                         <div className="max-w-4xl mx-auto bg-gradient-to-br from-indigo-600 to-violet-600 rounded-3xl p-12 text-white text-center">
                             <h2 className="text-3xl md:text-4xl font-bold mb-6">Researcher-Friendly Pricing</h2>
                             <p className="text-xl text-indigo-100 mb-8 max-w-2xl mx-auto">
-                                No monthly subscriptions draining your research budget. Purchase credits once and use them as long as you need. Credits never expire.
+                                Simple pricing that won't drain your research budget. Generous free tier and an affordable Pro plan with 50% off during our launch sale.
                             </p>
-                            <div className="grid md:grid-cols-3 gap-6 mb-8">
+                            <div className="grid md:grid-cols-2 gap-6 mb-8 max-w-2xl mx-auto">
                                 <div className="bg-white/10 rounded-2xl p-6">
                                     <div className="text-3xl font-bold mb-2">$0</div>
                                     <div className="text-indigo-200 mb-4">Free Forever</div>
-                                    <div className="text-sm text-indigo-100">15 trails/day, 4 AI models</div>
+                                    <div className="text-sm text-indigo-100">Unlimited access, 4 fast AI models</div>
                                 </div>
                                 <div className="bg-white/20 rounded-2xl p-6 border-2 border-white/30">
-                                    <div className="text-3xl font-bold mb-2">$5</div>
-                                    <div className="text-indigo-200 mb-4">Basic (One-Time)</div>
-                                    <div className="text-sm text-indigo-100">100 credits, more models</div>
-                                </div>
-                                <div className="bg-white/10 rounded-2xl p-6">
-                                    <div className="text-3xl font-bold mb-2">$15</div>
-                                    <div className="text-indigo-200 mb-4">Pro (One-Time)</div>
-                                    <div className="text-sm text-indigo-100">500+ credits, all models</div>
+                                    <div className="text-3xl font-bold mb-2">$4.99<span className="text-lg text-indigo-300 line-through ml-2">$9.99</span></div>
+                                    <div className="text-indigo-200 mb-4">Pro (Monthly)</div>
+                                    <div className="text-sm text-indigo-100">All 8 AI models, 50% off launch sale</div>
                                 </div>
                             </div>
                             <Link href="/pricing">

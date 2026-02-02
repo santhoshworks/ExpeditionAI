@@ -36,11 +36,11 @@ const studentFAQs = [
     },
     {
         question: "Is ThoughtMap suitable for all subjects and education levels?",
-        answer: "Yes! ThoughtMap works with any subject from STEM fields like calculus, chemistry, and computer science to humanities subjects like history, literature, and philosophy. Whether you're a high school student preparing for AP exams, a college student tackling advanced coursework, or a graduate student diving into research topics, our AI adapts to your level and learning goals. The platform supports over 300 AI models, so you can choose the best one for your specific subject."
+        answer: "Yes! ThoughtMap works with any subject from STEM fields like calculus, chemistry, and computer science to humanities subjects like history, literature, and philosophy. Whether you're a high school student preparing for AP exams, a college student tackling advanced coursework, or a graduate student diving into research topics, our AI adapts to your level and learning goals. The platform offers 8 curated AI models from top providers, so you can choose the best one for your specific subject."
     },
     {
         question: "How is ThoughtMap different from ChatGPT or other AI tutors?",
-        answer: "Unlike linear chat interfaces, ThoughtMap visualizes your learning journey as a branching tree. This means you can explore multiple angles of a topic without losing context, easily return to previous concepts, and see how different ideas connect. Our platform also includes built-in quiz generation, progress tracking, and the ability to export your learning trails as study notes. Plus, you get access to 300+ AI models including GPT-4, Claude, and Gemini, all in one place."
+        answer: "Unlike linear chat interfaces, ThoughtMap visualizes your learning journey as a branching tree. This means you can explore multiple angles of a topic without losing context, easily return to previous concepts, and see how different ideas connect. Our platform also includes built-in quiz generation, progress tracking, and the ability to export your learning trails as study notes. Plus, you get access to 8 curated AI models including GPT-4o, Claude Sonnet, and Gemini Flash, all in one place."
     },
     {
         question: "Can I use ThoughtMap for homework and assignments?",
@@ -48,7 +48,7 @@ const studentFAQs = [
     },
     {
         question: "Is there a free plan for students?",
-        answer: "Yes! Our free plan gives you access to 4 AI models including Gemini 2.0 Flash Lite, with 15 learning trails per day. This is perfect for trying out the platform and regular study sessions. For more intensive exam prep or access to premium models like GPT-4 and Claude, our Basic plan starts at just $5 (one-time payment, not a subscription). Students can study smarter without breaking the bank."
+        answer: "Yes! Our free plan gives you unlimited access to 4 fast AI models including GPT-4o Mini and Gemini Flash Lite. This is perfect for trying out the platform and regular study sessions. For access to premium models like GPT-4o and Claude Sonnet, our Pro plan is just $4.99/month (50% off during our launch sale). Students can study smarter without breaking the bank."
     }
 ]
 
@@ -151,8 +151,8 @@ export default function ForStudentsPage() {
                                 <div className="text-sm text-slate-500 font-medium">Better Retention</div>
                             </div>
                             <div className="text-center space-y-2">
-                                <div className="text-3xl md:text-4xl font-bold text-indigo-600">300+</div>
-                                <div className="text-sm text-slate-500 font-medium">AI Models</div>
+                                <div className="text-3xl md:text-4xl font-bold text-indigo-600">8</div>
+                                <div className="text-sm text-slate-500 font-medium">Curated AI Models</div>
                             </div>
                             <div className="text-center space-y-2">
                                 <div className="text-3xl md:text-4xl font-bold text-indigo-600">4.8/5</div>
@@ -269,9 +269,9 @@ export default function ForStudentsPage() {
                                 <div className="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                                     <Lightbulb className="w-7 h-7 text-blue-600" />
                                 </div>
-                                <h4 className="text-xl font-bold text-slate-900 mb-3">300+ AI Models</h4>
+                                <h4 className="text-xl font-bold text-slate-900 mb-3">8 Curated AI Models</h4>
                                 <p className="text-slate-500 leading-relaxed mb-4">
-                                    Access GPT-4, Claude, Gemini, and hundreds more. Different models excel at different subjects - use the best tool for each topic, from math to creative writing.
+                                    Access GPT-4o, Claude Sonnet, Gemini Flash, and DeepSeek. Different models excel at different subjects - use the best tool for each topic, from math to creative writing.
                                 </p>
                                 <Link href="/pricing" className="inline-flex items-center text-blue-600 font-semibold hover:underline">
                                     See all models <ArrowRight className="ml-1 w-4 h-4" />
@@ -525,23 +525,18 @@ export default function ForStudentsPage() {
                         <div className="max-w-4xl mx-auto bg-gradient-to-br from-indigo-600 to-violet-600 rounded-3xl p-12 text-white text-center">
                             <h2 className="text-3xl md:text-4xl font-bold mb-6">Student-Friendly Pricing</h2>
                             <p className="text-xl text-indigo-100 mb-8 max-w-2xl mx-auto">
-                                We know students are on a budget. That's why we offer a generous free plan and affordable one-time purchases - no subscriptions draining your bank account.
+                                We know students are on a budget. That's why we offer a generous free plan and an affordable Pro option with a 50% launch discount.
                             </p>
-                            <div className="grid md:grid-cols-3 gap-6 mb-8">
+                            <div className="grid md:grid-cols-2 gap-6 mb-8 max-w-2xl mx-auto">
                                 <div className="bg-white/10 rounded-2xl p-6">
                                     <div className="text-3xl font-bold mb-2">$0</div>
                                     <div className="text-indigo-200 mb-4">Free Forever</div>
-                                    <div className="text-sm text-indigo-100">15 trails/day, 4 AI models</div>
+                                    <div className="text-sm text-indigo-100">Unlimited access, 4 fast AI models</div>
                                 </div>
                                 <div className="bg-white/20 rounded-2xl p-6 border-2 border-white/30">
-                                    <div className="text-3xl font-bold mb-2">$5</div>
-                                    <div className="text-indigo-200 mb-4">Basic (One-Time)</div>
-                                    <div className="text-sm text-indigo-100">100 credits, more models</div>
-                                </div>
-                                <div className="bg-white/10 rounded-2xl p-6">
-                                    <div className="text-3xl font-bold mb-2">$15</div>
-                                    <div className="text-indigo-200 mb-4">Pro (One-Time)</div>
-                                    <div className="text-sm text-indigo-100">500+ credits, all models</div>
+                                    <div className="text-3xl font-bold mb-2">$4.99<span className="text-lg text-indigo-300 line-through ml-2">$9.99</span></div>
+                                    <div className="text-indigo-200 mb-4">Pro (Monthly)</div>
+                                    <div className="text-sm text-indigo-100">All 8 AI models, 50% off launch sale</div>
                                 </div>
                             </div>
                             <Link href="/pricing">

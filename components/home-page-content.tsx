@@ -57,7 +57,7 @@ export function HomePageContent() {
               </h1>
 
               <p className="text-base md:text-xl text-slate-500 max-w-3xl leading-relaxed font-medium">
-                Learn any subject by chatting with AI. Unlike endless Google searches, our platform keeps your learning organized in a visual map. Access 300+ AI models including GPT-4, Claude, and Gemini—switch anytime to find the best explanation.
+                Learn any subject by chatting with AI. Unlike endless Google searches, our platform keeps your learning organized in a visual map. Access 8 curated AI models from OpenAI, Anthropic, Google, and DeepSeek—switch anytime to find the best explanation.
               </p>
 
               <div className="flex flex-col sm:flex-row items-center gap-5 pt-4">
@@ -100,8 +100,8 @@ export function HomePageContent() {
                         <Cpu className="w-5 h-5 text-white" />
                       </div>
                       <div>
-                        <p className="text-white font-bold text-sm">300+ AI Models</p>
-                        <p className="text-white/60 text-xs">OpenRouter powered...</p>
+                        <p className="text-white font-bold text-sm">8 Curated AI Models</p>
+                        <p className="text-white/60 text-xs">GPT-4o, Claude, Gemini & more</p>
                       </div>
                     </div>
                   </div>
@@ -157,7 +157,7 @@ export function HomePageContent() {
                     </div>
                     <h4 className="text-3xl font-bold tracking-tight">Pick the Perfect AI</h4>
                     <p className="text-slate-400 text-lg leading-relaxed">
-                      Different topics need different approaches. Switch between ChatGPT, Claude, Gemini, and 297 other models to find the best explanation style for what you&apos;re learning.
+                      Different topics need different approaches. Switch between GPT-4o, Claude Sonnet, Gemini Flash, and DeepSeek to find the best explanation style for what you&apos;re learning.
                     </p>
                   </div>
                   <div className="pt-10 flex items-center gap-4 text-indigo-400 font-bold group-hover:gap-6 transition-all">
@@ -310,7 +310,7 @@ export function HomePageContent() {
                   <div className="relative h-48 bg-gradient-to-br from-violet-100 to-purple-200">
                     <Image
                       src="/images/available_models.jpeg"
-                      alt="300+ AI models available including GPT-4, Claude, and Gemini"
+                      alt="8 curated AI models from OpenAI, Anthropic, Google, and DeepSeek"
                       fill
                       className="object-cover"
                     />
@@ -319,9 +319,9 @@ export function HomePageContent() {
                     <div className="w-12 h-12 bg-violet-50 rounded-xl flex items-center justify-center text-violet-600">
                       <Cpu className="w-6 h-6" />
                     </div>
-                    <h4 className="text-xl font-bold text-slate-900">300+ AI Models</h4>
+                    <h4 className="text-xl font-bold text-slate-900">8 Curated AI Models</h4>
                     <p className="text-slate-500 leading-relaxed">
-                      Access the latest AI models including GPT-4, Claude, Gemini, and more. Choose the perfect model for your learning style.
+                      Access top AI models including GPT-4o, Claude Sonnet, Gemini Flash, and DeepSeek. Each model hand-picked for quality learning.
                     </p>
                     <div className="flex flex-wrap gap-2 pt-2">
                       {["GPT-4", "Claude", "Gemini", "OpenRouter"].map(tag => (
@@ -550,8 +550,8 @@ export function HomePageContent() {
                       </div>
                       {/* Floating stats */}
                       <div className="absolute -bottom-6 -right-6 bg-white p-6 rounded-2xl shadow-xl border border-slate-100">
-                        <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Models Available</p>
-                        <p className="text-4xl font-black text-indigo-600">300+</p>
+                        <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Curated Models</p>
+                        <p className="text-4xl font-black text-indigo-600">8</p>
                       </div>
                       <div className="absolute -top-6 -left-6 bg-slate-900 text-white p-6 rounded-2xl shadow-xl">
                         <p className="text-indigo-400 text-xs font-bold uppercase tracking-wider mb-1">Learning Paths</p>

@@ -1,14 +1,13 @@
-// Tier types
-export type UserTier = 'free' | 'basic' | 'pro'
+// Tier types - simplified to free and pro only
+export type UserTier = 'free' | 'pro'
 export type ModelSpeed = 'Very Fast' | 'Fast' | 'Medium'
-export type ModelBadge = 'Free' | 'Fast' | 'Premium'
+export type ModelBadge = 'Fast' | 'Premium'
 
 // Model configuration with tier-based access
 export interface ModelOption {
   id: string
   name: string
   provider: string
-  costPerTrail: number // in credits (0 = free)
   speed: ModelSpeed
   tier: UserTier // minimum tier required
   recommended?: boolean
@@ -16,105 +15,95 @@ export interface ModelOption {
   description: string
 }
 
-// All available models with tier restrictions
+// Curated models: 4 mini (free) + 4 flagship (pro) = 8 total
 export const MODELS: ModelOption[] = [
-  // Free Tier Model
-  {
-    id: 'google/gemini-2.0-flash-lite-001',
-    name: 'Gemini 2.0 Flash Lite',
-    provider: 'Google',
-    costPerTrail: 0,
-    speed: 'Very Fast',
-    tier: 'free',
-    recommended: true,
-    badge: 'Free',
-    description: 'Fast and free for all users',
-  },
-
-  // Basic Tier Models (Budget-friendly for beta)
-  {
-    id: 'google/gemini-2.0-flash-001',
-    name: 'Gemini 2.0 Flash',
-    provider: 'Google',
-    costPerTrail: 0.5,
-    speed: 'Very Fast',
-    tier: 'basic',
-    badge: 'Fast',
-    description: 'Recommended for most learning',
-  },
+  // FREE Tier - Mini Models (fast, efficient)
   {
     id: 'openai/gpt-4o-mini',
     name: 'GPT-4o Mini',
     provider: 'OpenAI',
-    costPerTrail: 0.8,
-    speed: 'Fast',
-    tier: 'basic',
-    description: 'Strong reasoning & explanations',
+    speed: 'Very Fast',
+    tier: 'free',
+    recommended: true,
+    badge: 'Fast',
+    description: 'Fast & smart for everyday learning',
   },
   {
     id: 'anthropic/claude-3.5-haiku',
     name: 'Claude 3.5 Haiku',
     provider: 'Anthropic',
-    costPerTrail: 1.2,
+    speed: 'Very Fast',
+    tier: 'free',
+    badge: 'Fast',
+    description: 'Quick, clear explanations',
+  },
+  {
+    id: 'google/gemini-2.0-flash-lite-001',
+    name: 'Gemini Flash Lite',
+    provider: 'Google',
+    speed: 'Very Fast',
+    tier: 'free',
+    badge: 'Fast',
+    description: 'Lightning fast responses',
+  },
+  {
+    id: 'deepseek/deepseek-chat',
+    name: 'DeepSeek V3',
+    provider: 'DeepSeek',
     speed: 'Fast',
-    tier: 'basic',
-    description: 'Creative, engaging learning style',
+    tier: 'free',
+    description: 'Great for technical topics',
   },
 
-  // Pro Tier Models
-  {
-    id: 'google/gemini-2.5-flash',
-    name: 'Gemini 2.5 Flash',
-    provider: 'Google',
-    costPerTrail: 2,
-    speed: 'Fast',
-    tier: 'pro',
-    description: 'Latest model with advanced reasoning',
-  },
-  {
-    id: 'google/gemini-pro-1.5',
-    name: 'Gemini 1.5 Pro',
-    provider: 'Google',
-    costPerTrail: 3,
-    speed: 'Medium',
-    tier: 'pro',
-    description: 'Deep analysis & complex topics',
-  },
+  // PRO Tier - Flagship Models (powerful, detailed)
   {
     id: 'openai/gpt-4o',
     name: 'GPT-4o',
     provider: 'OpenAI',
-    costPerTrail: 5,
     speed: 'Medium',
     tier: 'pro',
     badge: 'Premium',
-    description: 'Highest quality responses',
+    description: 'Most capable OpenAI model',
   },
   {
     id: 'anthropic/claude-3.5-sonnet',
     name: 'Claude 3.5 Sonnet',
     provider: 'Anthropic',
-    costPerTrail: 4,
     speed: 'Medium',
     tier: 'pro',
-    description: 'Best for complex analysis',
+    badge: 'Premium',
+    description: 'Best for deep analysis & nuance',
+  },
+  {
+    id: 'google/gemini-2.0-flash-001',
+    name: 'Gemini 2.0 Flash',
+    provider: 'Google',
+    speed: 'Fast',
+    tier: 'pro',
+    description: 'Fast with strong reasoning',
+  },
+  {
+    id: 'deepseek/deepseek-reasoner',
+    name: 'DeepSeek R1',
+    provider: 'DeepSeek',
+    speed: 'Medium',
+    tier: 'pro',
+    badge: 'Premium',
+    description: 'Advanced reasoning & math',
   },
 ] as const
 
 // Default model for each tier
 export const DEFAULT_MODELS: Record<UserTier, string> = {
-  free: 'google/gemini-2.0-flash-lite-001',
-  basic: 'google/gemini-2.0-flash-001',
-  pro: 'google/gemini-2.0-flash-001',
+  free: 'openai/gpt-4o-mini',
+  pro: 'openai/gpt-4o-mini',
 }
 
-// Tier configurations
+// Tier configurations - simplified pricing
 export interface TierConfig {
   name: string
-  price: number // in dollars, 0 for free
-  credits: number // included credits
-  bonusCredits: number // bonus credits for pro
-  trailsPerDay: number | null // null = unlimited
+  price: number // monthly price in dollars
+  originalPrice?: number // original price before discount
   features: string[]
 }
 
@@ -122,46 +111,31 @@ export const TIER_CONFIGS: Record<UserTier, TierConfig> = {
   free: {
     name: 'Free',
     price: 0,
-    credits: 0,
-    bonusCredits: 0,
-    trailsPerDay: 15, // Increased for beta testing
     features: [
-      'Access to Gemini 2.0 Flash Lite',
-      '15 trails per day',
-      'Basic features',
-    ],
-  },
-  basic: {
-    name: 'Basic',
-    price: 5,
-    credits: 200, // Increased credits for beta
-    bonusCredits: 0,
-    trailsPerDay: null,
-    features: [
-      '200 credits (~400 trails with Gemini 2.0 Flash)',
-      'Gemini 2.0 Flash, GPT-4o Mini, Claude Haiku',
-      'Fast response times',
-      'No daily limits',
+      '4 fast AI models',
+      'GPT-4o Mini, Claude Haiku, Gemini Flash Lite, DeepSeek V3',
+      'Unlimited conversations',
+      'Branching trails & visual maps',
+      'Quizzes & flashcards',
     ],
   },
   pro: {
     name: 'Pro',
-    price: 15,
-    credits: 600, // Increased credits for beta
-    bonusCredits: 100, // Bonus credits for early adopters
-    trailsPerDay: null,
+    price: 4.99,
+    originalPrice: 9.99,
     features: [
-      '600 credits + 100 bonus (~140 trails with GPT-4o)',
-      'All models including GPT-4o, Claude Sonnet',
-      'Priority speed',
-      'Advanced features (mind maps, video summaries)',
+      'All 8 AI models',
+      'GPT-4o, Claude Sonnet, Gemini Flash, DeepSeek R1',
+      'Most powerful models for complex topics',
+      'Priority support',
+      'Early access to new features',
     ],
   },
 }
 
 // Helper to get models available for a tier
 export function getAvailableModels(userTier: UserTier): ModelOption[] {
-  const tierOrder: UserTier[] = ['free', 'basic', 'pro']
+  const tierOrder: UserTier[] = ['free', 'pro']
   const userTierIndex = tierOrder.indexOf(userTier)
 
   return MODELS.filter(model => {
@@ -175,7 +149,7 @@ export function canUseModel(userTier: UserTier, modelId: string): boolean {
   const model = MODELS.find(m => m.id === modelId)
   if (!model) return false
 
-  const tierOrder: UserTier[] = ['free', 'basic', 'pro']
+  const tierOrder: UserTier[] = ['free', 'pro']
   const userTierIndex = tierOrder.indexOf(userTier)
   const modelTierIndex = tierOrder.indexOf(model.tier)
 
@@ -208,7 +182,7 @@ export const FEATURE_MODELS = {
   TOPIC_GENERATION: 'google/gemini-2.0-flash-lite-001',
 
   // Journal/summary generation
-  JOURNAL_GENERATION: 'google/gemini-2.0-flash-001',
+  JOURNAL_GENERATION: 'openai/gpt-4o-mini',
 
   // Illustration prompt generation
   ILLUSTRATION_GENERATION: 'google/gemini-2.0-flash-lite-001',
@@ -231,9 +205,9 @@ export function getFeatureModel(feature: keyof typeof FEATURE_MODELS): string {
     return model
   }
 
-  // For chat feature, return basic tier default
+  // For chat feature, return free tier default
   if (feature === 'CHAT') {
-    return DEFAULT_MODELS.basic
+    return DEFAULT_MODELS.free
   }
 
   throw new Error(`Invalid feature: ${feature}`)

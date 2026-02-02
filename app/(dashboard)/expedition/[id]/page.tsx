@@ -39,7 +39,6 @@ export default function ExpeditionPage() {
     currentTrailId,
     setCurrentTrail,
     userTier,
-    userCredits,
     quizState,
     setQuizMode,
     setSelectedQuestionCount,
@@ -193,7 +192,7 @@ export default function ExpeditionPage() {
             {/* Controls */}
             <div className="flex items-center gap-2 flex-shrink-0">
               <div className="hidden md:block scale-90 origin-right">
-                <ModelSelector userTier={userTier} userCredits={userCredits} />
+                <ModelSelector userTier={userTier} />
               </div>
 
               {/* Mobile trail selector */}
@@ -236,7 +235,7 @@ export default function ExpeditionPage() {
 
           {/* Mobile Model Selector */}
           <div className="md:hidden border-b bg-white p-3 flex-shrink-0">
-            <ModelSelector userTier={userTier} userCredits={userCredits} />
+            <ModelSelector userTier={userTier} />
           </div>
 
           {currentTrailId ? (
