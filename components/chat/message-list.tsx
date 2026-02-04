@@ -44,7 +44,7 @@ export function MessageList({ messages, isLoading, error, onUpdateMessage, aiRes
   }
 
   return (
-    <div className="space-y-4 md:space-y-6 pb-4">
+    <div className="space-y-4 md:space-y-6 pb-4 w-full overflow-x-hidden">
       {messages.map((message, index) => {
         // Find the last assistant message to attach the ref
         const isLastAssistant = message.role === "assistant" &&

@@ -113,7 +113,7 @@ export function Message({ message, onUpdateMessage }: MessageProps) {
     >
       <div
         className={cn(
-          "relative max-w-[90%] md:max-w-[85%] rounded-lg px-3 md:px-4 py-2 md:py-3 select-text overflow-hidden",
+          "relative max-w-[90%] md:max-w-[85%] rounded-lg px-3 md:px-4 py-2 md:py-3 select-text",
           isUser
             ? "bg-primary text-primary-foreground"
             : "bg-muted text-foreground",
@@ -121,7 +121,7 @@ export function Message({ message, onUpdateMessage }: MessageProps) {
         )}
       >
         {isUser ? (
-          <p className="whitespace-pre-wrap break-words text-sm md:text-base">{message.content}</p>
+          <p className="whitespace-pre-wrap break-words [word-break:break-word] text-sm md:text-base">{message.content}</p>
         ) : (
           <div className="prose prose-sm dark:prose-invert max-w-none select-text text-sm md:text-base" data-ai-response>
             <ReactMarkdown
