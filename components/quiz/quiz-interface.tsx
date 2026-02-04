@@ -132,7 +132,7 @@ export function QuizInterface({ expeditionId, onExit }: QuizInterfaceProps) {
   // Loading state
   if (quizState.quizLoading) {
     return (
-      <div className="flex flex-col items-center justify-center h-full p-8">
+      <div className="flex-1 flex flex-col items-center justify-center p-8">
         <div className="bg-indigo-100 dark:bg-indigo-950 p-4 rounded-full mb-4">
           <Loader2 className="h-8 w-8 text-indigo-600 dark:text-indigo-400 animate-spin" />
         </div>
@@ -149,7 +149,7 @@ export function QuizInterface({ expeditionId, onExit }: QuizInterfaceProps) {
   // Error state
   if (quizState.quizError) {
     return (
-      <div className="flex flex-col items-center justify-center h-full p-8">
+      <div className="flex-1 flex flex-col items-center justify-center p-8">
         <div className="bg-red-100 dark:bg-red-950 p-4 rounded-full mb-4">
           <AlertCircle className="h-8 w-8 text-red-600 dark:text-red-400" />
         </div>
