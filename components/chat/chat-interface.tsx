@@ -13,7 +13,7 @@ import { nanoid } from "nanoid"
 import type { Message as DBMessage } from "@/types/database"
 import { Button } from "@/components/ui/button"
 import { RotateCcw } from "lucide-react"
-import { cn } from "@/lib/utils"
+import type { TeachingStyle } from "@/types/database"
 import { EmptyChatState } from "./empty-chat-state"
 import { FollowUpQuestions } from "./follow-up-questions"
 
@@ -42,6 +42,23 @@ interface ChatMessage {
   }
 }
 
+// Helper to clean up common JSON issues from LLM output
+function cleanJsonString(str: string): string {
+  let cleaned = str
+
+  // Remove any BOM or invisible characters at the start
+  cleaned = cleaned.replace(/^\uFEFF/, '')
+
+  // Fix trailing commas before closing brackets/braces
+  cleaned = cleaned.replace(/,(\s*[\]}])/g, '$1')
+
+  // Fix unescaped newlines inside strings (common LLM issue)
+  // This is tricky - we need to find newlines inside string values and escape them
+  // For now, just ensure we don't have literal newlines breaking the JSON structure
+
+  return cleaned
+}
+
 // Helper function to parse JSON trivia response from LLM
 function parseTriviaResponse(rawContent: string, triviaEnabled: boolean): { content: string; trivia: TriviaData | null; followUpQuestions: string[] } {
   // If trivia is disabled, return content as-is
@@ -62,72 +79,142 @@ function parseTriviaResponse(rawContent: string, triviaEnabled: boolean): { cont
   }
 
   // Try to find and extract JSON object from the response
-  // This handles cases where AI outputs text before/after the JSON
   let jsonString = trimmed
 
-  // Look for JSON object pattern - find the first { and last matching }
+  // Look for JSON object pattern - find the first { and matching }
   const firstBrace = trimmed.indexOf('{')
-  if (firstBrace > 0) {
-    // There's content before the JSON - try to extract just the JSON part
+  if (firstBrace >= 0) {
     const possibleJson = trimmed.substring(firstBrace)
-    // Find the matching closing brace by counting braces
+    // Find the matching closing brace by counting braces (ignore braces inside strings)
     let braceCount = 0
     let lastBrace = -1
+    let inString = false
+    let escapeNext = false
+
     for (let i = 0; i < possibleJson.length; i++) {
-      if (possibleJson[i] === '{') braceCount++
-      else if (possibleJson[i] === '}') {
-        braceCount--
-        if (braceCount === 0) {
-          lastBrace = i
-          break
+      const char = possibleJson[i]
+
+      if (escapeNext) {
+        escapeNext = false
+        continue
+      }
+
+      if (char === '\\') {
+        escapeNext = true
+        continue
+      }
+
+      if (char === '"' && !escapeNext) {
+        inString = !inString
+        continue
+      }
+
+      if (!inString) {
+        if (char === '{') braceCount++
+        else if (char === '}') {
+          braceCount--
+          if (braceCount === 0) {
+            lastBrace = i
+            break
+          }
         }
       }
     }
+
     if (lastBrace !== -1) {
       jsonString = possibleJson.substring(0, lastBrace + 1)
     }
   }
 
-  try {
-    // Try to parse as JSON
-    const parsed = JSON.parse(jsonString)
+  // Try parsing with multiple cleanup strategies
+  const parseAttempts = [
+    jsonString,
+    cleanJsonString(jsonString),
+    // Try trimming any trailing incomplete content after the last }
+    jsonString.substring(0, jsonString.lastIndexOf('}') + 1),
+  ]
 
-    if (parsed.content && typeof parsed.content === 'string') {
-      // Extract trivia if it exists and has values
-      let trivia: TriviaData | null = null
+  for (const attemptStr of parseAttempts) {
+    if (!attemptStr) continue
 
-      if (parsed.trivia && typeof parsed.trivia === 'object') {
-        const t = parsed.trivia
-        // Only create trivia object if at least one field has a value
-        if (t.whyItMatters || t.realWorldUse || t.whenYouNeed || t.didYouKnow) {
-          trivia = {
-            whyItMatters: t.whyItMatters || '',
-            realWorldUse: t.realWorldUse || '',
-            whenYouNeed: t.whenYouNeed || '',
-            didYouKnow: t.didYouKnow || ''
+    try {
+      const parsed = JSON.parse(attemptStr)
+
+      if (parsed.content && typeof parsed.content === 'string') {
+        // Extract trivia if it exists and has values
+        let trivia: TriviaData | null = null
+
+        if (parsed.trivia && typeof parsed.trivia === 'object') {
+          const t = parsed.trivia
+          // Only create trivia object if at least one field has a value
+          if (t.whyItMatters || t.realWorldUse || t.whenYouNeed || t.didYouKnow) {
+            trivia = {
+              whyItMatters: t.whyItMatters || '',
+              realWorldUse: t.realWorldUse || '',
+              whenYouNeed: t.whenYouNeed || '',
+              didYouKnow: t.didYouKnow || ''
+            }
           }
         }
-      }
 
-      // Extract follow-up questions if they exist
-      let followUpQuestions: string[] = []
-      if (parsed.followUpQuestions && Array.isArray(parsed.followUpQuestions)) {
-        followUpQuestions = parsed.followUpQuestions.filter(
-          (q: unknown) => typeof q === 'string' && q.trim().length > 0
-        ).slice(0, 3) // Limit to 3 questions
-      }
+        // Extract follow-up questions if they exist
+        let followUpQuestions: string[] = []
+        if (parsed.followUpQuestions && Array.isArray(parsed.followUpQuestions)) {
+          followUpQuestions = parsed.followUpQuestions.filter(
+            (q: unknown) => typeof q === 'string' && q.trim().length > 0
+          ).slice(0, 3) // Limit to 3 questions
+        }
 
-      console.log('Successfully parsed JSON response')
-      return { content: parsed.content, trivia, followUpQuestions }
-    } else {
-      console.log('JSON parsed but missing content field:', { hasContent: !!parsed.content, triviaType: typeof parsed.trivia })
+        console.log('Successfully parsed JSON response')
+        return { content: parsed.content, trivia, followUpQuestions }
+      }
+    } catch (e) {
+      // Try next strategy
+      continue
     }
-  } catch (e) {
-    console.log('JSON parsing failed:', (e as Error).message)
-    // JSON parsing failed - check if we should attempt alternative parsing
   }
 
-  // Fallback: if not valid JSON or doesn't have expected structure, return raw content
+  console.log('All JSON parsing attempts failed. First 200 chars:', jsonString.substring(0, 200))
+
+  // Fallback: Try to extract content field using regex as last resort
+  const contentMatch = rawContent.match(/"content"\s*:\s*"((?:[^"\\]|\\.)*)"/s)
+  if (contentMatch && contentMatch[1]) {
+    // Unescape the content
+    const extractedContent = contentMatch[1]
+      .replace(/\\n/g, '\n')
+      .replace(/\\t/g, '\t')
+      .replace(/\\"/g, '"')
+      .replace(/\\\\/g, '\\')
+
+    console.log('Extracted content using regex fallback')
+
+    // Try to extract follow-up questions too
+    let followUpQuestions: string[] = []
+    const questionsMatch = rawContent.match(/"followUpQuestions"\s*:\s*\[([\s\S]*?)\]/s)
+    if (questionsMatch && questionsMatch[1]) {
+      const questionStrings = questionsMatch[1].match(/"([^"]+)"/g)
+      if (questionStrings) {
+        followUpQuestions = questionStrings
+          .map(q => q.replace(/^"|"$/g, ''))
+          .filter(q => q.trim().length > 0)
+          .slice(0, 3)
+      }
+    }
+
+    return { content: extractedContent, trivia: null, followUpQuestions }
+  }
+
+  // Final fallback: if content looks like JSON, don't show it raw
+  if (rawContent.trim().startsWith('{') && rawContent.includes('"content"')) {
+    console.log('Content appears to be unparsed JSON, returning error message')
+    return {
+      content: 'I encountered an issue formatting my response. Please try again.',
+      trivia: null,
+      followUpQuestions: []
+    }
+  }
+
+  // Return raw content only if it doesn't look like JSON
   console.log('Returning raw content as fallback')
   return { content: rawContent, trivia: null, followUpQuestions: [] }
 }
@@ -203,10 +290,11 @@ interface ChatInterfaceProps {
   model?: string
   trailTitle?: string
   trailSourceText?: string | null
+  teachingStyle?: TeachingStyle
   onOpenGenerateModal?: () => void
 }
 
-export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailSourceText, onOpenGenerateModal }: ChatInterfaceProps) {
+export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailSourceText, teachingStyle = 'content', onOpenGenerateModal }: ChatInterfaceProps) {
   const { selectedModel, autoMessageData, setAutoMessageData, addTrailWithNewResponse, clearTrailNewResponse } = useExploreStore()
   const { data: existingMessages, refetch, isLoading: isLoadingMessages, isFetched } = useMessages(trailId)
   const { generateIllustration, isGenerating: isGeneratingIllustration } = useIllustrations()
@@ -377,6 +465,7 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
         body: JSON.stringify({
           trailId: requestTrailId,
           model: selectedModelValue,
+          teachingStyle,
           messages: limitedMessages.map(m => ({
             role: m.role === "illustration" ? "system" : m.role,
             content: m.role === "illustration" ? `[Illustration: ${m.content}]` : m.content,

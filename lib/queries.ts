@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { createClient } from "@/lib/supabase/client"
-import type { Expedition, Trail, Message, ExpeditionWithStats, TrailWithCounts, Journal, UserCredits, UserTier, LearningWishlistItem } from "@/types/database"
+import type { Expedition, Trail, Message, ExpeditionWithStats, TrailWithCounts, Journal, UserCredits, UserTier, LearningWishlistItem, LearningPurpose, LearnerLevel } from "@/types/database"
 import type { Database } from "@/types/supabase"
 import { FlagType } from "@/types/flags"
 import { useExploreStore } from "@/lib/store"
@@ -110,7 +110,12 @@ export function useCreateExpedition() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (data: { title: string; description?: string }) => {
+    mutationFn: async (data: {
+      title: string;
+      description?: string;
+      learning_purpose?: LearningPurpose;
+      learner_level?: LearnerLevel;
+    }) => {
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
 
@@ -122,6 +127,8 @@ export function useCreateExpedition() {
           user_id: user.id,
           title: data.title,
           description: data.description || null,
+          learning_purpose: data.learning_purpose || null,
+          learner_level: data.learner_level || null,
         } as any)
         .select()
         .single()

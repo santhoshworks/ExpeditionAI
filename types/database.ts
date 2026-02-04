@@ -2,6 +2,36 @@
 
 export type UserTier = 'free' | 'basic' | 'pro'
 
+// Learning context types for personalized coaching
+export type LearningPurpose = 'interview' | 'exam' | 'research' | 'work' | 'curiosity' | 'teaching' | 'building'
+export type LearnerLevel = 'beginner' | 'familiar' | 'intermediate' | 'advanced'
+export type TeachingStyle = 'content' | 'coach'
+
+// Teaching style display metadata
+export const TEACHING_STYLES: Record<TeachingStyle, { label: string; description: string }> = {
+  content: { label: 'Content Mode', description: 'Deep, comprehensive explanations you can read and absorb - like a well-written article' },
+  coach: { label: 'Coach Mode', description: 'Interactive style with questions to check understanding and guide discovery' },
+}
+
+// Learning purpose display metadata
+export const LEARNING_PURPOSES: Record<LearningPurpose, { label: string; description: string; icon: string }> = {
+  interview: { label: 'Interview Prep', description: 'Prepare to explain concepts clearly and handle follow-up questions', icon: '🎯' },
+  exam: { label: 'Exam Study', description: 'Comprehensive coverage with focus on retention and test patterns', icon: '📝' },
+  research: { label: 'Research', description: 'Deep dive with nuances, current developments, and academic rigor', icon: '🔬' },
+  work: { label: 'Work Application', description: 'Practical implementation, best practices, and real-world trade-offs', icon: '💼' },
+  curiosity: { label: 'Personal Curiosity', description: 'Engaging exploration at your own pace, no pressure', icon: '✨' },
+  teaching: { label: 'Teaching Others', description: 'Learn how to explain concepts and address common misconceptions', icon: '👨‍🏫' },
+  building: { label: 'Building Something', description: 'Hands-on guidance with implementation focus', icon: '🛠️' },
+}
+
+// Learner level display metadata
+export const LEARNER_LEVELS: Record<LearnerLevel, { label: string; description: string }> = {
+  beginner: { label: 'Complete Beginner', description: 'New to this topic, need fundamentals explained simply' },
+  familiar: { label: 'Some Familiarity', description: 'Know the basics, ready for more depth' },
+  intermediate: { label: 'Intermediate', description: 'Solid foundation, can handle complexity' },
+  advanced: { label: 'Advanced', description: 'Deep knowledge, looking for nuances and edge cases' },
+}
+
 export interface Profile {
   id: string;
   email: string | null;
@@ -40,6 +70,8 @@ export interface Expedition {
   user_id: string;
   title: string;
   description: string | null;
+  learning_purpose: LearningPurpose | null;
+  learner_level: LearnerLevel | null;
   is_archived: boolean;
   created_at: string;
   updated_at: string;

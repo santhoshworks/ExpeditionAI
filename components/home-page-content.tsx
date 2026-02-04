@@ -20,7 +20,9 @@ import {
   HelpCircle,
   FileText,
   Target,
-  Lightbulb
+  Lightbulb,
+  GraduationCap,
+  UserCheck
 } from "lucide-react"
 import { SITE_CONFIG } from "@/lib/config"
 import { EmailSubscriptionPopup } from "@/components/email-subscription-popup"
@@ -166,7 +168,23 @@ export function HomePageContent() {
                 </CardContent>
               </Card>
 
-              {/* Feature 3: AI Quizzes */}
+              {/* Feature 3: Personalized Coaching */}
+              <Card className="md:col-span-6 lg:col-span-4 bg-gradient-to-br from-emerald-500 to-teal-600 text-white border-0 shadow-xl group hover:shadow-2xl transition-all duration-500">
+                <CardContent className="p-8 space-y-5">
+                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center text-white backdrop-blur-md">
+                    <UserCheck className="w-6 h-6" />
+                  </div>
+                  <h4 className="text-xl font-bold">Personalized Coaching</h4>
+                  <p className="text-emerald-50 leading-relaxed">
+                    Tell your AI coach why you&apos;re learning and your skill level. Get explanations tailored for interview prep, exams, research, or just curiosity.
+                  </p>
+                  <Link href="/features/personalized-coaching" className="inline-flex items-center gap-2 text-white/90 font-bold text-sm hover:text-white transition-colors">
+                    Learn more <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </CardContent>
+              </Card>
+
+              {/* Feature 4: AI Quizzes */}
               <Card className="md:col-span-6 lg:col-span-4 bg-white border-slate-100 shadow-xl group hover:border-fuchsia-200 transition-all duration-500">
                 <CardContent className="p-8 space-y-5">
                   <div className="w-12 h-12 bg-fuchsia-50 rounded-xl flex items-center justify-center text-fuchsia-600">
@@ -179,7 +197,7 @@ export function HomePageContent() {
                 </CardContent>
               </Card>
 
-              {/* Feature 4: Learning Journals */}
+              {/* Feature 6: Learning Journals */}
               <Card className="md:col-span-6 lg:col-span-4 bg-white border-slate-100 shadow-xl group hover:border-blue-200 transition-all duration-500">
                 <CardContent className="p-8 space-y-5">
                   <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
@@ -192,8 +210,8 @@ export function HomePageContent() {
                 </CardContent>
               </Card>
 
-              {/* Feature 5: Visual Illustrations */}
-              <Card className="md:col-span-12 lg:col-span-4 bg-indigo-600 text-white border-0 shadow-xl group overflow-hidden">
+              {/* Feature 7: Visual Illustrations */}
+              <Card className="md:col-span-6 lg:col-span-4 bg-indigo-600 text-white border-0 shadow-xl group overflow-hidden">
                 <CardContent className="p-8 space-y-5 relative">
                   <div className="relative z-10">
                     <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center text-white backdrop-blur-md mb-6">

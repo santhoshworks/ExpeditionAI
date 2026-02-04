@@ -16,20 +16,18 @@ import { toast } from "sonner"
 import {
   Plus,
   Trash2,
-  ArrowRight,
   MessageSquare,
   Flag,
-  Clock,
   Sparkles,
   LayoutGrid,
   LayoutList,
   Compass,
   BookOpen,
   Search,
-  Filter,
   Zap
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { LearningPurpose, LearnerLevel, LEARNING_PURPOSES, LEARNER_LEVELS } from "@/types/database"
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -40,6 +38,8 @@ export default function DashboardPage() {
   const [showNewDialog, setShowNewDialog] = useState(false)
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
+  const [learningPurpose, setLearningPurpose] = useState<LearningPurpose | null>(null)
+  const [learnerLevel, setLearnerLevel] = useState<LearnerLevel | null>(null)
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid")
   const [searchTerm, setSearchTerm] = useState("")
   const [expeditionToDelete, setExpeditionToDelete] = useState<string | null>(null)
@@ -51,6 +51,13 @@ export default function DashboardPage() {
     (e.description?.toLowerCase() || "").includes(searchTerm.toLowerCase())
   )
 
+  const resetCreationDialog = () => {
+    setTitle("")
+    setDescription("")
+    setLearningPurpose(null)
+    setLearnerLevel(null)
+  }
+
   const handleCreate = async () => {
     if (!title.trim()) return
 
@@ -59,11 +66,12 @@ export default function DashboardPage() {
       const expedition = await createExpedition.mutateAsync({
         title: title.trim(),
         description: description.trim() || undefined,
+        learning_purpose: learningPurpose || undefined,
+        learner_level: learnerLevel || undefined,
       })
       toast.success("Expedition started!")
       setShowNewDialog(false)
-      setTitle("")
-      setDescription("")
+      resetCreationDialog()
       router.push(`/expedition/${expedition.id}`)
     } catch (error) {
       console.error("Failed to create expedition:", error)
@@ -365,66 +373,122 @@ export default function DashboardPage() {
         )}
       </div>
 
-      {/* New Expedition Dialog with premium feel */}
-      <Dialog open={showNewDialog} onOpenChange={setShowNewDialog}>
-        <DialogContent className="sm:max-w-[600px] p-0 border-none shadow-[0_20px_50px_rgba(0,0,0,0.2)] rounded-[3rem] overflow-hidden">
-          <div className="bg-slate-950 p-12 text-center relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-full opacity-10">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,_var(--tw-gradient-stops))] from-indigo-500 to-transparent" />
-            </div>
-            <div className="bg-indigo-600 p-4 rounded-3xl w-fit mx-auto mb-6 shadow-2xl shadow-indigo-500/20 relative z-10">
-              <Compass className="w-8 h-8 text-white" />
-            </div>
-            <DialogTitle className="text-2xl md:text-3xl font-bold text-white relative z-10">Start New Expedition</DialogTitle>
-            <DialogDescription className="text-slate-400 text-base mt-2 relative z-10 font-medium">
-              Where shall your curiosity take you today?
+      {/* New Expedition Dialog - Single step with all fields */}
+      <Dialog open={showNewDialog} onOpenChange={(open) => {
+        setShowNewDialog(open)
+        if (!open) resetCreationDialog()
+      }}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Start New Expedition</DialogTitle>
+            <DialogDescription>
+              What would you like to learn about?
             </DialogDescription>
-          </div>
+          </DialogHeader>
 
-          <div className="p-12 bg-white space-y-8">
-            <div className="space-y-3">
-              <label htmlFor="title" className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-2">
-                Expedition Target
+          <div className="space-y-5 py-4">
+            {/* Topic */}
+            <div className="space-y-2">
+              <label htmlFor="title" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                Topic
               </label>
               <Input
                 id="title"
                 placeholder="e.g. History of Rome, Quantum Mechanics..."
                 value={title}
-                className="rounded-2xl h-16 px-6 text-lg border-slate-200 focus:ring-indigo-500/20 focus:border-indigo-500 font-bold"
+                className="h-10"
                 onChange={(e) => setTitle(e.target.value)}
                 autoFocus
               />
             </div>
-            <div className="space-y-3">
-              <label htmlFor="description" className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-2">
-                Learning Objective (Optional)
+
+            {/* Description */}
+            <div className="space-y-2">
+              <label htmlFor="description" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                Learning Objective <span className="text-slate-400 font-normal">(optional)</span>
               </label>
               <Input
                 id="description"
                 placeholder="e.g. Focus on architectural developments..."
                 value={description}
-                className="rounded-2xl h-16 px-6 text-lg border-slate-200 focus:ring-indigo-500/20 focus:border-indigo-500 font-bold"
+                className="h-10"
                 onChange={(e) => setDescription(e.target.value)}
               />
             </div>
 
-            <div className="pt-4 flex flex-col sm:flex-row gap-4">
-              <Button
-                variant="ghost"
-                onClick={() => setShowNewDialog(false)}
-                className="h-14 rounded-2xl flex-1 font-bold text-slate-500 hover:text-slate-950"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleCreate}
-                disabled={!title.trim() || createExpedition.isPending}
-                className="h-14 rounded-2xl flex-[2] bg-indigo-600 hover:bg-slate-900 text-white font-bold text-lg shadow-xl shadow-indigo-100 transition-all active:scale-95"
-              >
-                {createExpedition.isPending ? "Configuring..." : "Begin Expedition"}
-              </Button>
+            {/* Learning Goal */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                Learning Goal <span className="text-slate-400 font-normal">(optional)</span>
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {(Object.entries(LEARNING_PURPOSES) as [LearningPurpose, typeof LEARNING_PURPOSES[LearningPurpose]][]).map(([key, value]) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => setLearningPurpose(learningPurpose === key ? null : key)}
+                    className={cn(
+                      "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm transition-all",
+                      learningPurpose === key
+                        ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 ring-1 ring-indigo-500"
+                        : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
+                    )}
+                  >
+                    <span>{value.icon}</span>
+                    <span className="font-medium">{value.label}</span>
+                  </button>
+                ))}
+              </div>
             </div>
+
+            {/* Experience Level */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                Your Experience Level <span className="text-slate-400 font-normal">(optional)</span>
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {(Object.entries(LEARNER_LEVELS) as [LearnerLevel, typeof LEARNER_LEVELS[LearnerLevel]][]).map(([key, value]) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => setLearnerLevel(learnerLevel === key ? null : key)}
+                    className={cn(
+                      "px-3 py-1.5 rounded-full text-sm font-medium transition-all",
+                      learnerLevel === key
+                        ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 ring-1 ring-indigo-500"
+                        : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
+                    )}
+                  >
+                    {value.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <p className="text-xs text-slate-400 dark:text-slate-500">
+              Optional fields help personalize your AI coach. You can skip them.
+            </p>
           </div>
+
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowNewDialog(false)
+                resetCreationDialog()
+              }}
+              className="rounded-full"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleCreate}
+              disabled={!title.trim() || isCreating}
+              className="rounded-full bg-indigo-600 hover:bg-indigo-700"
+            >
+              {isCreating ? "Starting..." : "Begin Expedition"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

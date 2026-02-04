@@ -15,7 +15,9 @@ import { TrailTree } from "@/components/trail/trail-tree"
 import { useTextSelection } from "@/hooks/use-text-selection"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { BookOpen, Wand2, GitBranch, Compass, Zap, Brain, Layers } from "lucide-react"
+import { BookOpen, Wand2, GitBranch, Compass, Zap, Brain, Layers, MessageCircle } from "lucide-react"
+import type { TeachingStyle } from "@/types/database"
+import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { QuizSelectionModal } from "@/components/quiz/quiz-selection-modal"
 import { QuizInterface } from "@/components/quiz/quiz-interface"
@@ -33,6 +35,7 @@ export default function ExpeditionPage() {
   const [generateModalOpen, setGenerateModalOpen] = useState(false)
   const [quizModalOpen, setQuizModalOpen] = useState(false)
   const [flashcardModalOpen, setFlashcardModalOpen] = useState(false)
+  const [teachingStyle, setTeachingStyle] = useState<TeachingStyle>('content')
 
   const {
     setCurrentExpedition,
@@ -191,6 +194,36 @@ export default function ExpeditionPage() {
 
             {/* Controls */}
             <div className="flex items-center gap-2 flex-shrink-0">
+              {/* Teaching Style Toggle */}
+              <div className="hidden md:flex items-center bg-slate-100 dark:bg-slate-800 rounded-full p-0.5 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setTeachingStyle('content')}
+                  className={cn(
+                    "flex items-center gap-1 px-2.5 py-1 rounded-full transition-all font-medium",
+                    teachingStyle === 'content'
+                      ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm"
+                      : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+                  )}
+                >
+                  <BookOpen className="h-3 w-3" />
+                  <span>Content</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTeachingStyle('coach')}
+                  className={cn(
+                    "flex items-center gap-1 px-2.5 py-1 rounded-full transition-all font-medium",
+                    teachingStyle === 'coach'
+                      ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm"
+                      : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+                  )}
+                >
+                  <MessageCircle className="h-3 w-3" />
+                  <span>Coach</span>
+                </button>
+              </div>
+
               <div className="hidden md:block scale-90 origin-right">
                 <ModelSelector userTier={userTier} />
               </div>
@@ -233,8 +266,37 @@ export default function ExpeditionPage() {
             </div>
           </div>
 
-          {/* Mobile Model Selector */}
-          <div className="md:hidden border-b bg-white p-3 flex-shrink-0">
+          {/* Mobile Model Selector & Teaching Style */}
+          <div className="md:hidden border-b bg-white dark:bg-slate-950 p-3 flex-shrink-0 flex items-center justify-between gap-3">
+            {/* Teaching Style Toggle - Mobile */}
+            <div className="flex items-center bg-slate-100 dark:bg-slate-800 rounded-full p-0.5 text-xs">
+              <button
+                type="button"
+                onClick={() => setTeachingStyle('content')}
+                className={cn(
+                  "flex items-center gap-1 px-2 py-1 rounded-full transition-all font-medium",
+                  teachingStyle === 'content'
+                    ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm"
+                    : "text-slate-500 dark:text-slate-400"
+                )}
+              >
+                <BookOpen className="h-3 w-3" />
+                <span>Content</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setTeachingStyle('coach')}
+                className={cn(
+                  "flex items-center gap-1 px-2 py-1 rounded-full transition-all font-medium",
+                  teachingStyle === 'coach'
+                    ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm"
+                    : "text-slate-500 dark:text-slate-400"
+                )}
+              >
+                <MessageCircle className="h-3 w-3" />
+                <span>Coach</span>
+              </button>
+            </div>
             <ModelSelector userTier={userTier} />
           </div>
 
@@ -261,6 +323,7 @@ export default function ExpeditionPage() {
                   expeditionId={expeditionId}
                   trailTitle={currentTrail?.title}
                   trailSourceText={currentTrail?.source_text}
+                  teachingStyle={teachingStyle}
                   onOpenGenerateModal={() => setGenerateModalOpen(true)}
                 />
                 <ExploreButton
