@@ -6,19 +6,18 @@ import { cn } from "@/lib/utils"
 import {
     LayoutDashboard,
     Settings,
-    Compass,
     LogOut,
     ChevronLeft,
     ChevronRight,
-    Menu,
-    X,
     BookOpen,
-    ArrowLeft,
     User,
     Moon,
     Sun,
     Monitor,
-    Network
+    Network,
+    Layers,
+    Sparkles,
+    Upload,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useState, useEffect } from "react"
@@ -43,12 +42,20 @@ const sidebarItems = [
     { name: "Settings", href: "/settings", icon: Settings },
 ]
 
+// Study tools - only shown when spaced repetition is enabled
+const IS_SPACED_REPETITION_ENABLED = process.env.NEXT_PUBLIC_ENABLE_SPACED_REPETITION === "true"
+
+const studyToolsItems = [
+    { name: "Review", href: "/review", icon: Layers },
+    { name: "Create Deck", href: "/create-deck", icon: Sparkles },
+    { name: "Import Anki", href: "/import", icon: Upload },
+]
+
 export function Sidebar() {
     const pathname = usePathname()
     // Auto-collapse sidebar on expedition pages
     const isExpeditionPage = pathname.includes("/expedition/")
     const [collapsed, setCollapsed] = useState(isExpeditionPage)
-    const [mobileOpen, setMobileOpen] = useState(false)
     const [user, setUser] = useState<any>(null)
     const router = useRouter()
     const queryClient = useQueryClient()
@@ -115,57 +122,15 @@ export function Sidebar() {
         }
     }
 
-    // Mobile menu toggle button (rendered in topbar)
-    const MobileMenuButton = () => (
-        <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden h-8 w-8"
-            onClick={() => setMobileOpen(true)}
-        >
-            <Menu className="h-4 w-4" />
-        </Button>
-    )
-
     return (
-        <>
-            {/* Mobile Menu Button - exported for use in topbar */}
-            <div className="md:hidden">
-                <MobileMenuButton />
-            </div>
-
-            {/* Mobile Overlay */}
-            {mobileOpen && (
-                <div
-                    className="fixed inset-0 bg-black/50 z-40 md:hidden"
-                    onClick={() => setMobileOpen(false)}
-                />
-            )}
-
-            {/* Sidebar */}
-            <div
+        <div
                 className={cn(
-                    "h-screen border-r bg-white/80 dark:bg-slate-950/80 backdrop-blur-2xl flex flex-col transition-all duration-300 relative z-50",
-                    // Desktop styles
+                    "h-screen border-r bg-white/80 dark:bg-slate-950/80 backdrop-blur-2xl flex-col transition-all duration-300 relative z-50",
+                    // Hidden on mobile, visible on desktop
                     "hidden md:flex",
-                    collapsed ? "w-16" : "w-60",
-                    // Mobile styles - overlay
-                    "md:relative fixed left-0 top-0",
-                    mobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+                    collapsed ? "w-16" : "w-60"
                 )}
             >
-                {/* Mobile close button */}
-                <div className="md:hidden absolute top-6 right-6">
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-10 w-10 text-slate-500 rounded-full hover:bg-slate-100"
-                        onClick={() => setMobileOpen(false)}
-                    >
-                        <X className="h-5 w-5" />
-                    </Button>
-                </div>
-
                 <div className={cn("mb-2 flex items-center gap-3 transition-all", collapsed ? "p-2 justify-center" : "p-6")}>
                     <div className="bg-indigo-600 p-2.5 rounded-2xl text-white shadow-xl shadow-indigo-200 dark:shadow-indigo-900/20">
                         <Network className="w-6 h-6" />
@@ -180,7 +145,7 @@ export function Sidebar() {
                 <div className="flex-1 px-4 space-y-1.5 overflow-y-auto">
                     {!collapsed && <p className="px-4 py-2 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Main Menu</p>}
                     {sidebarItems.map((item) => (
-                        <Link key={item.href} href={item.href} onClick={() => setMobileOpen(false)}>
+                        <Link key={item.href} href={item.href}>
                             <div
                                 className={cn(
                                     "flex items-center gap-3.5 py-3 rounded-2xl transition-all duration-200 group relative",
@@ -201,6 +166,36 @@ export function Sidebar() {
                             </div>
                         </Link>
                     ))}
+
+                    {/* Study Tools - Only shown when spaced repetition is enabled */}
+                    {IS_SPACED_REPETITION_ENABLED && (
+                        <>
+                            {!collapsed && <p className="px-4 py-2 mt-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Study Tools</p>}
+                            {collapsed && <div className="h-px bg-slate-100 dark:bg-slate-800 my-2" />}
+                            {studyToolsItems.map((item) => (
+                                <Link key={item.href} href={item.href}>
+                                    <div
+                                        className={cn(
+                                            "flex items-center gap-3.5 py-3 rounded-2xl transition-all duration-200 group relative",
+                                            collapsed ? "justify-center px-0" : "px-4",
+                                            pathname === item.href
+                                                ? "bg-amber-500 dark:bg-amber-500 text-white shadow-xl shadow-amber-200 dark:shadow-none"
+                                                : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white"
+                                        )}
+                                    >
+                                        <item.icon className={cn(
+                                            "w-5 h-5 transition-transform group-hover:scale-110 shrink-0",
+                                            pathname === item.href ? "" : "opacity-70"
+                                        )} />
+                                        {!collapsed && <span className="font-bold text-sm tracking-tight">{item.name}</span>}
+                                        {!collapsed && pathname === item.href && (
+                                            <div className="ml-auto w-1.5 h-1.5 rounded-full bg-white" />
+                                        )}
+                                    </div>
+                                </Link>
+                            ))}
+                        </>
+                    )}
                 </div>
 
                 {/* Theme Toggle and Profile Section */}
@@ -276,25 +271,12 @@ export function Sidebar() {
 
                 {/* Desktop collapse button */}
                 <button
+                    type="button"
                     onClick={() => setCollapsed(!collapsed)}
                     className="absolute -right-3.5 top-24 w-7 h-7 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-full flex items-center justify-center shadow-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-all hidden md:flex z-50 group"
                 >
                     {collapsed ? <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-indigo-600" /> : <ChevronLeft className="w-4 h-4 text-slate-600 group-hover:text-indigo-600" />}
                 </button>
             </div>
-        </>
-    )
-}
-
-// Export mobile menu button for use in topbar
-export function MobileMenuButton() {
-    return (
-        <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden h-8 w-8"
-        >
-            <Menu className="h-4 w-4" />
-        </Button>
     )
 }

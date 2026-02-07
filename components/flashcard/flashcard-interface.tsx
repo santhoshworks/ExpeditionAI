@@ -15,8 +15,14 @@ import {
   RotateCcw,
   CheckCircle2,
   XCircle,
+  Save,
+  Calendar,
 } from "lucide-react"
 import { FlashcardCard } from "./flashcard-card"
+import { toast } from "sonner"
+
+// Feature flag for spaced repetition
+const IS_SPACED_REPETITION_ENABLED = process.env.NEXT_PUBLIC_ENABLE_SPACED_REPETITION === "true"
 
 interface FlashcardInterfaceProps {
   expeditionId: string
@@ -36,6 +42,9 @@ export function FlashcardInterface({ expeditionId, trailId, onExit }: FlashcardI
   } = useExploreStore()
 
   const [isFlipped, setIsFlipped] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [isSaved, setIsSaved] = useState(false)
+  const [autoSaved, setAutoSaved] = useState(false)
 
   const currentCard = flashcardState.flashcards[flashcardState.currentCardIndex]
   const isLastCard = flashcardState.currentCardIndex === flashcardState.flashcards.length - 1
@@ -79,6 +88,13 @@ export function FlashcardInterface({ expeditionId, trailId, onExit }: FlashcardI
 
         const data = await response.json()
         setFlashcards(data.cards)
+
+        // Check if cards were auto-saved for spaced repetition
+        if (data.savedToDeck) {
+          setAutoSaved(true)
+          setIsSaved(true)
+          toast.success("Cards saved for spaced repetition!")
+        }
       } catch (error) {
         console.error("Flashcard loading error:", error)
         setFlashcardError(
@@ -132,6 +148,43 @@ export function FlashcardInterface({ expeditionId, trailId, onExit }: FlashcardI
   const handleExit = () => {
     resetFlashcards()
     onExit()
+  }
+
+  const handleSaveToDeck = async () => {
+    if (!IS_SPACED_REPETITION_ENABLED || isSaving || isSaved) return
+
+    setIsSaving(true)
+    try {
+      const response = await fetch("/api/flashcards/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          expeditionId,
+          cards: flashcardState.flashcards.map((card) => ({
+            front: card.front,
+            back: card.back,
+            sourceTrailId: card.sourceTrailId,
+            sourceTrailTitle: card.sourceTrailTitle,
+            sourceType: card.sourceType,
+            importance: card.importance,
+          })),
+        }),
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || "Failed to save")
+      }
+
+      const data = await response.json()
+      setIsSaved(true)
+      toast.success(`Saved ${data.cardsCreated} cards for spaced repetition!`)
+    } catch (error) {
+      console.error("Error saving flashcards:", error)
+      toast.error("Failed to save flashcards")
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   // Loading state
@@ -216,18 +269,55 @@ export function FlashcardInterface({ expeditionId, trailId, onExit }: FlashcardI
           )}
         </div>
 
-        <div className="border-t bg-white dark:bg-slate-900 p-4 flex gap-3">
-          <Button
-            onClick={handleRetry}
-            variant="outline"
-            className="flex-1 gap-2"
-          >
-            <RotateCcw className="h-4 w-4" />
-            New Session
-          </Button>
-          <Button onClick={handleExit} className="flex-1 gap-2">
-            Back to Chat
-          </Button>
+        <div className="border-t bg-white dark:bg-slate-900 p-4 space-y-3">
+          {/* Save to Deck confirmation/button - only show if spaced repetition is enabled */}
+          {IS_SPACED_REPETITION_ENABLED && (
+            autoSaved ? (
+              <div className="flex items-center justify-center gap-2 p-3 bg-green-50 dark:bg-green-950/30 rounded-lg border border-green-200 dark:border-green-800">
+                <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
+                <span className="text-green-700 dark:text-green-300 font-medium">
+                  Cards automatically saved for spaced repetition!
+                </span>
+              </div>
+            ) : (
+              <Button
+                onClick={handleSaveToDeck}
+                disabled={isSaving || isSaved}
+                className="w-full gap-2 bg-indigo-600 hover:bg-indigo-700"
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : isSaved ? (
+                  <>
+                    <CheckCircle2 className="h-4 w-4" />
+                    Saved to Deck!
+                  </>
+                ) : (
+                  <>
+                    <Calendar className="h-4 w-4" />
+                    Save for Spaced Repetition
+                  </>
+                )}
+              </Button>
+            )
+          )}
+
+          <div className="flex gap-3">
+            <Button
+              onClick={handleRetry}
+              variant="outline"
+              className="flex-1 gap-2"
+            >
+              <RotateCcw className="h-4 w-4" />
+              New Session
+            </Button>
+            <Button onClick={handleExit} className="flex-1 gap-2">
+              Back to Chat
+            </Button>
+          </div>
         </div>
       </div>
     )

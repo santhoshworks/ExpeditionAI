@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge"
 import { useExpeditions, useCreateExpedition, useDeleteExpedition } from "@/lib/queries"
 import { AnalyticsCards } from "@/components/analytics"
+import { DueCardsWidget } from "@/components/flashcard/due-cards-widget"
 import { formatDate } from "@/lib/utils"
 import { toast } from "sonner"
 import {
@@ -27,10 +28,12 @@ import {
   Zap
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useIsMobile } from "@/hooks/use-media-query"
 import { LearningPurpose, LearnerLevel, LEARNING_PURPOSES, LEARNER_LEVELS } from "@/types/database"
 
 export default function DashboardPage() {
   const router = useRouter()
+  const isMobile = useIsMobile()
   const { data: expeditions, isLoading, isError } = useExpeditions()
   const createExpedition = useCreateExpedition()
   const deleteExpedition = useDeleteExpedition()
@@ -45,6 +48,9 @@ export default function DashboardPage() {
   const [expeditionToDelete, setExpeditionToDelete] = useState<string | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
+
+  // Force grid view on mobile
+  const effectiveViewMode = isMobile ? "grid" : viewMode
 
   const filteredExpeditions = expeditions?.filter(e =>
     e.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -146,6 +152,9 @@ export default function DashboardPage() {
           <div className="p-1.5 bg-white dark:bg-slate-900/50 rounded-[2.5rem] border border-slate-200/50 dark:border-slate-800 shadow-xl shadow-slate-100/50 dark:shadow-none overflow-hidden">
             <AnalyticsCards />
           </div>
+
+          {/* Spaced Repetition Review Widget */}
+          <DueCardsWidget />
         </div>
 
         {/* Filters & View Toggle */}
@@ -161,7 +170,8 @@ export default function DashboardPage() {
           </div>
 
           <div className="flex items-center gap-4 w-full sm:w-auto">
-            <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1.5 rounded-xl border border-slate-200/50 dark:border-slate-700">
+            {/* View toggle - hidden on mobile, grid only on small screens */}
+            <div className="hidden sm:flex items-center bg-slate-100 dark:bg-slate-800 p-1.5 rounded-xl border border-slate-200/50 dark:border-slate-700">
               <Button
                 variant={viewMode === "table" ? "secondary" : "ghost"}
                 size="icon"
@@ -179,7 +189,8 @@ export default function DashboardPage() {
                 <LayoutGrid className="h-4 w-4" />
               </Button>
             </div>
-            <Link href="/wishlist">
+            {/* Wishlist button - hidden on mobile (accessible via bottom nav) */}
+            <Link href="/wishlist" className="hidden sm:block">
               <Button variant="outline" className="h-12 px-5 rounded-xl border-slate-200 dark:border-slate-800 font-bold gap-2">
                 <BookOpen className="h-4 w-4 text-indigo-500" />
                 Wishlist
@@ -217,18 +228,18 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="space-y-6">
-            {viewMode === "grid" ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {effectiveViewMode === "grid" ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                 {filteredExpeditions.map((expedition) => (
                   <Card
                     key={expedition.id}
-                    className="group relative overflow-hidden rounded-[2.5rem] border-slate-200/60 dark:border-slate-800 bg-white dark:bg-slate-900 h-full flex flex-col transition-all duration-500 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] hover:-translate-y-2 cursor-pointer"
+                    className="group relative overflow-hidden rounded-3xl md:rounded-[2.5rem] border-slate-200/60 dark:border-slate-800 bg-white dark:bg-slate-900 h-full flex flex-col transition-all duration-500 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] md:hover:-translate-y-2 cursor-pointer active:scale-[0.98] md:active:scale-100"
                     onClick={() => router.push(`/expedition/${expedition.id}`)}
                   >
                     {/* Decorative elements */}
                     <div className="absolute -right-6 -top-6 w-24 h-24 bg-indigo-50 dark:bg-indigo-900/10 rounded-full blur-3xl group-hover:bg-indigo-100 transition-colors" />
 
-                    <CardHeader className="p-8 pb-4">
+                    <CardHeader className="p-5 md:p-8 pb-3 md:pb-4">
                       <div className="flex justify-between items-start">
                         <div className="space-y-3 flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
@@ -249,7 +260,7 @@ export default function DashboardPage() {
                       </div>
                     </CardHeader>
 
-                    <CardContent className="p-8 pt-0 mt-auto flex flex-col gap-6">
+                    <CardContent className="p-5 md:p-8 pt-0 mt-auto flex flex-col gap-4 md:gap-6">
                       <div className="flex items-center justify-between py-4 border-y border-slate-50 dark:border-slate-800">
                         <div className="flex items-center gap-4">
                           <div className="flex flex-col">

@@ -19,15 +19,26 @@ interface MobileTrailSelectorProps {
     currentTrailId?: string
     onTrailSelect: (trailId: string) => void
     onGenerateTopics?: () => void
+    /** External control for open state */
+    externalOpen?: boolean
+    /** Callback when open state changes (for external control) */
+    onOpenChange?: (open: boolean) => void
 }
 
 export function MobileTrailSelector({
     trails,
     currentTrailId,
     onTrailSelect,
-    onGenerateTopics
+    onGenerateTopics,
+    externalOpen,
+    onOpenChange,
 }: MobileTrailSelectorProps) {
-    const [open, setOpen] = useState(false)
+    const [internalOpen, setInternalOpen] = useState(false)
+
+    // Use external control if provided, otherwise use internal state
+    const isControlled = externalOpen !== undefined
+    const open = isControlled ? externalOpen : internalOpen
+    const setOpen = isControlled ? (onOpenChange || (() => {})) : setInternalOpen
 
     const handleTrailSelect = (trailId: string) => {
         onTrailSelect(trailId)

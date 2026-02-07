@@ -738,18 +738,20 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
   ), [trailTitle, handleSend, handleAction])
 
   return (
-    <div className="flex flex-col h-full mobile-chat-container">
-      <ScrollArea className="flex-1 p-3 md:p-4" ref={scrollRef}>
-        <MessageList
-          messages={messages}
-          isLoading={isLoading}
-          error={error}
-          onUpdateMessage={handleUpdateMessage}
-          aiResponseStartRef={aiResponseStartRef}
-          emptyState={emptyState}
-        />
+    <div className="flex flex-col h-full mobile-chat-container overflow-hidden min-w-0">
+      <ScrollArea className="flex-1 px-2 py-3 md:p-4" ref={scrollRef}>
+        <div className="max-w-full overflow-x-hidden">
+          <MessageList
+            messages={messages}
+            isLoading={isLoading}
+            error={error}
+            onUpdateMessage={handleUpdateMessage}
+            aiResponseStartRef={aiResponseStartRef}
+            emptyState={emptyState}
+          />
+        </div>
       </ScrollArea>
-      <div className="border-t bg-background/50 backdrop-blur-md mobile-input-container mobile-keyboard-safe p-3 md:p-4 relative">
+      <div className="border-t bg-background/50 backdrop-blur-md mobile-input-container mobile-keyboard-safe px-2 py-3 md:p-4 relative">
         {/* Follow-up Questions - Above input */}
         <FollowUpQuestions
           questions={followUpQuestions}

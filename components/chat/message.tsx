@@ -107,13 +107,13 @@ export function Message({ message, onUpdateMessage }: MessageProps) {
   return (
     <div
       className={cn(
-        "flex w-full min-w-0",
+        "flex w-full min-w-0 overflow-hidden",
         isUser ? "justify-end" : "justify-start"
       )}
     >
       <div
         className={cn(
-          "relative max-w-[90%] md:max-w-[85%] rounded-lg px-3 md:px-4 py-2 md:py-3 select-text",
+          "relative max-w-[95%] md:max-w-[85%] rounded-lg px-3 md:px-4 py-2 md:py-3 select-text overflow-hidden",
           isUser
             ? "bg-primary text-primary-foreground"
             : "bg-muted text-foreground",
@@ -121,9 +121,9 @@ export function Message({ message, onUpdateMessage }: MessageProps) {
         )}
       >
         {isUser ? (
-          <p className="whitespace-pre-wrap break-words [word-break:break-word] text-sm md:text-base">{message.content}</p>
+          <p className="whitespace-pre-wrap break-words [word-break:break-word] [overflow-wrap:anywhere] text-sm md:text-base">{message.content}</p>
         ) : (
-          <div className="prose prose-sm dark:prose-invert max-w-none select-text text-sm md:text-base" data-ai-response>
+          <div className="prose prose-sm dark:prose-invert max-w-none select-text text-sm md:text-base [&_pre]:overflow-x-auto [&_pre]:max-w-full [&_code]:break-words [&_code]:whitespace-pre-wrap" data-ai-response>
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               components={markdownComponents}

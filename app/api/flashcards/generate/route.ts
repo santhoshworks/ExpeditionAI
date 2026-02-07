@@ -192,7 +192,91 @@ Do not include any text before or after the JSON object.`
       createdAt: new Date().toISOString(),
     }))
 
-    return new Response(JSON.stringify({ cards: cardsWithIds }), {
+    // Auto-save to database if spaced repetition is enabled
+    let savedToDeck = false
+    let deckId: string | null = null
+
+    if (process.env.NEXT_PUBLIC_ENABLE_SPACED_REPETITION === "true") {
+      try {
+        // Check if deck already exists for this expedition
+        const { data: existingDeck } = await supabase
+          .from("flashcard_decks")
+          .select("id")
+          .eq("expedition_id", expeditionId)
+          .eq("user_id", user.id)
+          .single()
+
+        if (existingDeck) {
+          deckId = existingDeck.id
+        } else {
+          // Create new deck
+          const { data: newDeck, error: deckError } = await supabase
+            .from("flashcard_decks")
+            .insert({
+              user_id: user.id,
+              expedition_id: expeditionId,
+              title: `${expedition.title} Flashcards`,
+              description: `Auto-generated flashcards from ${expedition.title}`,
+            })
+            .select("id")
+            .single()
+
+          if (!deckError && newDeck) {
+            deckId = newDeck.id
+          }
+        }
+
+        // Save flashcards to database
+        if (deckId) {
+          const now = new Date().toISOString()
+          const flashcardsToInsert = flashcardData.cards.map((card: any) => ({
+            deck_id: deckId,
+            user_id: user.id,
+            front: card.front,
+            back: card.back,
+            source_trail_id: card.sourceTrailId || null,
+            source_trail_title: card.sourceTrailTitle || null,
+            source_type: card.sourceType || "concept",
+            importance: card.importance || 3,
+            // FSRS initial state
+            stability: 0,
+            difficulty: 5.0,
+            elapsed_days: 0,
+            scheduled_days: 0,
+            reps: 0,
+            lapses: 0,
+            state: "new",
+            due_date: now,
+            last_review_date: null,
+            is_suspended: false,
+            is_buried: false,
+            tags: [],
+          }))
+
+          const { error: insertError } = await supabase
+            .from("flashcards")
+            .insert(flashcardsToInsert)
+
+          if (!insertError) {
+            savedToDeck = true
+          } else {
+            console.error("Error auto-saving flashcards:", insertError)
+          }
+        }
+      } catch (saveError) {
+        // Non-fatal - cards are still returned for immediate use
+        console.error("Error in auto-save:", saveError)
+      }
+    }
+
+    return new Response(JSON.stringify({
+      cards: cardsWithIds,
+      savedToDeck,
+      deckId,
+      message: savedToDeck
+        ? "Flashcards generated and saved for spaced repetition!"
+        : "Flashcards generated successfully!"
+    }), {
       headers: { "Content-Type": "application/json" },
     })
   } catch (error) {

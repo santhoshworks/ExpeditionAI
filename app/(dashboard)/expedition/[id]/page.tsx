@@ -22,6 +22,8 @@ import Link from "next/link"
 import { QuizSelectionModal } from "@/components/quiz/quiz-selection-modal"
 import { QuizInterface } from "@/components/quiz/quiz-interface"
 import { FlashcardSelectionModal, FlashcardInterface } from "@/components/flashcard"
+import { MobileQuickActions } from "@/components/expedition/mobile-quick-actions"
+import { useMobileNav } from "@/components/layout/mobile-nav-provider"
 
 // Feature flag for flashcards
 const FLASHCARDS_ENABLED = process.env.NEXT_PUBLIC_ENABLE_FLASHCARDS === 'true'
@@ -36,6 +38,10 @@ export default function ExpeditionPage() {
   const [quizModalOpen, setQuizModalOpen] = useState(false)
   const [flashcardModalOpen, setFlashcardModalOpen] = useState(false)
   const [teachingStyle, setTeachingStyle] = useState<TeachingStyle>('content')
+  const [mobileTrailSelectorOpen, setMobileTrailSelectorOpen] = useState(false)
+
+  // Sync expedition ID to mobile nav
+  const { setCurrentExpeditionId } = useMobileNav()
 
   const {
     setCurrentExpedition,
@@ -61,12 +67,14 @@ export default function ExpeditionPage() {
   useEffect(() => {
     if (expeditionId) {
       setCurrentExpedition(expeditionId)
+      setCurrentExpeditionId(expeditionId)
     }
     return () => {
       setCurrentExpedition(null)
       setCurrentTrail(null)
+      setCurrentExpeditionId(null)
     }
-  }, [expeditionId, setCurrentExpedition, setCurrentTrail])
+  }, [expeditionId, setCurrentExpedition, setCurrentTrail, setCurrentExpeditionId])
 
   // Sync trail ID from URL param if present
   useEffect(() => {
@@ -132,9 +140,9 @@ export default function ExpeditionPage() {
   const currentTrail = trails?.find((t) => t.id === currentTrailId)
 
   return (
-    <div className="absolute inset-0 bg-slate-50/50 dark:bg-slate-950/20 flex flex-col overflow-hidden">
+    <div className="absolute inset-0 bg-slate-50/50 dark:bg-slate-950/20 flex flex-col overflow-hidden pb-20 md:pb-0">
       {/* Main Content - Full width for better chat visibility */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden min-h-0">
         {/* Trail Navigation - Premium Glass Sidebar - More expandable */}
         <aside className="hidden lg:flex w-80 border-r bg-white/60 dark:bg-slate-900/40 backdrop-blur-3xl flex-col transition-all duration-300 hover:w-96 group">
           <div className="px-5 py-3 border-b border-slate-100 dark:border-slate-800">
@@ -168,20 +176,20 @@ export default function ExpeditionPage() {
         </aside>
 
         {/* Main Chat Area - Maximized for better visibility */}
-        <main className="flex-1 flex flex-col min-h-0">
+        <main className="flex-1 flex flex-col min-h-0 min-w-0">
           {/* Chat Header - Minimal design focused on current trail */}
-          <div className="border-b bg-white/80 dark:bg-slate-950/80 backdrop-blur-3xl px-4 py-2.5 flex-shrink-0 flex items-center justify-between gap-4 z-10">
+          <div className="border-b bg-white/80 dark:bg-slate-950/80 backdrop-blur-3xl px-3 md:px-4 py-2.5 md:py-2.5 flex-shrink-0 flex items-center justify-between gap-2 md:gap-4 z-10">
             {/* Current Trail Info - Only show trail name, not expedition */}
-            <div className="flex items-center gap-3 min-w-0 flex-1">
+            <div className="flex items-center gap-2.5 md:gap-3 min-w-0 flex-1">
               {currentTrail && (
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="bg-indigo-600 p-1.5 rounded-lg text-white shadow-md shadow-indigo-100 dark:shadow-none">
-                    <Compass className="h-4 w-4" />
+                <div className="flex items-center gap-2.5 md:gap-3 min-w-0">
+                  <div className="bg-indigo-600 p-1.5 md:p-1.5 rounded-lg text-white shadow-md shadow-indigo-100 dark:shadow-none shrink-0">
+                    <Compass className="h-4 w-4 md:h-4 md:w-4" />
                   </div>
-                  <div className="flex flex-col min-w-0">
-                    <span className="text-sm font-bold text-slate-900 dark:text-white truncate tracking-tight">{currentTrail.title}</span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none">Active</span>
+                  <div className="flex flex-col min-w-0 gap-0.5">
+                    <span className="text-sm md:text-sm font-bold text-slate-900 dark:text-white truncate tracking-tight leading-tight">{currentTrail.title}</span>
+                    <div className="flex items-center gap-1.5 md:gap-2">
+                      <span className="text-[9px] md:text-[9px] font-bold text-slate-400 uppercase tracking-widest">Active</span>
                       <MultiFlagButton
                         trailId={currentTrail.id}
                         currentFlag={getDisplayFlagType(currentTrail)}
@@ -234,6 +242,8 @@ export default function ExpeditionPage() {
                 currentTrailId={currentTrailId || undefined}
                 onTrailSelect={setCurrentTrail}
                 onGenerateTopics={() => setGenerateModalOpen(true)}
+                externalOpen={mobileTrailSelectorOpen}
+                onOpenChange={setMobileTrailSelectorOpen}
               />
 
               {/* Quick actions */}
@@ -353,6 +363,18 @@ export default function ExpeditionPage() {
           )}
         </main>
       </div>
+
+      {/* Mobile Quick Actions FAB */}
+      {currentTrailId && !quizState.isQuizMode && !flashcardState.isFlashcardMode && (
+        <MobileQuickActions
+          expeditionId={expeditionId}
+          onQuizClick={() => setQuizModalOpen(true)}
+          onFlashcardsClick={() => setFlashcardModalOpen(true)}
+          onGenerateClick={() => setGenerateModalOpen(true)}
+          onTrailsClick={() => setMobileTrailSelectorOpen(true)}
+          flashcardsEnabled={FLASHCARDS_ENABLED}
+        />
+      )}
 
       {/* Generate Topics Modal */}
       <GenerateTopicsModal
