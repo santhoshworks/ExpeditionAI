@@ -291,13 +291,13 @@ export default async function TopicPage({ params }: TopicPageProps) {
                                 </div>
 
                                 <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                                    <Link href="/signup">
+                                    <Link href={`/signup?redirect=${encodeURIComponent(`/dashboard?topic=${encodeURIComponent(topic.name)}`)}`}>
                                         <Button size="lg" className={`rounded-full px-8 bg-gradient-to-r ${categoryStyle.gradient} hover:opacity-90`}>
                                             Start Understanding {topic.name}
                                             <ArrowRight className="w-4 h-4 ml-2" />
                                         </Button>
                                     </Link>
-                                    <Link href="/demo">
+                                    <Link href={`/signup?redirect=${encodeURIComponent(`/dashboard?topic=${encodeURIComponent(topic.name)}`)}`}>
                                         <Button variant="outline" size="lg" className="rounded-full px-8">
                                             Ask Your First Question
                                         </Button>
@@ -607,7 +607,7 @@ export default async function TopicPage({ params }: TopicPageProps) {
                                 Stop struggling alone. Ask questions, get clear explanations, and learn {topic.name.toLowerCase()} at your own pace.
                             </p>
                             <div className="flex flex-col sm:flex-row justify-center items-center gap-4 pt-4">
-                                <Link href="/signup">
+                                <Link href={`/signup?redirect=${encodeURIComponent(`/dashboard?topic=${encodeURIComponent(topic.name)}`)}`}>
                                     <Button size="lg" className={`rounded-full px-10 bg-gradient-to-r ${categoryStyle.gradient} hover:opacity-90`}>
                                         Break Through the Confusion
                                         <ArrowRight className="w-4 h-4 ml-2" />

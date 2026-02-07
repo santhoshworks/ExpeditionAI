@@ -128,6 +128,7 @@ Remember to:
     // Auto-save to database if enabled
     let savedToDeck = false;
     let deckId: string | null = null;
+    let saveError: string | null = null;
 
     if (autoSave) {
       try {
@@ -150,11 +151,13 @@ Remember to:
 
         if (deckError) {
           console.error("Error creating deck:", deckError);
+          saveError = `Deck creation failed: ${deckError.message} (code: ${deckError.code})`;
         } else if (newDeck) {
           deckId = newDeck.id;
 
           // Save flashcards to database
           const now = new Date().toISOString();
+          const validSourceTypes = ["concept", "question", "cloze", "image_occlusion"];
           const flashcardsToInsert = flashcardData.cards.map(
             (card: GeneratedCard) => ({
               deck_id: deckId,
@@ -163,8 +166,8 @@ Remember to:
               back: card.back,
               source_trail_id: null,
               source_trail_title: sourceTitle || flashcardData.suggestedTitle,
-              source_type: card.sourceType || "concept",
-              importance: card.importance || 3,
+              source_type: validSourceTypes.includes(card.sourceType) ? card.sourceType : "concept",
+              importance: Math.min(5, Math.max(1, card.importance || 3)),
               // FSRS initial state
               stability: 0,
               difficulty: 5.0,
@@ -189,10 +192,12 @@ Remember to:
             savedToDeck = true;
           } else {
             console.error("Error auto-saving flashcards:", insertError);
+            saveError = `Flashcard insert failed: ${insertError.message} (code: ${insertError.code})`;
           }
         }
-      } catch (saveError) {
-        console.error("Error in auto-save:", saveError);
+      } catch (err) {
+        console.error("Error in auto-save:", err);
+        saveError = `Save exception: ${err instanceof Error ? err.message : String(err)}`;
       }
     }
 
@@ -201,6 +206,7 @@ Remember to:
       suggestedTitle: flashcardData.suggestedTitle,
       summary: flashcardData.summary,
       savedToDeck,
+      saveError,
       deckId,
       cardCount: cardsWithIds.length,
     });

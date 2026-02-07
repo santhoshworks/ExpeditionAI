@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -48,6 +48,20 @@ export default function DashboardPage() {
   const [expeditionToDelete, setExpeditionToDelete] = useState<string | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
+  const searchParams = useSearchParams()
+
+  // Auto-open new expedition dialog when topic is passed via URL
+  useEffect(() => {
+    const topic = searchParams.get("topic")
+    if (topic) {
+      setTitle(topic)
+      setShowNewDialog(true)
+      // Clean up the URL without triggering a navigation
+      const url = new URL(window.location.href)
+      url.searchParams.delete("topic")
+      window.history.replaceState({}, "", url.pathname)
+    }
+  }, [searchParams])
 
   // Force grid view on mobile
   const effectiveViewMode = isMobile ? "grid" : viewMode
