@@ -22,9 +22,11 @@ jobs:
 
       - name: Run Twitter Marketing Agent
         env:
-          CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           ODOO_URL: ${{ secrets.ODOO_URL }}
-          ODOO_API_KEY: ${{ secrets.ODOO_API_KEY }}
+          ODOO_USERNAME: ${{ secrets.ODOO_USERNAME }}
+          ODOO_PASSWORD: ${{ secrets.ODOO_PASSWORD }}
+          ODOO_DB: ${{ secrets.ODOO_DB }}
           THOUGHTMAP_FEATURES: 'branching_trails,visualization,ai_models,learning_journals'
         run: npm run agent:twitter-marketing
 
