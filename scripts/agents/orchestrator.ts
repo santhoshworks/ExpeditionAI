@@ -8,13 +8,18 @@ import { GeneratedPost } from "./types";
 interface OrchestratorConfig {
   odooUrl: string;
   odooApiKey: string;
+  odooDatabase: string;
 }
 
 export class TwitterMarketingOrchestrator {
   private odooBridge: OdooBridge;
 
   constructor(config: OrchestratorConfig) {
-    this.odooBridge = new OdooBridge(config.odooUrl, config.odooApiKey);
+    this.odooBridge = new OdooBridge(
+      config.odooUrl,
+      config.odooApiKey,
+      config.odooDatabase
+    );
   }
 
   async run(): Promise<void> {

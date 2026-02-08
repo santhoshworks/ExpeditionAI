@@ -5,10 +5,12 @@ import { OdooAuth, OdooSocialPost, CreatePostResponse } from "./types";
 export class OdooClient {
   private url: string;
   private apiKey: string;
+  private database: string;
 
   constructor(auth: OdooAuth) {
     this.url = auth.url.replace(/\/$/, ""); // Remove trailing slash
     this.apiKey = auth.apiKey;
+    this.database = auth.database;
   }
 
   private async callXmlRpc(
@@ -104,7 +106,7 @@ export class OdooClient {
           "Content-Type": "text/xml",
         },
         body: this.buildXmlRpcCall("execute_kw", [
-          "social",
+          this.database,
           2,
           this.apiKey,
           "social.post",
@@ -149,7 +151,7 @@ export class OdooClient {
           "Content-Type": "text/xml",
         },
         body: this.buildXmlRpcCall("execute_kw", [
-          "social",
+          this.database,
           2,
           this.apiKey,
           "social.account",

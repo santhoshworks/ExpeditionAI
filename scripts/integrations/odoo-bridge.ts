@@ -8,10 +8,11 @@ export class OdooBridge {
   private client: OdooClient;
   private twitterAccountId: number | null = null;
 
-  constructor(odooUrl: string, odooApiKey: string) {
+  constructor(odooUrl: string, odooApiKey: string, odooDatabase: string) {
     this.client = new OdooClient({
       url: odooUrl,
       apiKey: odooApiKey,
+      database: odooDatabase,
     });
   }
 

@@ -7,7 +7,7 @@ import { ChatInputWithOptions } from "./chat-input-with-options"
 import { ChatInput } from "./chat-input"
 import { MessageList } from "./message-list"
 import { useExploreStore } from "@/lib/store"
-import { useMessages } from "@/lib/queries"
+import { useMessages, useAutoMarkInProgress } from "@/lib/queries"
 import { useIllustrations } from "@/hooks/use-illustrations"
 import { nanoid } from "nanoid"
 import type { Message as DBMessage } from "@/types/database"
@@ -298,6 +298,7 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
   const { selectedModel, autoMessageData, setAutoMessageData, addTrailWithNewResponse, clearTrailNewResponse } = useExploreStore()
   const { data: existingMessages, refetch, isLoading: isLoadingMessages, isFetched } = useMessages(trailId)
   const { generateIllustration, isGenerating: isGeneratingIllustration } = useIllustrations()
+  const autoMarkInProgress = useAutoMarkInProgress()
   const scrollRef = useRef<HTMLDivElement>(null)
   const currentTrailIdRef = useRef(trailId)
   const aiResponseStartRef = useRef<HTMLDivElement>(null)
@@ -399,6 +400,13 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
 
     // Clear follow-up questions when sending a message
     setFollowUpQuestions([])
+
+    // Auto-update flag to "In Progress" on first message (only if currently "Not Explored")
+    if (messages.length === 0 && !isResend) {
+      autoMarkInProgress.mutate(requestTrailId, {
+        onError: (err) => console.error("Failed to auto-update trail flag:", err),
+      })
+    }
 
     // Add user message if not a resend
     if (!isResend) {
@@ -554,7 +562,7 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
         abortControllerRef.current = null
       }
     }
-  }, [messages, trailId, selectedModelValue, addTrailWithNewResponse, scrollToAiResponseStart, error])
+  }, [messages, trailId, selectedModelValue, addTrailWithNewResponse, scrollToAiResponseStart, error, autoMarkInProgress])
 
   const handleResend = useCallback(() => {
     if (lastUserMessageRef.current) {
@@ -721,10 +729,10 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
         }
         break
       case "quiz":
-        handleSend("Test my understanding with a few questions - I want to see what I've really grasped.")
+        handleSend("Quiz me on this — let's see what I actually know.")
         break
       case "summary":
-        handleSend("Can you help me summarize what I should take away from this topic?")
+        handleSend("Give me a quick overview of this topic.")
         break
     }
   }, [handleSend, onOpenGenerateModal])

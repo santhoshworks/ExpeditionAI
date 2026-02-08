@@ -304,6 +304,31 @@ export function useUpdateTrailFlag() {
   })
 }
 
+export function useAutoMarkInProgress() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (trailId: string) => {
+      const supabase = createClient() as any
+      // Only update if the trail is currently NOT_EXPLORED or has no flag set
+      const { error } = await supabase
+        .from("trails")
+        .update({
+          flag_type: FlagType.IN_PROGRESS,
+          is_flagged: true,
+        })
+        .eq("id", trailId)
+        .or("flag_type.eq.not_explored,flag_type.is.null")
+
+      if (error) throw error
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["trails"] })
+      queryClient.invalidateQueries({ queryKey: ["expeditions"] })
+    },
+  })
+}
+
 export function useDeleteExpedition() {
   const queryClient = useQueryClient()
 
