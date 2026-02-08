@@ -4,13 +4,56 @@ import { OdooAuth, OdooSocialPost, CreatePostResponse } from "./types";
 
 export class OdooClient {
   private url: string;
-  private apiKey: string;
+  private username: string;
+  private password: string;
   private database: string;
+  private uid: number | null = null;
 
   constructor(auth: OdooAuth) {
     this.url = auth.url.replace(/\/$/, ""); // Remove trailing slash
-    this.apiKey = auth.apiKey;
+    this.username = auth.username;
+    this.password = auth.password;
     this.database = auth.database;
+  }
+
+  async authenticate(): Promise<void> {
+    try {
+      console.log("Authenticating with Odoo...");
+
+      const response = await fetch(`${this.url}/xmlrpc/2/common`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "text/xml",
+        },
+        body: this.buildXmlRpcCall("authenticate", [
+          this.database,
+          this.username,
+          this.password,
+          {},
+        ]),
+      });
+
+      const text = await response.text();
+
+      // Parse XML-RPC response to extract uid
+      const uidMatch = text.match(/<int>(\d+)<\/int>/);
+      if (uidMatch) {
+        this.uid = parseInt(uidMatch[1]);
+        console.log(`✓ Authenticated as user ID: ${this.uid}`);
+        return;
+      }
+
+      // Check for errors
+      const faultMatch = text.match(/<name>faultString<\/name>\s*<value><string>([^<]+)<\/string><\/value>/);
+      if (faultMatch) {
+        throw new Error(`Odoo authentication failed: ${faultMatch[1]}`);
+      }
+
+      throw new Error("Failed to authenticate with Odoo");
+    } catch (error) {
+      console.error("Authentication error:", error);
+      throw error;
+    }
   }
 
   private async callXmlRpc(
@@ -100,6 +143,10 @@ export class OdooClient {
         state: "scheduled",
       };
 
+      if (!this.uid) {
+        throw new Error("Not authenticated. Call authenticate() first.");
+      }
+
       const response = await fetch(`${this.url}/xmlrpc/2/object`, {
         method: "POST",
         headers: {
@@ -107,8 +154,8 @@ export class OdooClient {
         },
         body: this.buildXmlRpcCall("execute_kw", [
           this.database,
-          2,
-          this.apiKey,
+          this.uid,
+          this.password,
           "social.post",
           "create",
           [postData],
@@ -145,6 +192,10 @@ export class OdooClient {
     try {
       console.log("Fetching social accounts from Odoo...");
 
+      if (!this.uid) {
+        throw new Error("Not authenticated. Call authenticate() first.");
+      }
+
       const response = await fetch(`${this.url}/xmlrpc/2/object`, {
         method: "POST",
         headers: {
@@ -152,8 +203,8 @@ export class OdooClient {
         },
         body: this.buildXmlRpcCall("execute_kw", [
           this.database,
-          2,
-          this.apiKey,
+          this.uid,
+          this.password,
           "social.account",
           "search_read",
           [[[]]],

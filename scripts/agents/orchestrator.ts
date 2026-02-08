@@ -7,7 +7,8 @@ import { GeneratedPost } from "./types";
 
 interface OrchestratorConfig {
   odooUrl: string;
-  odooApiKey: string;
+  odooUsername: string;
+  odooPassword: string;
   odooDatabase: string;
 }
 
@@ -17,7 +18,8 @@ export class TwitterMarketingOrchestrator {
   constructor(config: OrchestratorConfig) {
     this.odooBridge = new OdooBridge(
       config.odooUrl,
-      config.odooApiKey,
+      config.odooUsername,
+      config.odooPassword,
       config.odooDatabase
     );
   }

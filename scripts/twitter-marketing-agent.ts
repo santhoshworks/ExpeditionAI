@@ -5,12 +5,13 @@ import TwitterMarketingOrchestrator from "./agents/orchestrator";
 async function main() {
   const config = {
     odooUrl: process.env.ODOO_URL || "",
-    odooApiKey: process.env.ODOO_API_KEY || "",
+    odooUsername: process.env.ODOO_USERNAME || "",
+    odooPassword: process.env.ODOO_PASSWORD || "",
     odooDatabase: process.env.ODOO_DB || "",
   };
 
-  if (!config.odooUrl || !config.odooApiKey || !config.odooDatabase) {
-    throw new Error("Missing required environment variables: ODOO_URL, ODOO_API_KEY, ODOO_DB");
+  if (!config.odooUrl || !config.odooUsername || !config.odooPassword || !config.odooDatabase) {
+    throw new Error("Missing required environment variables: ODOO_URL, ODOO_USERNAME, ODOO_PASSWORD, ODOO_DB");
   }
 
   const orchestrator = new TwitterMarketingOrchestrator(config);

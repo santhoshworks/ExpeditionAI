@@ -2,7 +2,8 @@
 
 export interface OdooAuth {
   url: string;
-  apiKey: string;
+  username: string;
+  password: string;
   database: string;
 }
 

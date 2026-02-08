@@ -8,16 +8,25 @@ export class OdooBridge {
   private client: OdooClient;
   private twitterAccountId: number | null = null;
 
-  constructor(odooUrl: string, odooApiKey: string, odooDatabase: string) {
+  constructor(
+    odooUrl: string,
+    odooUsername: string,
+    odooPassword: string,
+    odooDatabase: string
+  ) {
     this.client = new OdooClient({
       url: odooUrl,
-      apiKey: odooApiKey,
+      username: odooUsername,
+      password: odooPassword,
       database: odooDatabase,
     });
   }
 
   async initialize(): Promise<void> {
     try {
+      // Authenticate first
+      await this.client.authenticate();
+
       const accounts = await this.client.listSocialAccounts();
       const twitterAccount = accounts.find(
         (acc) =>
