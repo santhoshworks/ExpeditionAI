@@ -3,7 +3,9 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { GeneratedPost, TrendingTopic } from "./types";
 
-const client = new Anthropic();
+const client = new Anthropic({
+  apiKey: process.env.CLAUDE_API_KEY,
+});
 
 // Simulated trending topics (in production, fetch from Twitter API)
 const SAMPLE_TRENDS: TrendingTopic[] = [
