@@ -678,8 +678,8 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
       // Clear the auto-message data immediately so it doesn't trigger again
       setAutoMessageData(null)
 
-      // Trigger the first message - coaching-oriented
-      const autoMessage = `I want to understand "${selectedText}" - what should I know first?`
+      // Trigger the first message - natural conversation opener
+      const autoMessage = `What exactly is "${selectedText}"?`
       handleSend(autoMessage)
     }
   }, [trailId, autoMessageData, messages.length, isLoading, setAutoMessageData, handleSend])
@@ -706,7 +706,7 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
       !autoMessageData
     ) {
       hasTriggeredAutoMessage.current.add(trailId)
-      const autoMessage = `Help me understand "${trailTitle}" - where should we start?`
+      const autoMessage = `So what's ${trailTitle} all about?`
       handleSend(autoMessage)
     }
   }, [trailId, trailTitle, trailSourceText, isFetched, isLoadingMessages, existingMessages, isLoading, autoMessageData, handleSend])

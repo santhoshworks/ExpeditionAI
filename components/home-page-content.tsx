@@ -51,8 +51,9 @@ export function HomePageContent() {
                 <span>AI-Powered Learning Platform</span>
               </div>
 
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-slate-900 leading-[0.95] md:leading-[1.05]">
-                Master any topic with <br />
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-slate-900 leading-[1.1] md:leading-[1.05]">
+                Master any topic with{" "}
+                <br className="hidden md:block" />
                 <span className="text-transparent bg-clip-text bg-gradient-to-br from-indigo-600 via-violet-600 to-fuchsia-600">
                   AI-Powered Learning
                 </span>
@@ -207,22 +208,6 @@ export function HomePageContent() {
                   <p className="text-slate-500 leading-relaxed">
                     Get AI-powered summaries of everything you&apos;ve learned. Export as PDF or notes to review key insights anytime.
                   </p>
-                </CardContent>
-              </Card>
-
-              {/* Feature 7: Visual Illustrations */}
-              <Card className="md:col-span-6 lg:col-span-4 bg-indigo-600 text-white border-0 shadow-xl group overflow-hidden">
-                <CardContent className="p-8 space-y-5 relative">
-                  <div className="relative z-10">
-                    <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center text-white backdrop-blur-md mb-6">
-                      <Sparkles className="w-6 h-6" />
-                    </div>
-                    <h4 className="text-xl font-bold">AI Illustrations</h4>
-                    <p className="text-indigo-100 leading-relaxed">
-                      Generate visual illustrations for complex concepts to enhance understanding and make learning more engaging.
-                    </p>
-                  </div>
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -tr-10" />
                 </CardContent>
               </Card>
             </div>
@@ -566,18 +551,10 @@ export function HomePageContent() {
                           className="object-cover rounded-[2rem]"
                         />
                       </div>
-                      {/* Floating stats */}
-                      <div className="absolute -bottom-6 -right-6 bg-white p-6 rounded-2xl shadow-xl border border-slate-100">
-                        <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Curated Models</p>
-                        <p className="text-4xl font-black text-indigo-600">8</p>
-                      </div>
-                      <div className="absolute -top-6 -left-6 bg-slate-900 text-white p-6 rounded-2xl shadow-xl">
-                        <p className="text-indigo-400 text-xs font-bold uppercase tracking-wider mb-1">Learning Paths</p>
-                        <p className="text-4xl font-black">∞</p>
-                      </div>
+        
                     </div>
                     {/* Background decorative circles */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-indigo-100/30 rounded-full -z-10 blur-3xl animate-pulse-slow" />
+                
                   </div>
                 </div>
               </div>

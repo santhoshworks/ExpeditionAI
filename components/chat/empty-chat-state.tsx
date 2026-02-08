@@ -24,10 +24,10 @@ interface EmptyChatStateProps {
 
 export function EmptyChatState({ onSuggest, onAction, topicTitle }: EmptyChatStateProps) {
     const suggestions = [
-        `I want to understand ${topicTitle || "this"} - where do I start?`,
-        `Here's what I think I know about ${topicTitle || "this topic"}...`,
-        `Help me understand ${topicTitle || "this"} well enough to explain it`,
-        `What's the most important thing to grasp about ${topicTitle || "this"}?`,
+        `What's ${topicTitle || "this"} and why does it matter?`,
+        `I know a bit about ${topicTitle || "this"} — can we go deeper?`,
+        `Explain ${topicTitle || "this"} like I'm seeing it for the first time`,
+        `What do most people get wrong about ${topicTitle || "this"}?`,
     ]
 
     const actions = [
@@ -73,10 +73,10 @@ export function EmptyChatState({ onSuggest, onAction, topicTitle }: EmptyChatSta
                     <BrainCircuit className="w-8 h-8 md:w-10 md:h-10 text-white" />
                 </div>
                 <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight px-2">
-                    Welcome to <span className="text-indigo-600">{topicTitle || "this Exploration"}</span>
+                    Let&apos;s dive into <span className="text-indigo-600">{topicTitle || "this topic"}</span>
                 </h2>
                 <p className="text-sm md:text-lg text-slate-500 dark:text-slate-400 font-medium leading-relaxed max-w-lg mx-auto">
-                    Your AI coach will guide you through this topic with questions and explanations tailored to what you already know.
+                    Ask anything — start with what you&apos;re curious about and we&apos;ll go from there.
                 </p>
             </motion.div>
 

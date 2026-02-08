@@ -21,6 +21,9 @@ import {
     MessageSquareQuote
 } from "lucide-react"
 import { SITE_CONFIG } from "@/lib/config"
+import { useAuth } from "@/hooks/use-auth"
+import { createClient } from "@/lib/supabase/client"
+import { useRouter } from "next/navigation"
 
 // Navigation dropdown items
 const featuresDropdown = [
@@ -94,6 +97,15 @@ interface PublicHeaderProps {
 export function PublicHeader({ currentPage }: PublicHeaderProps) {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     const [scrolled, setScrolled] = useState(false)
+    const { isLoggedIn } = useAuth()
+    const router = useRouter()
+
+    const handleSignOut = async () => {
+        const supabase = createClient()
+        await supabase.auth.signOut()
+        setMobileMenuOpen(false)
+        router.push("/")
+    }
 
     // Handle scroll effect for navbar
     useEffect(() => {
@@ -155,17 +167,33 @@ export function PublicHeader({ currentPage }: PublicHeaderProps) {
                 </nav>
 
                 <div className="flex items-center gap-4">
-                    <Link href="/login" className="hidden sm:block">
-                        <CTAButton variant="ghost" size="default">
-                            Sign in
-                        </CTAButton>
-                    </Link>
-                    <Link href="/signup">
-                        <CTAButton variant="primary" size="default" className="px-6">
-                            Get Started
-                            <ArrowRight className="w-4 h-4 ml-2" />
-                        </CTAButton>
-                    </Link>
+                    {isLoggedIn ? (
+                        <>
+                            <CTAButton variant="ghost" size="default" className="hidden sm:inline-flex" onClick={handleSignOut}>
+                                Sign out
+                            </CTAButton>
+                            <Link href="/dashboard" className="hidden sm:block">
+                                <CTAButton variant="primary" size="default" className="px-6">
+                                    Dashboard
+                                    <ArrowRight className="w-4 h-4 ml-2" />
+                                </CTAButton>
+                            </Link>
+                        </>
+                    ) : (
+                        <>
+                            <Link href="/login" className="hidden sm:block">
+                                <CTAButton variant="ghost" size="default">
+                                    Sign in
+                                </CTAButton>
+                            </Link>
+                            <Link href="/signup" className="hidden sm:block">
+                                <CTAButton variant="primary" size="default" className="px-6">
+                                    Get Started
+                                    <ArrowRight className="w-4 h-4 ml-2" />
+                                </CTAButton>
+                            </Link>
+                        </>
+                    )}
 
                     <Button
                         variant="ghost"
@@ -204,10 +232,22 @@ export function PublicHeader({ currentPage }: PublicHeaderProps) {
                         <Link href="/pricing" className="block text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 mb-4" onClick={() => setMobileMenuOpen(false)}>Pricing</Link>
                         <Link href="/blog" className="block text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 mb-4" onClick={() => setMobileMenuOpen(false)}>Blog</Link>
                         <Link href="/about" className="block text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 mb-4" onClick={() => setMobileMenuOpen(false)}>About</Link>
-                        <Link href="/login" className="block text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 mb-4" onClick={() => setMobileMenuOpen(false)}>Sign in</Link>
+                        {isLoggedIn ? (
+                            <button className="block text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 mb-4" onClick={handleSignOut}>Sign out</button>
+                        ) : (
+                            <Link href="/login" className="block text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 mb-4" onClick={() => setMobileMenuOpen(false)}>Sign in</Link>
+                        )}
                     </div>
 
-                    <Button className="w-full rounded-xl bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-500 h-12 text-lg font-bold">Start Learning</Button>
+                    {isLoggedIn ? (
+                        <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                            <Button className="w-full rounded-xl bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-500 h-12 text-lg font-bold">Go to Dashboard</Button>
+                        </Link>
+                    ) : (
+                        <Link href="/signup" onClick={() => setMobileMenuOpen(false)}>
+                            <Button className="w-full rounded-xl bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-500 h-12 text-lg font-bold">Start Learning</Button>
+                        </Link>
+                    )}
                 </nav>
             </div>
         </header>
