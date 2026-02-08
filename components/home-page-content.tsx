@@ -70,12 +70,12 @@ export function HomePageContent() {
                     <Zap className="w-5 h-5 ml-2 fill-indigo-400 text-indigo-400" />
                   </CTAButton>
                 </Link>
-                <Link href="/demo" aria-label="Try interactive AI learning demo">
+                {/* <Link href="/demo" aria-label="Try interactive AI learning demo">
                   <CTAButton variant="secondary" size="lg" className="px-10">
                     <Sparkles className="w-5 h-5 mr-2" />
                     Try Interactive Demo
                   </CTAButton>
-                </Link>
+                </Link> */}
               </div>
             </div>
           </div>
@@ -86,28 +86,14 @@ export function HomePageContent() {
               <div className="absolute -inset-4 bg-gradient-to-br from-indigo-500/20 to-fuchsia-500/20 blur-3xl rounded-[3rem] -z-10" />
               <div className="relative bg-white/40 dark:bg-slate-900/40 backdrop-blur-sm border border-white/50 dark:border-slate-800 rounded-[2.5rem] p-3 md:p-6 shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden">
                 <div className="bg-slate-950 rounded-[1.5rem] overflow-hidden aspect-[16/10] relative border border-slate-800">
-                  <Image
-                    src="/images/chat_interface_screenshot.jpeg"
-                    alt="ThoughtMap AI learning platform interface showing branching conversations and personalized education tools"
-                    fill
-                    className="object-cover opacity-90 object-top"
-                    priority
+                  <video
+                    src="/videos/Screen Recording 2026-02-07 at 6.11.25 PM.mov"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="w-full h-full object-cover opacity-90 object-top"
                   />
-                  {/* Overlay for professional feel */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 to-transparent pointer-events-none" />
-
-                  {/* Floating UI Badges */}
-                  <div className="absolute top-10 left-10 p-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl hidden lg:block animate-bounce-slow">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center">
-                        <Cpu className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <p className="text-white font-bold text-sm">8 Curated AI Models</p>
-                        <p className="text-white/60 text-xs">GPT-4o, Claude, Gemini & more</p>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
