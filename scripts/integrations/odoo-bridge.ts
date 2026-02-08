@@ -28,14 +28,18 @@ export class OdooBridge {
       await this.client.authenticate();
 
       const accounts = await this.client.listSocialAccounts();
+      console.log(`Found ${accounts.length} social accounts:`, accounts);
+
       const twitterAccount = accounts.find(
         (acc) =>
-          acc.social_media === "twitter" || acc.social_media === "x" || acc.social_media === "X"
+          acc.media === "twitter" ||
+          (acc.name && (acc.name.toLowerCase().includes("twitter") || acc.name.toLowerCase().includes("janani")))
       );
 
       if (!twitterAccount) {
+        console.warn("Available accounts:", accounts);
         throw new Error(
-          "No Twitter account configured in Odoo Social Marketing"
+          `No Twitter account configured in Odoo Social Marketing. Found: ${accounts.map((a) => a.name || "unknown").join(", ")}`
         );
       }
 

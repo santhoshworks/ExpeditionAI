@@ -205,42 +205,55 @@ export class OdooClient {
           this.database,
           this.uid,
           this.password,
-          "social.account",
+          "social.stream",
           "search_read",
           [[]],
         ]),
       });
 
       const text = await response.text();
-
-      // Simple parsing - extract account data from XML
-      const accounts: any[] = [];
+      console.log("Raw XML response length:", text.length);
 
       // Check for errors
       const faultMatch = text.match(/<name>faultString<\/name>\s*<value><string>([^<]+)<\/string><\/value>/);
       if (faultMatch) {
         console.warn(`Warning: Could not fetch accounts: ${faultMatch[1]}`);
-        // Return mock account as fallback
-        return [
-          {
-            id: 1,
-            name: "thoughtmap_twitter",
-            social_media: "twitter",
-          },
-        ];
+        return [];
       }
 
+      // Parse XML-RPC array response
+      const accounts: any[] = [];
+
+      // Extract array items: look for each <struct>...</struct>
+      const structMatches = text.matchAll(/<struct>([\s\S]*?)<\/struct>/g);
+
+      for (const structMatch of structMatches) {
+        const structContent = structMatch[1];
+        const account: any = {};
+
+        // Extract id: <name>id</name><value><int>2</int></value>
+        const idMatch = structContent.match(/<name>id<\/name>\s*<value><int>(\d+)<\/int><\/value>/);
+        if (idMatch) account.id = parseInt(idMatch[1]);
+
+        // Extract name: <name>name</name><value><string>...</string></value>
+        const nameMatch = structContent.match(/<name>name<\/name>\s*<value><string>([^<]+)<\/string><\/value>/);
+        if (nameMatch) account.name = nameMatch[1];
+
+        // Extract media_id for Twitter/X detection: <name>media_id</name><value><array><data><value><int>...</int></value><value><string>X</string>...</value>
+        const mediaMatch = structContent.match(/<name>media_id<\/name>\s*<value><array><data>[\s\S]*?<string>(X|Twitter|twitter)<\/string>/i);
+        if (mediaMatch) account.media = "twitter";
+
+        if (account.id && account.name) {
+          accounts.push(account);
+          console.log(`Found account: ${account.name} (ID: ${account.id}, Media: ${account.media || "unknown"})`);
+        }
+      }
+
+      console.log(`Fetched ${accounts.length} accounts total`);
       return accounts;
     } catch (error) {
       console.error("Failed to list Odoo social accounts:", error);
-      // Return mock account as fallback
-      return [
-        {
-          id: 1,
-          name: "thoughtmap_twitter",
-          social_media: "twitter",
-        },
-      ];
+      return [];
     }
   }
 
