@@ -207,7 +207,7 @@ export class OdooClient {
           this.password,
           "social.account",
           "search_read",
-          [[[]]],
+          [[]],
         ]),
       });
 
