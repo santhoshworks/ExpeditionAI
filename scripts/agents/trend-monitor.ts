@@ -1,11 +1,43 @@
 // scripts/agents/trend-monitor.ts
 
-import Anthropic from "@anthropic-ai/sdk";
 import { GeneratedPost, TrendingTopic } from "./types";
 
-const client = new Anthropic({
-  apiKey: process.env.CLAUDE_API_KEY,
-});
+// Use OpenRouter for LLM calls
+async function callOpenRouter(systemPrompt: string, userPrompt: string) {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) {
+    throw new Error("Missing OPENROUTER_API_KEY environment variable");
+  }
+
+  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+      "HTTP-Referer": "https://thoughtmap.space",
+      "X-Title": "ThoughtMap Twitter Agent",
+    },
+    body: JSON.stringify({
+      model: "anthropic/claude-3.5-sonnet",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+      temperature: 0.7,
+      max_tokens: 500,
+    }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      `OpenRouter API error: ${data.error?.message || response.statusText}`
+    );
+  }
+
+  return data.choices[0]?.message?.content || "";
+}
 
 // Simulated trending topics (in production, fetch from Twitter API)
 const SAMPLE_TRENDS: TrendingTopic[] = [
@@ -41,20 +73,7 @@ Return ONLY valid JSON with no markdown formatting:
 
   const userPrompt = `Generate a Twitter post connecting the trend "#${trend.name.replace(/\s+/g, "")}" to ThoughtMap's interactive learning features. Make it thoughtful and curious, not salesy.`;
 
-  const response = await client.messages.create({
-    model: "claude-3-5-sonnet-20241022",
-    max_tokens: 500,
-    messages: [
-      {
-        role: "user",
-        content: userPrompt,
-      },
-    ],
-    system: systemPrompt,
-  });
-
-  const content =
-    response.content[0].type === "text" ? response.content[0].text : "";
+  const content = await callOpenRouter(systemPrompt, userPrompt);
 
   try {
     const jsonMatch = content.match(/\{[\s\S]*\}/);

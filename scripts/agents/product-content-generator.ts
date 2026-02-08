@@ -1,11 +1,43 @@
 // scripts/agents/product-content-generator.ts
 
-import Anthropic from "@anthropic-ai/sdk";
 import { GeneratedPost } from "./types";
 
-const client = new Anthropic({
-  apiKey: process.env.CLAUDE_API_KEY,
-});
+// Use OpenRouter for LLM calls
+async function callOpenRouter(systemPrompt: string, userPrompt: string) {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) {
+    throw new Error("Missing OPENROUTER_API_KEY environment variable");
+  }
+
+  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+      "HTTP-Referer": "https://thoughtmap.space",
+      "X-Title": "ThoughtMap Twitter Agent",
+    },
+    body: JSON.stringify({
+      model: "anthropic/claude-3.5-sonnet",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+      temperature: 0.7,
+      max_tokens: 500,
+    }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      `OpenRouter API error: ${data.error?.message || response.statusText}`
+    );
+  }
+
+  return data.choices[0]?.message?.content || "";
+}
 
 const THOUGHTMAP_FEATURES = {
   branching_trails:
@@ -48,20 +80,7 @@ Return ONLY valid JSON with no markdown formatting, no backticks, just raw JSON:
 
   const userPrompt = `Generate a product-focused Twitter post for ThoughtMap. Use this angle: "${PRODUCT_ANGLES[Math.floor(Math.random() * PRODUCT_ANGLES.length)]}".`;
 
-  const response = await client.messages.create({
-    model: "claude-3-5-sonnet-20241022",
-    max_tokens: 500,
-    messages: [
-      {
-        role: "user",
-        content: userPrompt,
-      },
-    ],
-    system: systemPrompt,
-  });
-
-  const content =
-    response.content[0].type === "text" ? response.content[0].text : "";
+  const content = await callOpenRouter(systemPrompt, userPrompt);
 
   try {
     // Extract JSON from response (might be wrapped in code blocks)
