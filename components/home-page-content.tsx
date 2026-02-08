@@ -87,7 +87,7 @@ export function HomePageContent() {
               <div className="relative bg-white/40 dark:bg-slate-900/40 backdrop-blur-sm border border-white/50 dark:border-slate-800 rounded-[2.5rem] p-3 md:p-6 shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden">
                 <div className="bg-slate-950 rounded-[1.5rem] overflow-hidden aspect-[16/10] relative border border-slate-800">
                   <video
-                    src="/videos/Screen Recording 2026-02-07 at 6.11.25 PM.mov"
+                    src="/videos/demo.mp4"
                     autoPlay
                     loop
                     muted

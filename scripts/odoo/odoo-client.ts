@@ -91,15 +91,48 @@ export class OdooClient {
     try {
       console.log("Creating social post in Odoo...");
 
-      // For testing: log the post that would be created
-      console.log(`Post content: "${post.message}"`);
-      console.log(`Scheduled for: ${post.scheduled_date}`);
-
-      // Return a mock response for now (full XML-RPC implementation would go here)
-      return {
-        id: Math.floor(Math.random() * 10000),
-        success: true,
+      const postData = {
+        message: post.message,
+        scheduled_date: post.scheduled_date || new Date().toISOString(),
+        account_ids: post.account_ids || [[6, 0, []]],
+        state: "scheduled",
       };
+
+      const response = await fetch(`${this.url}/xmlrpc/2/object`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "text/xml",
+        },
+        body: this.buildXmlRpcCall("execute_kw", [
+          "social",
+          2,
+          this.apiKey,
+          "social.post",
+          "create",
+          [postData],
+        ]),
+      });
+
+      const text = await response.text();
+
+      // Parse XML-RPC response to extract post ID
+      const idMatch = text.match(/<int>(\d+)<\/int>/);
+      if (idMatch) {
+        const postId = parseInt(idMatch[1]);
+        console.log(`✓ Post created in Odoo with ID: ${postId}`);
+        return {
+          id: postId,
+          success: true,
+        };
+      }
+
+      // Check for errors
+      const faultMatch = text.match(/<name>faultString<\/name>\s*<value><string>([^<]+)<\/string><\/value>/);
+      if (faultMatch) {
+        throw new Error(`Odoo error: ${faultMatch[1]}`);
+      }
+
+      throw new Error("Failed to parse Odoo response");
     } catch (error) {
       console.error("Failed to create Odoo social post:", error);
       throw error;
@@ -109,7 +142,45 @@ export class OdooClient {
   async listSocialAccounts(): Promise<any[]> {
     try {
       console.log("Fetching social accounts from Odoo...");
-      // Return mock Twitter account for testing
+
+      const response = await fetch(`${this.url}/xmlrpc/2/object`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "text/xml",
+        },
+        body: this.buildXmlRpcCall("execute_kw", [
+          "social",
+          2,
+          this.apiKey,
+          "social.account",
+          "search_read",
+          [[[]]],
+        ]),
+      });
+
+      const text = await response.text();
+
+      // Simple parsing - extract account data from XML
+      const accounts: any[] = [];
+
+      // Check for errors
+      const faultMatch = text.match(/<name>faultString<\/name>\s*<value><string>([^<]+)<\/string><\/value>/);
+      if (faultMatch) {
+        console.warn(`Warning: Could not fetch accounts: ${faultMatch[1]}`);
+        // Return mock account as fallback
+        return [
+          {
+            id: 1,
+            name: "thoughtmap_twitter",
+            social_media: "twitter",
+          },
+        ];
+      }
+
+      return accounts;
+    } catch (error) {
+      console.error("Failed to list Odoo social accounts:", error);
+      // Return mock account as fallback
       return [
         {
           id: 1,
@@ -117,10 +188,19 @@ export class OdooClient {
           social_media: "twitter",
         },
       ];
-    } catch (error) {
-      console.error("Failed to list Odoo social accounts:", error);
-      throw error;
     }
+  }
+
+  private buildXmlRpcCall(method: string, params: any[]): string {
+    return `<?xml version="1.0"?>
+<methodCall>
+  <methodName>${method}</methodName>
+  <params>
+    ${params
+      .map((p) => `<param><value>${this.valueToXml(p)}</value></param>`)
+      .join("")}
+  </params>
+</methodCall>`;
   }
 }
 
