@@ -71,6 +71,8 @@
     "task:list:pending": "tsx scripts/task-cli.ts list --pending",
     "task:list:completed": "tsx scripts/task-cli.ts list --completed",
     "task:complete": "tsx scripts/task-cli.ts complete",
-    "task:block": "tsx scripts/task-cli.ts block"
+    "task:block": "tsx scripts/task-cli.ts block",
+    "agent:twitter-marketing": "tsx scripts/twitter-marketing-agent.ts",
+    "agent:twitter-marketing:local": "tsx scripts/twitter-marketing-agent.ts"
   }
 }
