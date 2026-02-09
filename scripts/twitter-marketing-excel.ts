@@ -55,9 +55,12 @@ async function generateAndExportPosts() {
 
     // Add posts to worksheet
     posts.forEach((post) => {
+      // Convert ISO format (2026-02-10T00:46:28) to Odoo format (2026-02-10 00:46:28)
+      const formattedDate = post.scheduledTime.replace("T", " ");
+
       worksheet.addRow({
         message: post.content,
-        scheduled_date: post.scheduledTime,
+        scheduled_date: formattedDate,
         state: "scheduled",
       });
     });
