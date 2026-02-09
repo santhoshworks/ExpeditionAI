@@ -136,10 +136,11 @@ export class OdooClient {
     try {
       console.log("Creating social post in Odoo...");
 
+      // Format: [4, account_id] means set the account
       const postData = {
         message: post.message,
         scheduled_date: post.scheduled_date || new Date().toISOString(),
-        account_ids: post.account_ids || [[6, 0, []]],
+        account_ids: post.account_ids || [[4, 2]],  // Link to Janani kamaraj account (ID: 2)
         state: "scheduled",
       };
 
@@ -163,11 +164,18 @@ export class OdooClient {
       });
 
       const text = await response.text();
+      console.log(`Post creation response: ${text.substring(0, 200)}`);
 
-      // Parse XML-RPC response to extract post ID
-      const idMatch = text.match(/<int>(\d+)<\/int>/);
-      if (idMatch) {
-        const postId = parseInt(idMatch[1]);
+      // Check for errors first
+      const faultMatch = text.match(/<name>faultString<\/name>\s*<value><string>([^<]+)<\/string><\/value>/);
+      if (faultMatch) {
+        throw new Error(`Odoo error: ${faultMatch[1]}`);
+      }
+
+      // Parse XML-RPC response to extract post ID from <methodResponse><params><param><value><int>ID</int>
+      const resultMatch = text.match(/<methodResponse>\s*<params>\s*<param>\s*<value>\s*<int>(\d+)<\/int>/);
+      if (resultMatch) {
+        const postId = parseInt(resultMatch[1]);
         console.log(`✓ Post created in Odoo with ID: ${postId}`);
         return {
           id: postId,
@@ -175,13 +183,7 @@ export class OdooClient {
         };
       }
 
-      // Check for errors
-      const faultMatch = text.match(/<name>faultString<\/name>\s*<value><string>([^<]+)<\/string><\/value>/);
-      if (faultMatch) {
-        throw new Error(`Odoo error: ${faultMatch[1]}`);
-      }
-
-      throw new Error("Failed to parse Odoo response");
+      throw new Error(`Failed to parse Odoo response. Got: ${text.substring(0, 300)}`);
     } catch (error) {
       console.error("Failed to create Odoo social post:", error);
       throw error;
