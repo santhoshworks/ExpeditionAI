@@ -25,6 +25,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "date-fns": "^3.3.1",
+    "exceljs": "^4.4.0",
     "framer-motion": "^12.27.0",
     "html2canvas": "^1.4.1",
     "jspdf": "^4.0.0",
@@ -74,6 +75,7 @@
     "task:complete": "tsx scripts/task-cli.ts complete",
     "task:block": "tsx scripts/task-cli.ts block",
     "agent:twitter-marketing": "tsx scripts/twitter-marketing-agent.ts",
-    "agent:twitter-marketing:local": "tsx scripts/twitter-marketing-agent.ts"
+    "agent:twitter-marketing:local": "tsx scripts/twitter-marketing-agent.ts",
+    "agent:twitter-marketing:excel": "tsx scripts/twitter-marketing-excel.ts"
   }
 }
