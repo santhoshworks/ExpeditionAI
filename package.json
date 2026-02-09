@@ -76,6 +76,7 @@
     "task:block": "tsx scripts/task-cli.ts block",
     "agent:twitter-marketing": "tsx scripts/twitter-marketing-agent.ts",
     "agent:twitter-marketing:local": "tsx scripts/twitter-marketing-agent.ts",
-    "agent:twitter-marketing:excel": "tsx scripts/twitter-marketing-excel.ts"
+    "agent:twitter-marketing:excel": "tsx scripts/twitter-marketing-excel.ts",
+    "agent:twitter-marketing:100": "tsx scripts/twitter-marketing-100-posts.ts"
   }
 }
