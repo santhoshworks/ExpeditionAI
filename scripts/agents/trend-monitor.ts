@@ -57,21 +57,28 @@ async function selectRelevantTrend(): Promise<TrendingTopic> {
 async function generateTrendPost(trend: TrendingTopic): Promise<GeneratedPost> {
   const systemPrompt = `You are a social media marketer for ThoughtMap, an AI-powered interactive learning platform.
 
-Your task: Generate ONE compelling Twitter post (280 chars max) that:
-1. Connects a trending topic to ThoughtMap's learning/exploration angle
-2. Makes the reader curious about using ThoughtMap
-3. Includes subtle CTA: "Explore at thoughtmap.space"
-4. Suggests 3-4 relevant hashtags (include #${trend.name.replace(/\s+/g, "")}
-5. Avoids spam/marketing language
-6. Is authentic and thought-provoking
+Your task: Generate ONE compelling Twitter post that leverages trending topics using Hook→Problem→Solution:
 
-Return ONLY valid JSON with no markdown formatting:
+1. HOOK: Connect the trending topic (#${trend.name.replace(/\s+/g, "")}) to a larger observation or question
+2. PROBLEM: Highlight how current approaches miss something important
+3. SOLUTION: Show how ThoughtMap's interactive exploration addresses this gap
+4. CTA: MUST end with "Explore at thoughtmap.space" or "Visit thoughtmap.space"
+
+CRITICAL REQUIREMENTS:
+- MUST include the website URL (thoughtmap.space) at the end
+- Keep under 280 characters
+- Include #${trend.name.replace(/\s+/g, "")} hashtag
+- Include 2-3 additional relevant hashtags
+- Avoid spam/marketing language - be authentic and thought-provoking
+- Don't sound salesy, sound like a genuine insight
+
+Return ONLY valid JSON with no markdown:
 {
-  "content": "the tweet text here",
-  "hashtags": ["hashtag1", "hashtag2"]
+  "content": "hook connecting to trend. problem insight. solution with thoughtmap. Explore at thoughtmap.space",
+  "hashtags": ["#${trend.name.replace(/\s+/g, "")}", "hashtag2", "hashtag3"]
 }`;
 
-  const userPrompt = `Generate a Twitter post connecting the trend "#${trend.name.replace(/\s+/g, "")}" to ThoughtMap's interactive learning features. Make it thoughtful and curious, not salesy.`;
+  const userPrompt = `Generate a Twitter post leveraging the #${trend.name.replace(/\s+/g, "")} trend using Hook→Problem→Solution framework. Connect it authentically to ThoughtMap's learning exploration features. MUST include "thoughtmap.space" URL at the end.`;
 
   const content = await callOpenRouter(systemPrompt, userPrompt);
 

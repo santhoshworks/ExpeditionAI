@@ -64,21 +64,28 @@ ${Object.entries(THOUGHTMAP_FEATURES)
   .map(([key, value]) => `- ${key}: ${value}`)
   .join("\n")}
 
-Your task: Generate ONE compelling Twitter post (280 chars max) that:
-1. Hooks the reader with curiosity (starts with a question, insight, or provocative statement)
-2. Highlights one ThoughtMap feature or learning benefit
-3. Includes a subtle CTA: "Start your learning expedition at thoughtmap.space"
-4. Suggests 3-4 relevant hashtags
-5. Avoids marketing clichés ("unlock", "revolutionize", "game-changer")
+Your task: Generate ONE compelling Twitter post that follows the Hook→Problem→Solution framework:
 
-Return ONLY valid JSON with no markdown formatting, no backticks, just raw JSON:
+1. HOOK: Start with a provocative question or surprising insight (captures attention)
+2. PROBLEM: Identify a specific pain point or limitation with current learning methods
+3. SOLUTION: Position ThoughtMap as the solution (mention one key feature)
+4. CTA: MUST end with "Visit thoughtmap.space" or "Explore at thoughtmap.space"
+
+CRITICAL REQUIREMENTS:
+- MUST include the website URL (thoughtmap.space) at the end
+- Keep under 280 characters
+- Avoid clichés: "unlock", "revolutionize", "game-changer", "next level"
+- Be authentic and thoughtful, not salesy
+- Include 3-4 relevant hashtags
+
+Return ONLY valid JSON with no markdown, no backticks:
 {
-  "content": "the tweet text here",
+  "content": "hook question/insight. pain point. solution with thoughtmap feature. Visit thoughtmap.space",
   "hashtags": ["hashtag1", "hashtag2"],
-  "imagePrompt": "optional: description for ai image generation"
+  "imagePrompt": "optional description"
 }`;
 
-  const userPrompt = `Generate a product-focused Twitter post for ThoughtMap. Use this angle: "${PRODUCT_ANGLES[Math.floor(Math.random() * PRODUCT_ANGLES.length)]}".`;
+  const userPrompt = `Generate a product-focused Twitter post for ThoughtMap using the Hook→Problem→Solution framework. Focus on: "${PRODUCT_ANGLES[Math.floor(Math.random() * PRODUCT_ANGLES.length)]}". MUST include "thoughtmap.space" URL at the end.`;
 
   const content = await callOpenRouter(systemPrompt, userPrompt);
 
