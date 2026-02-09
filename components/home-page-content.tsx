@@ -92,6 +92,7 @@ export function HomePageContent() {
                     loop
                     muted
                     playsInline
+                    controls
                     className="w-full h-full object-cover opacity-90 object-top"
                   />
                 </div>

@@ -140,7 +140,7 @@ export function PublicHeader({ currentPage }: PublicHeaderProps) {
                     </span>
                 </Link>
 
-                <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600 dark:text-slate-400">
+                <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600 dark:text-slate-400 ml-8">
                     <NavDropdown label="Features" items={featuresDropdown} currentPage={currentPage} />
                     <NavDropdown label="Resources" items={resourcesDropdown} currentPage={currentPage} />
                     <Link
