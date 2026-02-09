@@ -41,6 +41,135 @@ const TARGET_ICPS = [
   "educators",
 ];
 
+// Twitter/X Communities for maximum visibility
+// These are real communities where EdTech/learning content performs well
+const TWITTER_COMMUNITIES = {
+  // Education & Learning Communities
+  edu_general: {
+    name: "EduTwitter",
+    hashtag: "#EduTwitter",
+    description: "General education community - teachers, students, EdTech",
+    bestFor: ["learning_tips", "student_life", "knowledge_building", "educators"],
+    audienceSize: "Large",
+  },
+  edtech: {
+    name: "EdTech Community",
+    hashtag: "#EdTech",
+    description: "Education technology enthusiasts and professionals",
+    bestFor: ["tech_learning", "feature_highlight", "productivity_hacks"],
+    audienceSize: "Large",
+  },
+  academic: {
+    name: "Academic Twitter",
+    hashtag: "#AcademicChatter",
+    description: "Researchers, PhD students, academics",
+    bestFor: ["curiosity_insights", "knowledge_building", "student_life"],
+    audienceSize: "Medium",
+  },
+  study_with_me: {
+    name: "Study Community",
+    hashtag: "#StudyWithMe",
+    description: "Students sharing study sessions and tips",
+    bestFor: ["student_life", "productivity_hacks", "learning_tips"],
+    audienceSize: "Large",
+  },
+
+  // Tech & Developer Communities
+  build_in_public: {
+    name: "Build In Public",
+    hashtag: "#BuildInPublic",
+    description: "Indie hackers and makers sharing their journey",
+    bestFor: ["build_in_public", "subtle_product", "feature_highlight"],
+    audienceSize: "Large",
+  },
+  indie_hackers: {
+    name: "Indie Hackers",
+    hashtag: "#IndieHacker",
+    description: "Solo founders and bootstrapped startups",
+    bestFor: ["build_in_public", "testimonial_style", "feature_highlight"],
+    audienceSize: "Medium",
+  },
+  dev_community: {
+    name: "Dev Community",
+    hashtag: "#DevCommunity",
+    description: "Software developers learning and sharing",
+    bestFor: ["tech_learning", "productivity_hacks", "curiosity_insights"],
+    audienceSize: "Large",
+  },
+  learn_to_code: {
+    name: "Learn To Code",
+    hashtag: "#LearnToCode",
+    description: "People learning programming",
+    bestFor: ["tech_learning", "learning_tips", "curiosity_insights"],
+    audienceSize: "Medium",
+  },
+
+  // AI & Future of Learning
+  ai_community: {
+    name: "AI Twitter",
+    hashtag: "#AITwitter",
+    description: "AI enthusiasts and practitioners",
+    bestFor: ["feature_highlight", "subtle_product", "tech_learning"],
+    audienceSize: "Large",
+  },
+  future_of_work: {
+    name: "Future of Learning",
+    hashtag: "#FutureOfLearning",
+    description: "Forward-thinking educators and learners",
+    bestFor: ["curiosity_insights", "subtle_product", "knowledge_building"],
+    audienceSize: "Small",
+  },
+
+  // Productivity & Self-Improvement
+  productivity: {
+    name: "Productivity Twitter",
+    hashtag: "#ProductivityTips",
+    description: "Productivity enthusiasts and life hackers",
+    bestFor: ["productivity_hacks", "learning_tips", "knowledge_building"],
+    audienceSize: "Medium",
+  },
+  growth_mindset: {
+    name: "Growth Mindset",
+    hashtag: "#GrowthMindset",
+    description: "Personal development and continuous learning",
+    bestFor: ["curiosity_insights", "learning_tips", "engagement_questions"],
+    audienceSize: "Medium",
+  },
+};
+
+// Function to recommend communities for a post category
+function getRecommendedCommunities(category: string): string[] {
+  const recommended: string[] = [];
+
+  Object.entries(TWITTER_COMMUNITIES).forEach(([key, community]) => {
+    if (community.bestFor.includes(category)) {
+      recommended.push(community.name);
+    }
+  });
+
+  // Return top 3 communities, prioritizing by audience size
+  return recommended.slice(0, 3);
+}
+
+// Get primary community hashtag for a category
+function getPrimaryCommunityHashtag(category: string): string {
+  const communityPriority: Record<string, string> = {
+    learning_tips: "#EduTwitter",
+    curiosity_insights: "#AcademicChatter",
+    productivity_hacks: "#ProductivityTips",
+    knowledge_building: "#EduTwitter",
+    student_life: "#StudyWithMe",
+    tech_learning: "#DevCommunity",
+    engagement_questions: "#EduTwitter",
+    subtle_product: "#BuildInPublic",
+    build_in_public: "#BuildInPublic",
+    feature_highlight: "#EdTech",
+    testimonial_style: "#EdTech",
+  };
+
+  return communityPriority[category] || "#LearningTwitter";
+}
+
 // Content categories following 80/20 rule
 // 80 value posts + 20 promotional posts
 const CONTENT_CATEGORIES = {
@@ -258,6 +387,9 @@ interface GeneratedPost {
   image?: string;
   category: string;
   target_icp: string;
+  recommended_communities: string;
+  primary_community: string;
+  community_hashtag: string;
 }
 
 function generatePosts(): GeneratedPost[] {
@@ -299,6 +431,11 @@ function generatePosts(): GeneratedPost[] {
         message += "\n\n" + hashtags.join(" ");
       }
 
+      // Get community recommendations
+      const recommendedCommunities = getRecommendedCommunities(category);
+      const primaryCommunity = recommendedCommunities[0] || "EduTwitter";
+      const communityHashtag = getPrimaryCommunityHashtag(category);
+
       posts.push({
         message,
         scheduled_date: formatScheduledDate(daysFromNow, hour),
@@ -306,6 +443,9 @@ function generatePosts(): GeneratedPost[] {
         image: image?.file || "",
         category,
         target_icp: targetIcp,
+        recommended_communities: recommendedCommunities.join(", "),
+        primary_community: primaryCommunity,
+        community_hashtag: communityHashtag,
       });
 
       postId++;
@@ -325,10 +465,14 @@ async function exportToExcel(posts: GeneratedPost[]) {
   const worksheet = workbook.addWorksheet("Twitter Posts");
 
   // Define columns matching Odoo Social Marketing expected format
+  // Plus community recommendations for manual cross-posting
   worksheet.columns = [
     { header: "message", key: "message", width: 100 },
     { header: "scheduled_date", key: "scheduled_date", width: 20 },
     { header: "state", key: "state", width: 12 },
+    { header: "primary_community", key: "primary_community", width: 20 },
+    { header: "community_hashtag", key: "community_hashtag", width: 18 },
+    { header: "recommended_communities", key: "recommended_communities", width: 50 },
     { header: "image", key: "image", width: 40 },
     { header: "category", key: "category", width: 20 },
     { header: "target_icp", key: "target_icp", width: 15 },
@@ -396,6 +540,19 @@ async function main() {
 
   console.log(`\n📅 Schedule: ${Math.ceil(posts.length / 3)} days (3 posts/day at 9am, 1pm, 6pm)`);
 
+  // Community distribution
+  const communityCount: Record<string, number> = {};
+  posts.forEach((p) => {
+    communityCount[p.primary_community] = (communityCount[p.primary_community] || 0) + 1;
+  });
+
+  console.log(`\n🌐 Community Distribution:`);
+  Object.entries(communityCount)
+    .sort((a, b) => b[1] - a[1])
+    .forEach(([community, count]) => {
+      console.log(`   ${community}: ${count} posts`);
+    });
+
   const filepath = await exportToExcel(posts);
 
   console.log(`\n✅ Successfully generated ${posts.length} posts`);
@@ -403,7 +560,8 @@ async function main() {
 
   console.log(`\n📋 Sample posts:`);
   posts.slice(0, 3).forEach((post, idx) => {
-    console.log(`\n${idx + 1}. [${post.category}] ${post.message.substring(0, 80)}...`);
+    console.log(`\n${idx + 1}. [${post.category}] → ${post.primary_community}`);
+    console.log(`   ${post.message.substring(0, 70)}...`);
   });
 
   console.log("\n📤 Next steps:");
@@ -411,13 +569,18 @@ async function main() {
   console.log("   2. Go to Odoo Social Marketing → Social Posts");
   console.log("   3. Click 'Upload Data File'");
   console.log(`   4. Select: ${filepath}`);
-  console.log("   5. Map columns and import\n");
+  console.log("   5. Map columns: message, scheduled_date, state");
+  console.log("   6. Use 'primary_community' column for manual community cross-posting\n");
 
   console.log("💡 Odoo Column Mapping:");
   console.log("   - message → Message/Content");
   console.log("   - scheduled_date → Scheduled Date");
   console.log("   - state → Status");
-  console.log("   - image → Image (optional - for reference only)");
+  console.log("");
+  console.log("🌐 Community Columns (for manual cross-posting):");
+  console.log("   - primary_community → Best community for this post");
+  console.log("   - community_hashtag → Hashtag to include");
+  console.log("   - recommended_communities → All relevant communities");
 }
 
 main().catch((error) => {
