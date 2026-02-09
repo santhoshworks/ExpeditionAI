@@ -2,8 +2,8 @@ import { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
     return {
-        name: 'ExpeditionAI - AI-Powered Learning',
-        short_name: 'ExpeditionAI',
+        name: 'ThoughtMap - AI-Powered Learning',
+        short_name: 'ThoughtMap',
         description: 'Master any topic with AI-powered learning expeditions. Create branching conversations, explore trails, and test knowledge with personalized quizzes and flashcards.',
         start_url: '/dashboard',
         display: 'standalone',

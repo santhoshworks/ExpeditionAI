@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli'
 
 const config: CapacitorConfig = {
-  appId: 'com.expeditionai.app',
-  appName: 'ExpeditionAI',
+  appId: 'space.thoughtmap.app',
+  appName: 'ThoughtMap',
   webDir: 'out',
   server: {
     // Use live reload during development
@@ -33,7 +33,7 @@ const config: CapacitorConfig = {
     },
   },
   ios: {
-    scheme: 'ExpeditionAI',
+    scheme: 'ThoughtMap',
     contentInset: 'automatic',
   },
   android: {

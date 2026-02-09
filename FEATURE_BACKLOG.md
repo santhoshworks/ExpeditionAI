@@ -1,4 +1,4 @@
-# ExpeditionAI - Feature Backlog
+# ThoughtMap - Feature Backlog
 
 > This file tracks planned features for the spaced repetition system.
 > Claude can pick up and continue implementation from this list.

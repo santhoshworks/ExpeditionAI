@@ -1,5 +1,5 @@
 /**
- * ExpeditionAI - Hero Banner Demo Video Recorder
+ * ThoughtMap - Hero Banner Demo Video Recorder
  *
  * Records a polished walkthrough of the app's key features using Playwright.
  *
@@ -118,7 +118,7 @@ async function recordDemo() {
     mkdirSync(CONFIG.outputDir, { recursive: true });
   }
 
-  console.log("🎬 Starting ExpeditionAI demo recording...");
+  console.log("🎬 Starting ThoughtMap demo recording...");
   console.log(`   📐 Viewport: ${CONFIG.viewport.width}x${CONFIG.viewport.height}`);
   console.log(`   🌐 URL: ${CONFIG.baseUrl}`);
   console.log(`   📁 Output: ${CONFIG.outputDir}`);
