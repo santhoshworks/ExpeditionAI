@@ -102,6 +102,7 @@ export function useMessages(trailId: string) {
     enabled: !!trailId,
     staleTime: 30000, // Consider data fresh for 30 seconds
     gcTime: 300000, // Keep in cache for 5 minutes
+    refetchOnWindowFocus: false, // Local chat state is source of truth during active chat
   })
 }
 

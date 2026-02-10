@@ -341,25 +341,34 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
     })
   }, [existingMessages, triviaEnabled])
 
-  // Update current trail ref and reset UI state when switching trails
+  // Track whether we've initialized messages for the current trail
+  const hasInitializedRef = useRef<string | null>(null)
+
+  // Reset UI state when switching trails
   useEffect(() => {
     currentTrailIdRef.current = trailId
-    // Clear the "new response" indicator when visiting this trail
     clearTrailNewResponse(trailId)
     setIsLoading(false)
     setError(undefined)
     setFollowUpQuestions([])
+    setMessages([])
+    hasInitializedRef.current = null
+  }, [trailId, clearTrailNewResponse])
+
+  // Initialize messages from DB — only once per trail after initial fetch
+  useEffect(() => {
+    if (hasInitializedRef.current === trailId) return
+    if (!isFetched) return
+
+    hasInitializedRef.current = trailId
     if (formattedExistingMessages.length > 0) {
       setMessages(formattedExistingMessages)
-      // Set follow-up questions from the last assistant message if it has any
       const lastAssistantMessage = [...formattedExistingMessages].reverse().find(m => m.role === "assistant")
       if (lastAssistantMessage?.followUpQuestions && lastAssistantMessage.followUpQuestions.length > 0) {
         setFollowUpQuestions(lastAssistantMessage.followUpQuestions)
       }
-    } else {
-      setMessages([])
     }
-  }, [trailId, formattedExistingMessages, clearTrailNewResponse])
+  }, [trailId, isFetched, formattedExistingMessages])
 
   // Scroll to bottom when new messages arrive, but stay at top for empty state
   useEffect(() => {
