@@ -145,7 +145,7 @@ export function Sidebar() {
                 <div className="flex-1 px-4 space-y-1.5 overflow-y-auto">
                     {!collapsed && <p className="px-4 py-2 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Main Menu</p>}
                     {sidebarItems.map((item) => (
-                        <Link key={item.href} href={item.href}>
+                        <Link key={item.href} href={item.href} aria-current={pathname === item.href ? "page" : undefined}>
                             <div
                                 className={cn(
                                     "flex items-center gap-3.5 py-3 rounded-2xl transition-all duration-200 group relative",
@@ -173,7 +173,7 @@ export function Sidebar() {
                             {!collapsed && <p className="px-4 py-2 mt-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Study Tools</p>}
                             {collapsed && <div className="h-px bg-slate-100 dark:bg-slate-800 my-2" />}
                             {studyToolsItems.map((item) => (
-                                <Link key={item.href} href={item.href}>
+                                <Link key={item.href} href={item.href} aria-current={pathname === item.href ? "page" : undefined}>
                                     <div
                                         className={cn(
                                             "flex items-center gap-3.5 py-3 rounded-2xl transition-all duration-200 group relative",

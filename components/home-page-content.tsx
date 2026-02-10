@@ -34,6 +34,14 @@ export function HomePageContent() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 overflow-x-hidden selection:bg-indigo-100 selection:text-indigo-900">
+      {/* Skip to content - visible only on keyboard focus */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-indigo-600 focus:text-white focus:rounded-lg focus:text-sm focus:font-semibold focus:shadow-lg"
+      >
+        Skip to content
+      </a>
+
       {/* Dynamic Background */}
       <div className="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-indigo-50 via-white to-slate-50" />
       <div className="fixed inset-0 -z-10 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
@@ -41,7 +49,7 @@ export function HomePageContent() {
       {/* Navigation */}
       <PublicHeader currentPage="home" />
 
-      <main>
+      <main id="main-content">
         {/* Hero Section */}
         <section className="relative pt-32 pb-24 lg:pt-52 lg:pb-40 overflow-hidden">
           <div className="container mx-auto px-6">
@@ -88,6 +96,8 @@ export function HomePageContent() {
                 <div className="bg-slate-950 rounded-[1.5rem] overflow-hidden aspect-[16/10] relative border border-slate-800">
                   <video
                     src="/videos/demo.mp4"
+                    poster="/images/expedition_with_trails_example.jpeg"
+                    preload="metadata"
                     autoPlay
                     loop
                     muted

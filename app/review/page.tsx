@@ -615,7 +615,7 @@ export default function ReviewPage() {
           {/* Instructions */}
           {!state.isFlipped && (
             <p className="text-center text-sm text-slate-500 mt-4">
-              Tap the card or press <kbd className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-xs">Space</kbd> to reveal
+              Tap the card or press <kbd className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-xs font-mono">Space</kbd> to reveal, then <kbd className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-xs font-mono">1</kbd>-<kbd className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-xs font-mono">4</kbd> to rate
             </p>
           )}
 

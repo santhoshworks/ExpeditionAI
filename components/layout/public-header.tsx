@@ -58,6 +58,16 @@ function NavDropdown({ label, items, currentPage }: DropdownProps) {
             onMouseLeave={() => setIsOpen(false)}
         >
             <button
+                aria-expanded={isOpen}
+                aria-haspopup="true"
+                onClick={() => setIsOpen(prev => !prev)}
+                onKeyDown={(e) => {
+                    if (e.key === 'Escape') setIsOpen(false)
+                    if (e.key === 'ArrowDown' && !isOpen) {
+                        e.preventDefault()
+                        setIsOpen(true)
+                    }
+                }}
                 className={`flex items-center gap-1 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors ${currentPage === label.toLowerCase() ? 'text-indigo-600 dark:text-indigo-400' : ''
                     }`}
             >
@@ -66,13 +76,21 @@ function NavDropdown({ label, items, currentPage }: DropdownProps) {
             </button>
 
             {isOpen && (
-                <div className="absolute top-full left-0 pt-2 w-64">
+                <div
+                    className="absolute top-full left-0 pt-2 w-64"
+                    role="menu"
+                    onKeyDown={(e) => {
+                        if (e.key === 'Escape') setIsOpen(false)
+                    }}
+                >
                     <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
                         {items.map((item) => (
                             <Link
                                 key={item.href}
                                 href={item.href}
-                                className="flex items-start gap-3 p-3 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                                role="menuitem"
+                                className="flex items-start gap-3 p-3 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors focus:bg-slate-50 dark:focus:bg-slate-800 outline-none"
+                                onClick={() => setIsOpen(false)}
                             >
                                 <div className="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center flex-shrink-0">
                                     <item.icon className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />

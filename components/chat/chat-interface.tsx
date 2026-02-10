@@ -762,6 +762,7 @@ export function ChatInterface({ trailId, expeditionId, model, trailTitle, trailS
             messages={messages}
             isLoading={isLoading}
             error={error}
+            onRetry={handleResend}
             onUpdateMessage={handleUpdateMessage}
             aiResponseStartRef={aiResponseStartRef}
             emptyState={emptyState}
